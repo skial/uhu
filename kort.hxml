@@ -1,0 +1,8 @@
+-cp src
+-lib mlib
+-lib munit
+-lib thx
+-lib hscript
+-neko bin/kort/run.n
+-D uhu_command_line
+-main Kort
