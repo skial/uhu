@@ -1,0 +1,1 @@
+Used to tell Hocco if it should attempt to look for ```.md``` files based on the current fields name and use it. Default is ```false```.

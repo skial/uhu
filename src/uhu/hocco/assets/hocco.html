@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>::title::.hx</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" media="all" href="hocco.css" />
+	<script src="jump_hocco.js?v=::date::"></script>
+</head>
+<body>
+	<div id="container"><div id="background"></div>
+		<table cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<th class="docs"><h1>::title::.hx</h1></th>
+					<th class="code"></th>
+				</tr>
+			</thead>
+			<tbody>::foreach sections::
+				<tr id="section-::id::">
+					<td class="docs">
+						<div class="pilwrap"><a class="pilcrow" href="#section-::id::">&#182;</a></div>
+						::docs_text::
+					</td>
+					<td class="code">::code_text::</td>
+				</tr>::end::
+			</tbody>
+		</table>
+	</div>
+	<script>
+		(function() {
+			if (jump_names.length > 1) {
+				var jt = document.createElement('div'), jw = document.createElement('div'), jp = document.createElement('div');
+				
+				jt.setAttribute('id', 'jump_to');
+				jt.appendChild(document.createTextNode('Jump To ...'));
+				
+				jw.setAttribute('id', 'jump_wrapper');
+				jp.setAttribute('id', 'jump_page');
+				
+				jt.appendChild(jw);
+				jw.appendChild(jp);
+				
+				var __name__ = '', link;
+				
+				for (var i = 0, l = jump_names.length; i < l; i++) {
+					__name__ = jump_names[i];
+					link = document.createElement('a');
+					link.href = __name__ + '.html';
+					link.appendChild(document.createTextNode(__name__ + '.hx'));
+					link.className = 'source';
+					jp.appendChild(link);
+				}
+				
+				document.body.appendChild(jt);
+			}
+		})();
+	</script>
+</body>
+</html>

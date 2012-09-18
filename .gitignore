@@ -1,0 +1,62 @@
+*.paths
+*.hxproj
+*.png
+*.gif
+*.jpeg
+*.jpg
+*.css
+*.jar
+*.n
+
+bin/
+.temp
+documentation
+hx.html5
+
+src/_uhu
+src/com
+src/hedge
+src/less
+src/sass
+
+src/unit tests/mustache/.temp
+src/unit tests/mustache/gen-partial
+src/unit tests/mustache/report
+
+# from html5 boilerplate - http://html5boilerplate.com/
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*~
+
+# OS or Editor folders
+.DS_Store
+.cache
+.project
+.settings
+nbproject
+thumbs.db
+
+# Dreamweaver added files
+_notes
+dwsync.xml
+
+# Komodo
+*.komodoproject
+.komodotools
+
+# Folders to ignore
+.hg
+.svn
+publish
+.idea
+
+# build script local files
+build/buildinfo.properties
+build/config/buildinfo.properties

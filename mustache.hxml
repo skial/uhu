@@ -1,0 +1,12 @@
+-cp src
+-lib mpartial
+-lib munit
+-lib mcover
+-lib thx
+-lib mlib
+-lib mdown
+-lib tink_macros
+-neko bin/mustache/mustache.n
+-main Mustache
+--macro "Hocco.setDefaults( {output_path:'documentation/mustache/', lookup_files:true, directory_path:'src/templates/', show_privates:true } )"
+--macro Hocco.me()

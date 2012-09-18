@@ -1,0 +1,1 @@
+Used to hold processed Markdown text.

@@ -1,0 +1,1 @@
+Used to hold the path where Hocco should write all output to. Default is ```Sys.getCwd() + 'docs'```.

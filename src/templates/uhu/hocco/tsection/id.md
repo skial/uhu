@@ -1,0 +1,1 @@
+Holds position information used for permalinks in the html output.

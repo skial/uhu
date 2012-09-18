@@ -1,0 +1,1 @@
+Used to tell Hocco if ```private``` fields should be processed. Default is ```false```.

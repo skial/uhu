@@ -1,0 +1,1 @@
+Holds possible metadata information about the field.

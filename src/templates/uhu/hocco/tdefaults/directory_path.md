@@ -1,0 +1,1 @@
+Used to tell Hocco the based directory to look for ```.md``` files. It always starts with ```Sys.getCwd()```.

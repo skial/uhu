@@ -1,0 +1,1 @@
+Tell's if the field is public;

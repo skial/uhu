@@ -1,0 +1,1 @@
+Used to tell Hocco if the fields access type should be printed. Default is ```true```.

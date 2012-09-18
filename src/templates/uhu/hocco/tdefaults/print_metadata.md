@@ -1,0 +1,1 @@
+Used to tell Hocco if it should build and print out any metadata the field may attached to it. Default is ```false```.
