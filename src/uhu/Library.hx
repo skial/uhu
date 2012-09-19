@@ -106,7 +106,6 @@ class Library {
 		return { expr : EConst(CString(f)), pos : p };
 	}
 	
-	#if js
 	@:macro
 	public static function untype(e:ExprOf<Dynamic>):Expr {
 		/**
@@ -114,7 +113,6 @@ class Library {
 		 */
 		return Context.parse(Std.format('untyped __js__("${e.toString()}")'), Context.currentPos());
 	}
-	#end
 	
 	/**
 	 * https://developers.google.com/closure/compiler/docs/api-tutorial3#propnames
