@@ -14,6 +14,9 @@ Open your command prompt and enter ```haxelib install Hocco```. That's it.
 Start off by marking your classes with ```@:hocco``` metadata. Then in your ```.hxml``` file add ```--macro Hocco.me()``` which will generate
 documentation for your project.
 
+You can read a more detailed introduction to Hocco and how to change the default settings per class, 
+enum or typedef or for the entire project. [Overview of Hocco](https://github.com/skial/uhu/wiki/Hocco)
+
 ## _BETA_ Albert { ##
 
 Albert is [Mustache](http://mustache.github.com/), a framework-agnostic way to render logic-free views.
@@ -32,13 +35,23 @@ At the moment, clone this repo.
 ```
 import Mustache;
 
-var template = 'Hello {{name}}
-You have just won ${{value}}!
-{{#in_ca}}
-Well, ${{taxed_value}}, after taxes.
-{{/in_ca}}';
-var mu = new Mustache();
-var result = mu.render(template, { "name": "Chris", "value": 10000, "taxed_value": 10000 - (10000 * 0.4), "in_ca": true });
+class Main {
+	
+	public function main() {
+		var mu = new Mustache();
+		
+		var template = "Hello {{name}}
+		You have just won ${{value}}!
+		{{#in_ca}}
+		Well, ${{taxed_value}}, after taxes.
+		{{/in_ca}}";
+		
+		var result = mu.render(template, { "name": "Chris", "value": 10000, "taxed_value": 10000 - (10000 * 0.4), "in_ca": true });
+		
+		trace(result);
+	}
+	
+}
 ```
 
 Will return -
