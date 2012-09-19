@@ -16,6 +16,7 @@ import uhu.mu.Parser;
  * @author Skial Bainn
  */
  
+@:hocco
 class Renderer {
 	
 	private var _parser:Parser;
@@ -41,7 +42,6 @@ class Renderer {
 		_values = new Hash<Dynamic>();
 		_cache = new Hash<Dynamic>();
 		_partials = new Hash<String>();
-		//_sections = new Hash<Bool>();
 		_buffer = new StringBuf();
 	}
 	
@@ -49,7 +49,7 @@ class Renderer {
 		if (Std.is(view, Hash)) {
 			throw 'Can/t access the view. It cant/t be a Hash object. Sorry!';
 		}
-		//trace(parser.tokens);
+		
 		_view = view;
 		_tokens = parser.tokens;
 		_template = parser.template;
@@ -64,19 +64,15 @@ class Renderer {
 		var result:Dynamic = null;
 		
 		if (context == null) context = [_view];
-		//trace(context);
-		//trace(tag);
+		
 		switch (tag) {
 			case Static(c):
-				//trace(c.replace(' ', '_s_'));
 				_buffer.add(c);
 				
 			case Normal(c):
 				context.push(_view);
-				//trace(c);
-				//trace(context);
+				
 				if (func == null) {
-					//result = _getField(context, c);
 					
 					if (c != '.') {
 						var names:Array<String> = (c.indexOf('.') == -1) ? [c] : c.split('.');
@@ -89,8 +85,6 @@ class Renderer {
 						result = _walkContext(c, context);
 					}
 					
-					//trace(result);
-					
 					if (result != null) {
 						result = StringTools.htmlEscape('' + result).split('"').join('&quot;');
 					} else {
@@ -102,11 +96,9 @@ class Renderer {
 					_buffer.add(func(c, callback(_getField, _view)));
 				}
 				
-			//case Unescape(c, ot, ct):
 			case Unescape(c):
 				context.push(_view);
 				if (func == null) {
-					//result = _getField(context, c);
 					
 					if (c != '.') {
 						var names:Array<String> = (c.indexOf('.') == -1) ? [c] : c.split('.');
@@ -128,7 +120,6 @@ class Renderer {
 					_buffer.add(func(c, callback(_getField, _view)));
 				}
 				
-			//case Section(tag, otag, optional, ctag, tokens, template, inverted):
 			case Section(tag, opening, tokens, template, inverted):
 				
 				var names:Array<String> = (tag.indexOf('.') == -1) ? [tag] : tag.split('.');
@@ -218,10 +209,8 @@ class Renderer {
 					
 				}
 				
-			//case Comments(c, ot, ct):
 			case Comments(c):
 				
-			//case Partials(c, ot, ct, psr):
 			case Partials(c, psr):
 				
 				var parsed = psr();
@@ -238,11 +227,10 @@ class Renderer {
 					
 				}
 				
-			//case Delimiter(c, ot, ct):
 			case Delimiter(c):
 				
 			default:
-				trace('renderer: default');
+				
 		}
 	}
 	
@@ -331,83 +319,7 @@ class Renderer {
 	}
 	
 	private function _getField(obj:Dynamic, path:String):Dynamic {
-		/*var parts:Array<String> = [];
-		var context:Dynamic = obj;
-		
-		if (path.indexOf('.') != -1) {
-			parts = path.split('.');
-		}
-		
-		if (parts.length == 0) {
-			context = Reflect.field(obj, path);
-		} else {
-			
-			for (part in parts) {
-				
-				context = Reflect.field(context, part);
-				
-			}
-			
-		}
-		
-		return context;*/
 		return _walkContext(path, obj);
-	}
-	
-	private function _sectionFalseOrEmpty(object:Dynamic, isArray:Bool, isBool:Bool):Bool {
-		if (object == null)
-			return true;
-		
-		if (isArray && cast (object, Array<Dynamic>).length == 0)
-			return true;
-		
-		if (isBool && object == false)
-			return true;
-			
-		return false;
-	}
-	
-	private function _sectionNonEmptyArray(array:Array<Dynamic>, tokens:Array<ETag>):Void {
-		for (object in array) {
-			for (token in tokens) {
-				processETag(token, [object, _view]);
-			}
-		}
-	}
-	
-	private function _sectionLambdas(method:Dynamic, name:String, context:Dynamic, tokens:Array<ETag>, template:String):Void {
-		var arity:String = StringTools.trim('' + Reflect.field(context, name));
-		
-		if (arity == '#function:0') {
-			context.setField(name, context.callMethod(method, []) );
-			
-			for (t in tokens) {
-				processETag(t, [context]);
-			}
-		}
-		
-		if (arity == '#function:2') {
-			_buffer.add(method(template, _render));
-		}
-		
-	}
-	
-	private function _sectionNonFalseValues(tokens:Array<ETag>, ?object:Dynamic):Void {
-		if (object == null) object = {};
-		
-		for (t in tokens) {
-			processETag(t, [object, _view]);
-		}
-	}
-	
-	private function _sectionInverted(object:Dynamic, isArray:Bool, isBool:Bool):Bool {
-		if (isArray && cast(object, Array<Dynamic>).length != 0)
-			return true;
-		
-		if (isBool && object == true)
-			return true;
-		
-		return false;
 	}
 	
 }

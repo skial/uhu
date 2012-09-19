@@ -6,6 +6,7 @@ package uhu.mu.typedefs;
  */
 
 //open:String, content:String, close:String, pos:TPosition
+@:hocco
 typedef TPartial = {
 	var otag:String;
 	var content:String;

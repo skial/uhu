@@ -14,18 +14,19 @@ import uhu.mu.Settings;
  * Ron Burgundy
  * Albert Einstein
  */
+@:hocco
 class Mustache {
 	
-	// http://semver.org/
 	public static var VERSION:String = '0.2.0';
 	
 	private var _parser:Parser;
 	private var _renderer:Renderer;
 	
+	@:ignore
 	public static function main() {
 		var mu = new Mustache();
 	}
-
+	
 	public function new() {
 		
 	}

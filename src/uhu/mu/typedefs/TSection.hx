@@ -4,7 +4,7 @@ package uhu.mu.typedefs;
  * ...
  * @author Skial Bainn
  */
-
+@:hocco
 typedef TSection = {
 	//var otag:String;
 	var opening:String;

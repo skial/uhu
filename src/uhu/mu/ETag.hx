@@ -8,6 +8,7 @@ import uhu.mu.Common;
  * @author Skial Bainn
  */
 
+@:hocco
 enum ETag {
 	//	static text
 	Static(content:String);
