@@ -77,13 +77,13 @@ The extendable, all encompassing minifier/optimiser
 
 Kort uses the following -
 
-* Google Closure Compiler : to minify Javascript files
-* YUI Compressor : to minify inline Javascript and CSS files
-* HTML Compressor : to minify HTML files, which uses previous two as well
-* Turbo-JPGTran : to optimise JPG files
-* OptiPNG : to optimise PNG files
-* PNGQuant : to further optimise PNG files
-* GIFsicle : to optimise GIF files
+* [Google Closure Compiler](https://developers.google.com/closure/compiler/) : to minify Javascript files
+* [YUI Compressor](http://developer.yahoo.com/yui/compressor/) : to minify inline Javascript and CSS files
+* [HTML Compressor](http://code.google.com/p/htmlcompressor/) : to minify HTML files, which uses previous two as well
+* [Turbo-JPGTran](http://libjpeg-turbo.virtualgl.org/) : to optimise JPG files
+* [OptiPNG](http://optipng.sourceforge.net/) : to optimise PNG files
+* [PNGQuant](http://pngquant.org/) : to further optimise PNG files
+* [GIFsicle](http://www.lcdf.org/gifsicle/) : to optimise GIF files
 
 ### Quick Start ###
 
