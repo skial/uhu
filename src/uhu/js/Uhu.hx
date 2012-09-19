@@ -84,7 +84,8 @@ class Uhu  {
 
 	var api : JSGenApi;
 	var buf : StringBuf;
-	var bufA:Array<{n:String, b:StringBuf}>;
+	//var bufA:Array<{n:String, b:StringBuf}>;
+	var bufA:Hash<StringBuf>;
 	var inits : List<TypedExpr>;
 	var statics : List<{ c : ClassType, f : ClassField }>;
 	var packages : Hash<Bool>;
@@ -99,12 +100,14 @@ class Uhu  {
 		/**
 		 * Create the array which will hold all the generated javascript
 		 */
-		bufA = new Array<{n:String, b:StringBuf}>();
+		//bufA = new Array<{n:String, b:StringBuf}>();
+		bufA = new Hash<StringBuf>();
 		
 		/**
 		 * Add the first string buffer
 		 */
-		bufA.push( { n:'UhuEntry', b:buf } );
+		//bufA.push( { n:'UhuEntry', b:buf } );
+		bufA.set('UhuEntry', buf);
 		inits = new List();
 		statics = new List();
 		packages = new Hash();
@@ -128,7 +131,8 @@ class Uhu  {
 	
 	function createFile(c:BaseType):Void {
 		buf = new StringBuf();
-		bufA.push({n:getPath(c), b:buf});
+		//bufA.push({n:getPath(c), b:buf});
+		bufA.set(getPath(c), buf);
 	}
 
 	function field(p) {
@@ -158,9 +162,14 @@ class Uhu  {
 		}
 		
 	}
-
+	
+	public static var dot:String = '.';
+	
 	function getPath( t : BaseType ) {
-		return (t.pack.length == 0) ? t.name : t.pack.join(".") + "." + t.name;
+		//var result = (t.pack.length == 0) ? t.name : t.pack.join(dot) + dot + t.name;
+		var result = (t.pack.length == 0) ? t.name : t.pack.concat([t.name]).join(dot);
+		return result != null ? '' : result;
+		//return (t.pack.length == 0) ? t.name : t.pack.concat([t.name]).join(dot);
 	}
 
 	function checkFieldName( c : ClassType, f : ClassField ) {
@@ -525,9 +534,10 @@ class Uhu  {
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
 		 * from tripping as Boot.hx sets it as Function.prototype["$bind"].
 		 */
-		for (f in bufA) {
-			var file = neko.io.File.write(uhu.nativePath + sep + f.n + '.js', true);
-			file.writeString(f.b.toString().replace('.$bind', '["$bind"]'));
+		//for (f in bufA) {
+		for (f in bufA.keys()) {
+			var file = neko.io.File.write(uhu.nativePath + sep + f + '.js', true);
+			file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
 			file.close();
 		}
 		
@@ -540,8 +550,9 @@ class Uhu  {
 		for (op in ['WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']) {
 			var file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
 			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --compilation_level ${op} --js_output_file ${dir.fileName} '));
-			for (f in bufA) {
-				file.writeString(Std.format('--js .${sep}_uhu_${sep}${f.n}.js '));
+			for (f in bufA.keys()) {
+				//file.writeString(Std.format('--js .${sep}_uhu_${sep}${f}.js '));
+				file.writeString('--js .' + sep + '_uhu_' + sep + f + '.js ');
 			}
 			file.close();
 		}
@@ -561,8 +572,7 @@ class Uhu  {
 		print(_str, tab);
 	}
 	
-	@:macro
-	public static function fprint(e:Expr , ?tab:Bool = true) {
+	@:macro	public static function fprint(e:Expr , ?tab:Bool = true) {
 		var pos = haxe.macro.Context.currentPos();
 		var ret = haxe.macro.Format.format(e);
 		var boo = Context.parse('' + tab, pos);
@@ -578,10 +588,11 @@ class Uhu  {
 	}
 	
 	public function repeat(s : String, times : Int)	{
-		var b = [];
-		for(i in 0...times)
-			b.push(s);
-		return b.join('');
+		var result = '';
+		for (i in 0...times) {
+			result += s;
+		}
+		return result;
 	}
 	
 	/**
@@ -651,7 +662,8 @@ class Uhu  {
 	/**
 	 * UHU GOD!
 	 */
-	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
+	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> }):String {
+		
 		switch(type) {
 			/**
 			 * If not null, then send back through buildRecordType and return
@@ -670,6 +682,9 @@ class Uhu  {
 			 */
 			case TEnum(_t, _p):
 				var enm:EnumType = _t.get();
+				
+				if (enm.name.length == 0) return '';
+				
 				var path = checkType(getPath(enm));
 				if (_p.length != 0) {
 					path += '.<';
@@ -696,6 +711,9 @@ class Uhu  {
 			 */
 			case TInst(_t, _p):
 				var cls:ClassType = _t.get();
+				
+				if (cls.name.length == 0) return '';
+				
 				var path = getPath(cls);
 				
 				/*
@@ -777,10 +795,11 @@ class Uhu  {
 			case TAnonymous(_a):
 				if (data != null) {
 					var def:BaseType = data.parent;
+					if (def.name.length == 0) return '';
 					var path:String = checkType(getPath(def));
 					var anon:AnonType = _a.get();
 					
-					if (typedefs.exists(path) == false && anon.fields.length != 0) {
+					if (!typedefs.exists(path) && anon.fields.length != 0) {
 						var javaDoc = new Array<String>();
 						var output = '@typedef {{';
 						var prevBuf = buf;
@@ -793,7 +812,7 @@ class Uhu  {
 						
 						for (f in anon.fields) {
 							if (f != anon.fields[0]) output += ', ';
-							output += Std.format('${f.name}:${buildRecordType(f.type)}');
+							output += f.name + ':' + buildRecordType(f.type);
 						}
 						
 						output += '}}';
@@ -819,7 +838,8 @@ class Uhu  {
 					var output = '{';
 					for (f in anon.fields) {
 						if (f != anon.fields[0]) output += ', ';
-						output += Std.format('${f.name}:${buildRecordType(f.type)}');
+						//output += Std.format('${f.name}:${buildRecordType(f.type)}');
+						output += f.name + ':' + buildRecordType(f.type);
 					}
 					output += '}';
 					return output;
@@ -854,15 +874,13 @@ class Uhu  {
 	public function printType(type:Type, ?optional:Bool = false):String {
 		var _type = buildRecordType(type);
 		
-		if (optional) {
-			_type += '=';
-		}
+		if (optional) _type += '=';
 		
 		return _type;
 		
 	}
 	
-	public function addFieldAnnotation(field:ClassField, ?self:String = '|||||||||||||||||'):Void {
+	public function addFieldAnnotation(field:ClassField, ?self:String = '|'):Void {
 		
 		var javaDocs:Array<String> = new Array<String>();
 		var fieldAccess:String = printAccess(field);

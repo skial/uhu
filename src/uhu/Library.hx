@@ -9,8 +9,10 @@ using tink.macro.tools.MacroTools;
 #end 
 
 #if js
+import UserAgent;
+import UserAgentContext;
 import js.Lib;
-import js.Dom;
+//import js.Dom;
 import uhu.js.typedefs.TBoundingClientRect;
 import uhu.js.typedefs.TDocument;
 import uhu.js.typedefs.TWindow;
@@ -27,12 +29,12 @@ class Library {
 	public static var window:TWindow = untyped __js__('window');
 	public static var document:TDocument = untyped __js__('document');
 	
-	public static inline function getBoundingClientRect(element:HtmlDom):TBoundingClientRect {
+	public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
 		return untyped element.getBoundingClientRect();
 	}
 	
-	public static function getComputedStyle(element:HtmlDom):Style untyped {
-		var style:Style = null;
+	public static function getComputedStyle(element:HTMLElement):CSSStyleDeclaration untyped {
+		var style:CSSStyleDeclaration = null;
 		
 		if (__js__('window').getComputedStyle != null) {
 			style = __js__('window').getComputedStyle(element, null);
@@ -47,20 +49,20 @@ class Library {
 	 * Got this from [domtools (dtx, detox)?](https://github.com/jasononeil/domtools) 
 	 * Thanks!
 	 */
-	public static function parse(html:String):HtmlDom {
-		var e = Lib.document.createElement('div');
+	public static function parse(html:String):HTMLElement {
+		var e = UserAgent.window.document.createElement('div');
 		e.innerHTML = html;
-		return e.firstChild;
+		return cast e.firstChild;
 	}
 	
 	/**
 	 * Not cool
 	 */
-	public static inline function addEventListener(element:HtmlDom, type:String, listener:Dynamic, ?useCapture:Bool):Void {
+	public static inline function addEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
 		untyped element.addEventListener(type, listener, useCapture);
 	}
 	
-	public static inline function removeEventListener(element:HtmlDom, type:String, listener:Dynamic, ?useCapture:Bool):Void {
+	public static inline function removeEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
 		untyped element.removeEventListener(type, listener, useCapture);
 	}
 	#end
