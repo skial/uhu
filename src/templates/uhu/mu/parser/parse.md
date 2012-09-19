@@ -1,0 +1,1 @@
+Here everything is kicked off. Doing some simple checks, before we start searching for mustache tokens.

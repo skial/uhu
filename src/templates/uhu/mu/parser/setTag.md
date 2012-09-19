@@ -1,0 +1,1 @@
+This is called whenever a delimiter tag has been found, rebuilding both regular expressions used in method ```scan```.

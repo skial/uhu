@@ -1,0 +1,2 @@
+The only method of interest. It takes your ```template```, sending it through ```Parser```, which returns an array of tokens,
+which are then sent through ```Renderer```, which returns the newly built string.
