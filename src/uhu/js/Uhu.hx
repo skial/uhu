@@ -81,6 +81,35 @@ using tink.core.types.Option;
  */
 
 class Uhu  {
+	
+	public static var charList = {
+		dot:'.',
+		newline:'\n',
+		tab:'\t',
+		brace: {
+			open:'{',
+			close:'}'
+		},
+		variable:'var',
+		array: {
+			open:'[',
+			close:']'
+		},
+		colon:':',
+		comma:',',
+		google: {
+			_typedef:'@typedef',
+			_param:'@param',
+			_const:'@const',
+			_implements:'@implements',
+			_interface:'@interface',
+			_return:'@return'
+		},
+		space:' ',
+		empty:'',
+		greater:'>',
+		lesser:'<'
+	}
 
 	var api : JSGenApi;
 	var buf : StringBuf;
@@ -91,6 +120,7 @@ class Uhu  {
 	var packages : Hash<Bool>;
 	var typedefs : Hash<Bool>;
 	var forbidden : Hash<Bool>;
+	var types:Hash<String>;
 
 	public function new(api) {
 		this.api = api;
@@ -114,6 +144,16 @@ class Uhu  {
 		typedefs = new Hash();
 		forbidden = new Hash();
 		
+		types = new Hash<String>();
+		types.set('Dynamic', 'Object');
+		types.set('Int', 'number');
+		types.set('Float', 'number');
+		types.set('Bool', 'boolean');
+		types.set('String', 'string');
+		types.set('null', '*');
+		types.set('Null', '?');
+		types.set('Void', '');
+		
 		for ( x in ["prototype", "__proto__", "constructor"] ) {
 			forbidden.set(x, true);
 		}
@@ -130,13 +170,18 @@ class Uhu  {
 	}
 	
 	function createFile(c:BaseType):Void {
-		buf = new StringBuf();
-		//bufA.push({n:getPath(c), b:buf});
-		bufA.set(getPath(c), buf);
+		var path = getPath(c);
+		if (!bufA.exists(path)) {
+			buf = new StringBuf();
+			//bufA.push({n:getPath(c), b:buf});
+			bufA.set(path, buf);
+		} else {
+			buf = bufA.get(path);
+		}
 	}
 
 	function field(p) {
-		return api.isKeyword(p) ? '["' + p + '"]' : "." + p;
+		return api.isKeyword(p) ? charList.array.open + '"' + p + '"' + charList.array.close : charList.dot + p;
 	}
 	
 	function genPackage( p : Array<String> ) {
@@ -145,31 +190,34 @@ class Uhu  {
 		for( x in p ) {
 			var prev = full;
 			
-			if( full == null ) full = x else full += "." + x;
+			if( full == null ) full = x else full += charList.dot + x;
 			if( packages.exists(full) ) continue;
 			packages.set(full, true);
 			
 			addJavaDoc(['@type {Object}']);
 			
 			if( prev == null )
-				fprint('var $x = {}');
+				print(charList.variable + ' ' + x + ' = ' + charList.brace.open + charList.brace.close);
 			else {
 				var p = prev + field(x);
-				fprint('$p = {}');
+				//fprint('$p = {}');
+				print('' + p + ' = ' + charList.brace.open + charList.brace.close);
 			}
 			
 			newline();
 		}
 		
 	}
-	
-	public static var dot:String = '.';
-	
-	function getPath( t : BaseType ) {
-		//var result = (t.pack.length == 0) ? t.name : t.pack.join(dot) + dot + t.name;
-		var result = (t.pack.length == 0) ? t.name : t.pack.concat([t.name]).join(dot);
-		return result != null ? '' : result;
-		//return (t.pack.length == 0) ? t.name : t.pack.concat([t.name]).join(dot);
+	private static var packageCache:Hash<String> = new Hash<String>();
+	public function getPath( t : BaseType ) {
+		var result = null;
+		if (!packageCache.exists(t.name)) {
+			result = (t.pack.length == 0) ? t.name : t.pack.join(charList.dot) + charList.dot + t.name;
+			packageCache.set(t.name, result);
+		} else {
+			result = packageCache.get(t.name);
+		}
+		return result;
 	}
 
 	function checkFieldName( c : ClassType, f : ClassField ) {
@@ -283,7 +331,7 @@ class Uhu  {
 		 */
 		addClassAnnotation(c);
 		
-		print(c.pack.length == 0 ? 'var ' : '');
+		print(c.pack.length == 0 ? charList.variable + ' ' : '');
 		
 		fprint('$p = ', false);
 		
@@ -369,7 +417,7 @@ class Uhu  {
 
 	function genEnum( e : EnumType ) {
 		var p = getPath(e);
-		var names = p.split(".").map(api.quoteString).join(",");
+		var names = p.split(charList.dot).map(api.quoteString).join(",");
 		var constructs = e.names.map(api.quoteString).join(",");
 		var meta = api.buildMetaData(e);
 		
@@ -398,10 +446,10 @@ class Uhu  {
 				default:
 					addJavaDoc(['@type {Array.<(string|number)>}']);
 					fprint("$p$f = ");
-					print("[" + api.quoteString(c.name) + "," + c.index + "]", false);
+					print(charList.array.open + api.quoteString(c.name) + "," + c.index + charList.array.close, false);
 					newline(true);
 					
-					addJavaDoc(['@return {string}']);
+					addJavaDoc([charList.google._return + ' {string}']);
 					fprint("$p$f.toString = $$estr");
 					newline(true);
 					
@@ -464,14 +512,14 @@ class Uhu  {
 		newline();
 		
 		addJavaDoc(['@type {*}']);
-		print('var $_ = {}');
+		print(charList.variable + ' $_ = {}');
 		newline(true, 1);
 		
 		addJavaDoc(['@type {Object.<string, *>}']);
-		print('var $hxClasses = {}');
+		print(charList.variable + ' $hxClasses = {}');
 		newline(true, 1);
 		
-		addJavaDoc(['@return {string}']);
+		addJavaDoc([charList.google._return + ' {string}']);
 		printParts(['function $estr() {', '\treturn js.Boot.__string_rec(this, "");', '}']);
 		
 		newline();
@@ -502,7 +550,7 @@ class Uhu  {
 		 * Generate code for all __init__ methods
 		 */
 		for( e in inits ) {
-			print(api.generateStatement(e).replace('\n', '\n' + repeat('\t', tabs)));
+			print(api.generateStatement(e).replace(charList.newline, charList.newline + repeat(charList.tab, tabs)));
 			newline();
 		}
 		
@@ -536,7 +584,9 @@ class Uhu  {
 		 */
 		//for (f in bufA) {
 		for (f in bufA.keys()) {
-			var file = neko.io.File.write(uhu.nativePath + sep + f + '.js', true);
+			//var file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
+			var file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
+			//file.writeString(f.b.toString().replace('.$bind', '["$bind"]'));
 			file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
 			file.close();
 		}
@@ -551,8 +601,9 @@ class Uhu  {
 			var file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
 			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --compilation_level ${op} --js_output_file ${dir.fileName} '));
 			for (f in bufA.keys()) {
-				//file.writeString(Std.format('--js .${sep}_uhu_${sep}${f}.js '));
-				file.writeString('--js .' + sep + '_uhu_' + sep + f + '.js ');
+			//for (f in bufA) {
+				//file.writeString(Std.format('--js .${sep}_uhu_${sep}${f.n}.js '));
+				file.writeString('--js ' + '.' + sep + '_uhu_' + sep + f + '.' + 'js ');
 			}
 			file.close();
 		}
@@ -568,31 +619,30 @@ class Uhu  {
 	public var tabs:Int;
 	
 	public inline function genExpr(e, ?tab:Bool = true) {
-		var _str:String = api.generateValue(e).replace('\n', '\n' + repeat('\t', tabs));
+		var _str:String = api.generateValue(e).replace(charList.newline, charList.newline + repeat(charList.tab, tabs));
 		print(_str, tab);
 	}
 	
 	@:macro	public static function fprint(e:Expr , ?tab:Bool = true) {
 		var pos = haxe.macro.Context.currentPos();
 		var ret = haxe.macro.Format.format(e);
-		var boo = Context.parse('' + tab, pos);
+		var boo = Context.parse(Std.string(tab), pos);
 		return { expr : ECall({ expr : EConst(CIdent("print")), pos : pos },[ret, boo]), pos : pos };
 	}
 	
 	public inline function print(str:String, ?tab:Bool = true) {
-		buf.add((tab ? repeat('\t', tabs) : '') + str);
+		buf.add((tab ? repeat(charList.tab, tabs) : charList.empty) + str);
 	}
 	
 	public inline function newline(?semicolon:Bool = false, ?extra:Int = 0) {
-		buf.add((semicolon ? ';' : '') + '\n' + repeat('\n', extra));
+		buf.add((semicolon ? ';' : charList.empty) + charList.newline + repeat(charList.newline, extra));
 	}
 	
-	public function repeat(s : String, times : Int)	{
-		var result = '';
-		for (i in 0...times) {
-			result += s;
+	public inline function repeat(s : String, times : Int)	{
+		for (i in 0...times-1) {
+			s += s;
 		}
-		return result;
+		return s;
 	}
 	
 	/**
@@ -630,7 +680,7 @@ class Uhu  {
 	}
 	
 	public function printAccess(field:{isPublic:Bool}):String {
-		return field.isPublic ? '' : '@private';
+		return field.isPublic ? charList.empty : '@private';
 	}
 	
 	/**
@@ -639,7 +689,7 @@ class Uhu  {
 	 */
 	public function checkType(type:String):String {
 		
-		return switch (type) {
+		/*return switch (type) {
 			case 'Dynamic':
 				'Object';
 			case 'Int', 'Float':
@@ -656,215 +706,245 @@ class Uhu  {
 				'';
 			default:
 				type;
+		}*/
+		if (types.exists(type)) {
+			return types.get(type);
+		} else {
+			return type;
 		}
 	}
 	
+	private static var recordTypeCache:Hash<String> = new Hash<String>();
+	private static var recordCache:Hash<String> = new Hash();
 	/**
 	 * UHU GOD!
 	 */
-	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> }):String {
+	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
+		var result = recordCache.get(Std.string(type));
 		
-		switch(type) {
-			/**
-			 * If not null, then send back through buildRecordType and return
-			 */
-			case TMono(_t):
-				var mono = _t.get();
-				if (mono != null) {
-					return buildRecordType(mono);
-				} else {
-					return checkType('' + mono);
-				}
-			
-			/**
-			 * Build value. If it has params, then output jsdoc style type application
-			 * e.g Array.<string> or Object.<string, number>
-			 */
-			case TEnum(_t, _p):
-				var enm:EnumType = _t.get();
-				
-				if (enm.name.length == 0) return '';
-				
-				var path = checkType(getPath(enm));
-				if (_p.length != 0) {
-					path += '.<';
-					for (param in _p) {
-						if (param != _p[0]) path += ', ';
-						path += buildRecordType(param);
-					}
-					path += '>';
-				}
-				return path;
-			
-			/**
-			 * Build class string. 
-			 * 
-			 * Filter type inference e.g Array.T
-			 * 
-			 * Filter xirsys_stdjs paths and only used the class or typedef name,
-			 * e.g. js.w3c.html5.Core.HTMLElement becomes HTMLElement. I assume as
-			 * xirsys_stdjs is said to be based/parsed off w3c specs, they should
-			 * match up with google closure compilers extern files, which allow it to
-			 * do more inlining and optimisation. Crude detection of js.w3c or js.webgl
-			 * :(
-			 * 
-			 */
-			case TInst(_t, _p):
-				var cls:ClassType = _t.get();
-				
-				if (cls.name.length == 0) return '';
-				
-				var path = getPath(cls);
-				
-				/*
-				 * Should detect things like indexOf.T, or indexOf.TA
-				 * or indexOf.TAADSDSDS
-				 */ 
-				var typedParam:EReg = ~/\.[A-Z]+$/;
-				
-				/*
-				 * Should detect most? of xirsys_stdjs
+		if (result == null) {
+			switch(type) {
+				/**
+				 * If not null, then send back through buildRecordType and return
 				 */
-				var stdjs:EReg = ~/^js\.(w3c|webgl)\./i;
-				
-				if (typedParam.match(path)) {
-					/**
-					 * Only remove the last value if its first character
-					 * is not lowercase - this means it a package name.
-					 * Class names in most cases start with Uppercase
-					 * character. Poor mans check...
-					 */
-					var _array = path.split('.');
-					var _fchar = _array[_array.length - 2].substr(0, 1);
-					
-					if (_fchar == _fchar.toUpperCase()) {
-						path = _array.splice(0, _array.length - 1).join('.');
+				case TMono(_t):
+					var mono = _t.get();
+					if (mono != null) {
+						result = buildRecordType(mono);
+					} else {
+						result = checkType(Std.string(mono));
 					}
-					
-				}
 				
-				path = checkType(path);
-				
-				if (path == '?') path += '*';
-				
-				/*
-				 * Only if xirsys_stdjs is being used
+				/**
+				 * Build value. If it has params, then output jsdoc style type application
+				 * e.g Array.<string> or Object.<string, number>
 				 */
-				if (Context.defined('xirsys_stdjs') && stdjs.match(path)) {
-					var _array = path.split('.');
-					path = _array[_array.length-1];
-				}
-				
-				if (_p.length != 0) {
-					path += '.<';
-					for (param in _p) {
-						if (param != _p[0]) path += ', ';
-						path += buildRecordType(param);
-					}
-					path += '>';
-				}
-				
-				return path;
-				
-			/**
-			 * Pass typedef back through buildRecordType and return
-			 */
-			case TType(_t, _p):
-				var _def = buildRecordType(_t.get().type, { parent:cast _t.get(), params:_p } );
-				return _def;
-			
-			/**
-			 * Build jsdoc function definition, usually used for param/typedef sigs
-			 */
-			case TFun(_a, _r):
-				var _return = buildRecordType(_r);
-				var _output = 'function(';
-				for (arg in _a) {
-					if (arg != _a[0]) _output += ',';
-					_output += buildRecordType(arg.t);
-					if (arg.opt) _output += '=';
-				}
-				_output += ')';
-				if (_return != '') _output += ':' + _return;
-				return _output;
-			
-			/**
-			 * Usually builds typedefs, which is why TAnonymous builds two different outputs,
-			 * a google closure compiler typedef and a truely anonymous sig.
-			 */
-			case TAnonymous(_a):
-				if (data != null) {
-					var def:BaseType = data.parent;
-					if (def.name.length == 0) return '';
-					var path:String = checkType(getPath(def));
-					var anon:AnonType = _a.get();
+				case TEnum(_t, _p):
+					var enm:EnumType = _t.get();
 					
-					if (!typedefs.exists(path) && anon.fields.length != 0) {
-						var javaDoc = new Array<String>();
-						var output = '@typedef {{';
-						var prevBuf = buf;
-						var prevTab = tabs;
+					if (enm.name.length == 0) return charList.empty;
+					
+					if (!recordTypeCache.exists(enm.name)) {
 						
-						createFile(def);
-						tabs = 1;
-						
-						genPackage(def.pack);
-						
-						for (f in anon.fields) {
-							if (f != anon.fields[0]) output += ', ';
-							output += f.name + ':' + buildRecordType(f.type);
+						result = checkType(getPath(enm));
+						if (_p.length != 0) {
+							result += charList.dot + charList.lesser;
+							for (param in _p) {
+								if (param != _p[0]) result += charList.comma + charList.empty;
+								result += buildRecordType(param);
+							}
+							result += charList.greater;
 						}
 						
-						output += '}}';
+						recordTypeCache.set(enm.name, result);
 						
-						javaDoc.push(output);
+					} else {
+						result = recordTypeCache.get(enm.name);
+					}
+				
+				/**
+				 * Build class string. 
+				 * 
+				 * Filter type inference e.g Array.T
+				 * 
+				 * Filter xirsys_stdjs paths and only used the class or typedef name,
+				 * e.g. js.w3c.html5.Core.HTMLElement becomes HTMLElement. I assume as
+				 * xirsys_stdjs is said to be based/parsed off w3c specs, they should
+				 * match up with google closure compilers extern files, which allow it to
+				 * do more inlining and optimisation. Crude detection of js.w3c or js.webgl
+				 * :(
+				 * 
+				 */
+				case TInst(_t, _p):
+					var cls:ClassType = _t.get();
+					
+					if (cls.name.length == 0) return charList.empty;
+					
+					if (!recordTypeCache.exists(cls.name)) {
 						
-						addJavaDoc(javaDoc);
+						result = getPath(cls);
+						/*
+						 * Should detect things like indexOf.T, or indexOf.TA
+						 * or indexOf.TAADSDSDS
+						 */ 
+						var typedParam:EReg = ~/\.[A-Z]+$/;
 						
-						(def.pack.length == 0 ? print('var ') : '');
+						/*
+						 * Should detect most? of xirsys_stdjs
+						 */
+						var stdjs:EReg = ~/^js\.(w3c|webgl)\./i;
 						
-						(def.pack.length == 0 ?	fprint('$path', false) : fprint('$path'));
-						newline(true);
+						if (typedParam.match(result)) {
+							/**
+							 * Only remove the last value if its first character
+							 * is not lowercase - this means it a package name.
+							 * Class names in most cases start with Uppercase
+							 * character. Poor mans check...
+							 */
+							var _array = result.split(charList.dot);
+							var _fchar = _array[_array.length - 2].substr(0, 1);
+							
+							if (_fchar == _fchar.toUpperCase()) {
+								result = _array.splice(0, _array.length - 1).join(charList.dot);
+							}
+							
+						}
 						
-						typedefs.set(path, true);
+						result = checkType(result);
 						
-						buf = prevBuf;
-						tabs = prevTab;
+						if (result == '?') result += '*';
+						
+						/*
+						 * Only if xirsys_stdjs is being used
+						 */
+						if (Context.defined('xirsys_stdjs') && stdjs.match(result)) {
+							var _array = result.split(charList.dot);
+							result = _array[_array.length-1];
+						}
+						
+						if (_p.length != 0) {
+							result += charList.dot + charList.lesser;
+							for (param in _p) {
+								if (param != _p[0]) result += charList.comma + charList.space;
+								result += buildRecordType(param);
+							}
+							result += charList.greater;
+						}
+						
+						recordTypeCache.set(cls.name, result);
+					} else {
+						result = recordTypeCache.get(cls.name);
 					}
 					
-					return path;
-				} else {
-					var anon:AnonType = _a.get();
-					var output = '{';
-					for (f in anon.fields) {
-						if (f != anon.fields[0]) output += ', ';
-						//output += Std.format('${f.name}:${buildRecordType(f.type)}');
-						output += f.name + ':' + buildRecordType(f.type);
+				/**
+				 * Pass typedef back through buildRecordType and return
+				 */
+				case TType(_t, _p):
+					if (!recordTypeCache.exists(_t.get().name)) {
+						result = buildRecordType(_t.get().type, { parent:cast _t.get(), params:_p } );
+					} else {
+						result = recordTypeCache.get(_t.get().name);
 					}
-					output += '}';
-					return output;
-				}
-				return 'TAnonymous';
-			
-			/**
-			 * If not null, send back through buildRecordType and return
-			 */
-			case TDynamic(_t):
-				if (_t != null) {
-					trace(buildRecordType(_t));
-					return buildRecordType(_t);
-				} else {
-					return checkType(''+_t);
-				}
 				
-			/**
-			 * Havnt done this yet...
-			 */
-			case TLazy(_f):
-				return 'TLazy';
-			default:
-				return '';
+				/**
+				 * Build jsdoc function definition, usually used for param/typedef sigs
+				 */
+				case TFun(_a, _r):
+					var _return = buildRecordType(_r);
+					result = 'function(';
+					for (arg in _a) {
+						if (arg != _a[0]) result += charList.comma;
+						result += buildRecordType(arg.t);
+						if (arg.opt) result += '=';
+					}
+					result += ')';
+					if (_return != charList.empty) result += charList.colon + _return;
+				
+				/**
+				 * Usually builds typedefs, which is why TAnonymous builds two different outputs,
+				 * a google closure compiler typedef and a truely anonymous sig.
+				 */
+				case TAnonymous(_a):
+					if (data != null) {
+						
+						var def:BaseType = data.parent;
+						
+						if (def.name.length == 0) return charList.empty;
+						
+						if (!recordTypeCache.exists(def.name)) {
+							
+							result = checkType(getPath(def));
+							var anon:AnonType = _a.get();
+							
+							if (!typedefs.exists(result) && anon.fields.length != 0) {
+								var javaDoc = new Array<String>();
+								var output = charList.google._typedef + charList.space + charList.brace.open + charList.brace.open;
+								var prevBuf = buf;
+								var prevTab = tabs;
+								
+								createFile(def);
+								tabs = 1;
+								
+								genPackage(def.pack);
+								
+								for (f in anon.fields) {
+									if (f != anon.fields[0]) output += charList.comma + charList.space;
+									output += f.name + charList.colon + buildRecordType(f.type);
+								}
+								
+								output += charList.brace.close + charList.brace.close;
+								
+								javaDoc.push(output);
+								
+								addJavaDoc(javaDoc);
+								
+								(def.pack.length == 0 ? print(charList.variable + charList.space) : charList.empty);
+								
+								(def.pack.length == 0 ?	fprint('$result', false) : fprint('$result'));
+								newline(true);
+								
+								typedefs.set(result, true);
+								
+								buf = prevBuf;
+								tabs = prevTab;
+							}
+						} else {
+							result = recordTypeCache.get(def.name);
+						}
+						
+					} else {
+						var anon:AnonType = _a.get();
+						result = charList.brace.open;
+						for (f in anon.fields) {
+							if (f != anon.fields[0]) result += charList.comma + charList.space;
+							result += f.name + charList.colon + buildRecordType(f.type);
+						}
+						result += charList.brace.close;
+					}
+					result = 'TAnonymous';
+				
+				/**
+				 * If not null, send back through buildRecordType and return
+				 */
+				case TDynamic(_t):
+					if (_t != null) {
+						result = buildRecordType(_t);
+					} else {
+						result = checkType(Std.string(_t));
+					}
+					
+				/**
+				 * Havnt done this yet...
+				 */
+				case TLazy(_f):
+					result = 'TLazy';
+				default:
+					result = charList.empty;
+			}
+			recordCache.set(Std.string(type), result);
 		}
+		
+		return result;
 	}
 	
 	/**
@@ -897,13 +977,13 @@ class Uhu  {
 						for (_arg in _args) {
 							type = printType(_arg.t, _arg.opt);
 							if (type == self) type = 'Object';
-							javaDocs.push ('@param {' + type + '} ' + _arg.name);
+							javaDocs.push (charList.google._param + ' {' + type + '} ' + _arg.name);
 						}
 						
 						if (printType(_return) != '') {
 							type = printType(_return);
 							if (type == self) type = 'Object';
-							javaDocs.push('@return {' + type + '}');
+							javaDocs.push(charList.google._return + ' {' + type + '}');
 						}
 						
 					default:
@@ -911,7 +991,7 @@ class Uhu  {
 				
 			case FVar(_read, _write):
 				
-				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push('@const');
+				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(charList.google._const);
 				javaDocs.push('@type {?' + printType(field.type) + '}');
 				
 			default:
@@ -946,18 +1026,18 @@ class Uhu  {
 			//javaDoc.push('@constructor');
 			javaDoc.push('@const');
 		}*/
-		javaDoc.push('@const');
+		javaDoc.push(charList.google._const);
 		
-		if (_class.isInterface) javaDoc.push('@interface');
+		if (_class.isInterface) javaDoc.push(charList.google._interface);
 		
 		if (_class.superClass != null) {
 			superClass = _class.superClass.t.get();
-			javaDoc.push('@extends ' + (superClass.pack.length > 0 ? superClass.pack.join('.') + '.' : '') + superClass.name);
+			javaDoc.push('@extends ' + (superClass.pack.length > 0 ? superClass.pack.join(charList.dot) + charList.dot : '') + superClass.name);
 		}
 		
 		if (_class.interfaces.length != 0) {
 			for (inter in _class.interfaces) {
-				javaDoc.push('@implements {' + inter.t.get().module + '}');
+				javaDoc.push(charList.google._implements + ' {' + inter.t.get().module + '}');
 			}
 		}
 		
@@ -965,7 +1045,7 @@ class Uhu  {
 			switch (_class.constructor.get().type) {
 				case TFun(_args, _return):
 					for (_arg in _args) {
-						javaDoc.push('@param {' + printType(_arg.t, _arg.opt) + '} ' + _arg.name);
+						javaDoc.push(charList.google._param + ' {' + printType(_arg.t, _arg.opt) + '} ' + _arg.name);
 					}
 				default:
 			}
