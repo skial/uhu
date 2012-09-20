@@ -82,19 +82,24 @@ using tink.core.types.Option;
 
 class Uhu  {
 	
-	public static var charList = {
+	public static var characters = {
 		dot:'.',
+		carriage:'\r',
 		newline:'\n',
 		tab:'\t',
-		brace: {
+		curly: {
 			open:'{',
 			close:'}'
 		},
-		variable:'var',
-		array: {
+		square: {
 			open:'[',
 			close:']'
 		},
+		parentheses: {
+			open:'(',
+			close:')'
+		},
+		variable:'var',
 		colon:':',
 		comma:',',
 		google: {
@@ -108,13 +113,17 @@ class Uhu  {
 		space:' ',
 		empty:'',
 		greater:'>',
-		lesser:'<'
+		lesser:'<',
+		equals:'=',
+		asterisk:'*',
+		question_mark:'?',
+		semicolon:';',
 	}
 
 	var api : JSGenApi;
 	var buf : StringBuf;
-	//var bufA:Array<{n:String, b:StringBuf}>;
-	var bufA:Hash<StringBuf>;
+	var bufA:Array<{n:String, b:StringBuf}>;
+	//var bufA:Hash<StringBuf>;
 	var inits : List<TypedExpr>;
 	var statics : List<{ c : ClassType, f : ClassField }>;
 	var packages : Hash<Bool>;
@@ -130,14 +139,14 @@ class Uhu  {
 		/**
 		 * Create the array which will hold all the generated javascript
 		 */
-		//bufA = new Array<{n:String, b:StringBuf}>();
-		bufA = new Hash<StringBuf>();
+		bufA = new Array<{n:String, b:StringBuf}>();
+		//bufA = new Hash<StringBuf>();
 		
 		/**
 		 * Add the first string buffer
 		 */
-		//bufA.push( { n:'UhuEntry', b:buf } );
-		bufA.set('UhuEntry', buf);
+		bufA.push( { n:'UhuEntry', b:buf } );
+		//bufA.set('UhuEntry', buf);
 		inits = new List();
 		statics = new List();
 		packages = new Hash();
@@ -150,9 +159,9 @@ class Uhu  {
 		types.set('Float', 'number');
 		types.set('Bool', 'boolean');
 		types.set('String', 'string');
-		types.set('null', '*');
-		types.set('Null', '?');
-		types.set('Void', '');
+		types.set('null', characters.asterisk);
+		types.set('Null', characters.question_mark);
+		types.set('Void', characters.empty);
 		
 		for ( x in ["prototype", "__proto__", "constructor"] ) {
 			forbidden.set(x, true);
@@ -171,17 +180,17 @@ class Uhu  {
 	
 	function createFile(c:BaseType):Void {
 		var path = getPath(c);
-		if (!bufA.exists(path)) {
+		//if (!bufA.exists(path)) {
 			buf = new StringBuf();
-			//bufA.push({n:getPath(c), b:buf});
-			bufA.set(path, buf);
-		} else {
+			bufA.push({n:getPath(c), b:buf});
+			//bufA.set(path, buf);
+		/*} else {
 			buf = bufA.get(path);
-		}
+		}*/
 	}
 
 	function field(p) {
-		return api.isKeyword(p) ? charList.array.open + '"' + p + '"' + charList.array.close : charList.dot + p;
+		return api.isKeyword(p) ? characters.square.open + '"' + p + '"' + characters.square.close : characters.dot + p;
 	}
 	
 	function genPackage( p : Array<String> ) {
@@ -190,34 +199,27 @@ class Uhu  {
 		for( x in p ) {
 			var prev = full;
 			
-			if( full == null ) full = x else full += charList.dot + x;
+			if( full == null ) full = x else full += characters.dot + x;
 			if( packages.exists(full) ) continue;
 			packages.set(full, true);
 			
 			addJavaDoc(['@type {Object}']);
 			
 			if( prev == null )
-				print(charList.variable + ' ' + x + ' = ' + charList.brace.open + charList.brace.close);
+				print(characters.variable + characters.space + x + ' = ' + characters.curly.open + characters.curly.close);
 			else {
 				var p = prev + field(x);
 				//fprint('$p = {}');
-				print('' + p + ' = ' + charList.brace.open + charList.brace.close);
+				print(p + ' = ' + characters.curly.open + characters.curly.close);
 			}
 			
 			newline();
 		}
 		
 	}
-	private static var packageCache:Hash<String> = new Hash<String>();
+	
 	public function getPath( t : BaseType ) {
-		var result = null;
-		if (!packageCache.exists(t.name)) {
-			result = (t.pack.length == 0) ? t.name : t.pack.join(charList.dot) + charList.dot + t.name;
-			packageCache.set(t.name, result);
-		} else {
-			result = packageCache.get(t.name);
-		}
-		return result;
+		return (t.pack.length == 0) ? t.name : t.pack.join(characters.dot) + characters.dot + t.name;
 	}
 
 	function checkFieldName( c : ClassType, f : ClassField ) {
@@ -301,14 +303,14 @@ class Uhu  {
 			for (m in t.meta.get()) {
 				if (m.name == ':expose') {
 					if (m.params.length != 0) {
-						print(''+ExprTools.toString(m.params[0]), false);
+						print(m.params[0].toString(), false);
 					} else {
 						fprint('${t.name}', false);
 					}
 				}
 			}
 			
-			print(')', false);
+			print(characters.parentheses.close, false);
 			
 			newline(true);
 		}
@@ -331,14 +333,14 @@ class Uhu  {
 		 */
 		addClassAnnotation(c);
 		
-		print(c.pack.length == 0 ? charList.variable + ' ' : '');
+		print(c.pack.length == 0 ? characters.variable + characters.space : characters.empty);
 		
 		fprint('$p = ', false);
 		
 		if ( c.constructor != null ) {
 			genExpr(c.constructor.get().expr(), false);
 		} else {
-			print("function() {}", false);
+			print("function" + characters.parentheses.open + characters.parentheses.close + characters.space + characters.curly.open + characters.curly.close, false);
 		}
 		
 		newline();
@@ -353,7 +355,7 @@ class Uhu  {
 			genStaticField(c, p, f);
 		}
 		
-		var name = getPath(c).split('.').map(api.quoteString).join(',');
+		var name = getPath(c).split(characters.dot).map(api.quoteString).join(characters.comma);
 		
 		addJavaDoc(['@type {Array.<string>}']);
 		fprint("$p.__name__ = [$name]");
@@ -361,7 +363,7 @@ class Uhu  {
 		
 		if( c.interfaces.length > 0 ) {
 			var me = this;
-			var inter = c.interfaces.map(function(i) return me.getPath(i.t.get())).join(",");
+			var inter = c.interfaces.map(function(i) return me.getPath(i.t.get())).join(characters.comma);
 			
 			fprint("$p.__interfaces__ = [$inter]");
 			newline(true);
@@ -393,7 +395,7 @@ class Uhu  {
 				default:
 			}
 			
-			print(',', false);
+			print(characters.comma, false);
 			newline(false, 1);
 			
 			genClassField(c, p, f);
@@ -405,11 +407,11 @@ class Uhu  {
 		
 		if (c.superClass != null) {
 			newline();
-			print('})');
+			print(characters.curly.close + characters.parentheses.close);
 			newline(true);
 		} else {
 			newline();
-			print('}');
+			print(characters.curly.close);
 			newline();
 		}
 		
@@ -417,8 +419,8 @@ class Uhu  {
 
 	function genEnum( e : EnumType ) {
 		var p = getPath(e);
-		var names = p.split(charList.dot).map(api.quoteString).join(",");
-		var constructs = e.names.map(api.quoteString).join(",");
+		var names = p.split(characters.dot).map(api.quoteString).join(characters.comma);
+		var constructs = e.names.map(api.quoteString).join(characters.comma);
 		var meta = api.buildMetaData(e);
 		
 		createFile(e);
@@ -440,16 +442,16 @@ class Uhu  {
 			switch( c.type ) {
 				case TFun(args, _):
 					fprint("$p$f = ");
-					var sargs = args.map(function(a) return a.name).join(",");
+					var sargs = args.map(function(a) return a.name).join(characters.comma);
 					fprint('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
 					newline();
 				default:
 					addJavaDoc(['@type {Array.<(string|number)>}']);
 					fprint("$p$f = ");
-					print(charList.array.open + api.quoteString(c.name) + "," + c.index + charList.array.close, false);
+					print(characters.square.open + api.quoteString(c.name) + characters.comma + c.index + characters.square.close, false);
 					newline(true);
 					
-					addJavaDoc([charList.google._return + ' {string}']);
+					addJavaDoc([characters.google._return + ' {string}']);
 					fprint("$p$f.toString = $$estr");
 					newline(true);
 					
@@ -503,7 +505,7 @@ class Uhu  {
 	public function generate() {
 		
 		if (Context.defined('js_modern')) {
-			print (' "use strict";');
+			print(' "use strict";');
 		}
 		
 		newline();
@@ -512,14 +514,14 @@ class Uhu  {
 		newline();
 		
 		addJavaDoc(['@type {*}']);
-		print(charList.variable + ' $_ = {}');
+		print(characters.variable + ' $_ = {}');
 		newline(true, 1);
 		
 		addJavaDoc(['@type {Object.<string, *>}']);
-		print(charList.variable + ' $hxClasses = {}');
+		print(characters.variable + ' $hxClasses = {}');
 		newline(true, 1);
 		
-		addJavaDoc([charList.google._return + ' {string}']);
+		addJavaDoc([characters.google._return + ' {string}']);
 		printParts(['function $estr() {', '\treturn js.Boot.__string_rec(this, "");', '}']);
 		
 		newline();
@@ -542,15 +544,15 @@ class Uhu  {
 		newline();
 		addJavaDoc(['@type {*}']);
 		print("js.Boot.__res = {}");
-		newline();
-		print("js.Boot.__init()");
+		//newline();
+		//print("js.Boot.__init()");
 		newline(true);
 		
 		/**
 		 * Generate code for all __init__ methods
 		 */
 		for( e in inits ) {
-			print(api.generateStatement(e).replace(charList.newline, charList.newline + repeat(charList.tab, tabs)));
+			print(api.generateStatement(e).replace(characters.newline, characters.newline + repeat(characters.tab, tabs)));
 			newline();
 		}
 		
@@ -576,18 +578,18 @@ class Uhu  {
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
 		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + '_uhu_'), null, true);
-		
+		var file = null;
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
 		 * from tripping as Boot.hx sets it as Function.prototype["$bind"].
 		 */
-		//for (f in bufA) {
-		for (f in bufA.keys()) {
-			//var file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
-			var file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
-			//file.writeString(f.b.toString().replace('.$bind', '["$bind"]'));
-			file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
+		//for (f in bufA.keys()) {
+		for (f in bufA) {
+			//file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
+			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
+			//file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
+			file.writeString(f.b.toString().replace('.$bind', '["$bind"]'));
 			file.close();
 		}
 		
@@ -598,13 +600,14 @@ class Uhu  {
 		 * Im so thoughtful :D
 		 */
 		for (op in ['WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']) {
-			var file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
+			file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
 			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --compilation_level ${op} --js_output_file ${dir.fileName} '));
-			for (f in bufA.keys()) {
-			//for (f in bufA) {
-				//file.writeString(Std.format('--js .${sep}_uhu_${sep}${f.n}.js '));
-				file.writeString('--js ' + '.' + sep + '_uhu_' + sep + f + '.' + 'js ');
+			
+			//for (f in bufA.keys()) {
+			for (f in bufA) {
+				file.writeString('--js .' + sep + '_uhu_' + sep + f.n + '.js ');
 			}
+			
 			file.close();
 		}
 		
@@ -619,7 +622,7 @@ class Uhu  {
 	public var tabs:Int;
 	
 	public inline function genExpr(e, ?tab:Bool = true) {
-		var _str:String = api.generateValue(e).replace(charList.newline, charList.newline + repeat(charList.tab, tabs));
+		var _str:String = api.generateValue(e).replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
 		print(_str, tab);
 	}
 	
@@ -630,19 +633,21 @@ class Uhu  {
 		return { expr : ECall({ expr : EConst(CIdent("print")), pos : pos },[ret, boo]), pos : pos };
 	}
 	
-	public inline function print(str:String, ?tab:Bool = true) {
-		buf.add((tab ? repeat(charList.tab, tabs) : charList.empty) + str);
+	public function print(str:String, ?tab:Bool = true) {
+		buf.add((tab ? repeat(characters.tab, tabs) : characters.empty) + str);
 	}
 	
-	public inline function newline(?semicolon:Bool = false, ?extra:Int = 0) {
-		buf.add((semicolon ? ';' : charList.empty) + charList.newline + repeat(charList.newline, extra));
+	public function newline(?semicolon:Bool = false, ?extra:Int = 0) {
+		buf.add((semicolon ? characters.semicolon : characters.empty) + characters.newline + repeat(characters.newline, extra));
 	}
 	
-	public inline function repeat(s : String, times : Int)	{
-		for (i in 0...times-1) {
-			s += s;
+	public function repeat(s : String, times : Int)	{
+		var result = characters.empty;
+		
+		for (i in 0...times) {
+			result += s;
 		}
-		return s;
+		return result;
 	}
 	
 	/**
@@ -680,47 +685,24 @@ class Uhu  {
 	}
 	
 	public function printAccess(field:{isPublic:Bool}):String {
-		return field.isPublic ? charList.empty : '@private';
+		return field.isPublic ? characters.empty : '@private';
 	}
 	
 	/**
 	 * Checks the type for a google closure compiler
 	 * annotations match and returns it.
 	 */
-	public function checkType(type:String):String {
-		
-		/*return switch (type) {
-			case 'Dynamic':
-				'Object';
-			case 'Int', 'Float':
-				'number';
-			case 'Bool':
-				'boolean';
-			case 'String':
-				'string';
-			case 'null', null:
-				'*';
-			case 'Null':
-				'?';
-			case 'Void':
-				'';
-			default:
-				type;
-		}*/
-		if (types.exists(type)) {
-			return types.get(type);
-		} else {
-			return type;
-		}
+	public inline function checkType(type:String):String {
+		return (types.exists(type)) ? types.get(type) : type;
 	}
 	
-	private static var recordTypeCache:Hash<String> = new Hash<String>();
-	private static var recordCache:Hash<String> = new Hash();
+	private static var _typePartCache:Hash<String> = new Hash<String>();
+	private static var _typeResultCache:Hash<String> = new Hash();
 	/**
 	 * UHU GOD!
 	 */
 	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
-		var result = recordCache.get(Std.string(type));
+		var result = _typeResultCache.get(Std.string(type));
 		
 		if (result == null) {
 			switch(type) {
@@ -742,24 +724,22 @@ class Uhu  {
 				case TEnum(_t, _p):
 					var enm:EnumType = _t.get();
 					
-					if (enm.name.length == 0) return charList.empty;
-					
-					if (!recordTypeCache.exists(enm.name)) {
+					if (!_typePartCache.exists(enm.name)) {
 						
 						result = checkType(getPath(enm));
 						if (_p.length != 0) {
-							result += charList.dot + charList.lesser;
+							result += characters.dot + characters.lesser;
 							for (param in _p) {
-								if (param != _p[0]) result += charList.comma + charList.empty;
+								if (param != _p[0]) result += characters.comma + characters.empty;
 								result += buildRecordType(param);
 							}
-							result += charList.greater;
+							result += characters.greater;
 						}
 						
-						recordTypeCache.set(enm.name, result);
+						_typePartCache.set(enm.name, result);
 						
 					} else {
-						result = recordTypeCache.get(enm.name);
+						result = _typePartCache.get(enm.name);
 					}
 				
 				/**
@@ -778,150 +758,133 @@ class Uhu  {
 				case TInst(_t, _p):
 					var cls:ClassType = _t.get();
 					
-					if (cls.name.length == 0) return charList.empty;
+					result = getPath(cls);
+					/*
+					 * Should detect things like indexOf.T, or indexOf.TA
+					 * or indexOf.TAADSDSDS
+					 */ 
+					var typedParam:EReg = ~/\.[A-Z]+$/;
 					
-					if (!recordTypeCache.exists(cls.name)) {
-						
-						result = getPath(cls);
-						/*
-						 * Should detect things like indexOf.T, or indexOf.TA
-						 * or indexOf.TAADSDSDS
-						 */ 
-						var typedParam:EReg = ~/\.[A-Z]+$/;
-						
-						/*
-						 * Should detect most? of xirsys_stdjs
+					/*
+					 * Should detect most? of xirsys_stdjs
+					 */
+					var stdjs:EReg = ~/^js\.(w3c|webgl)\./i;
+					
+					if (typedParam.match(result)) {
+						/**
+						 * Only remove the last value if its first character
+						 * is not lowercase - this means it a package name.
+						 * Class names in most cases start with Uppercase
+						 * character. Poor mans check...
 						 */
-						var stdjs:EReg = ~/^js\.(w3c|webgl)\./i;
+						var _array = result.split(characters.dot);
+						var _fchar = _array[_array.length - 2].substr(0, 1);
 						
-						if (typedParam.match(result)) {
-							/**
-							 * Only remove the last value if its first character
-							 * is not lowercase - this means it a package name.
-							 * Class names in most cases start with Uppercase
-							 * character. Poor mans check...
-							 */
-							var _array = result.split(charList.dot);
-							var _fchar = _array[_array.length - 2].substr(0, 1);
-							
-							if (_fchar == _fchar.toUpperCase()) {
-								result = _array.splice(0, _array.length - 1).join(charList.dot);
-							}
-							
+						if (_fchar == _fchar.toUpperCase()) {
+							result = _array.splice(0, _array.length - 1).join(characters.dot);
 						}
 						
-						result = checkType(result);
-						
-						if (result == '?') result += '*';
-						
-						/*
-						 * Only if xirsys_stdjs is being used
-						 */
-						if (Context.defined('xirsys_stdjs') && stdjs.match(result)) {
-							var _array = result.split(charList.dot);
-							result = _array[_array.length-1];
-						}
-						
-						if (_p.length != 0) {
-							result += charList.dot + charList.lesser;
-							for (param in _p) {
-								if (param != _p[0]) result += charList.comma + charList.space;
-								result += buildRecordType(param);
-							}
-							result += charList.greater;
-						}
-						
-						recordTypeCache.set(cls.name, result);
-					} else {
-						result = recordTypeCache.get(cls.name);
 					}
+					
+					result = checkType(result);
+					
+					if (result == characters.question_mark) result += characters.asterisk;
+					
+					/*
+					 * Only if xirsys_stdjs is being used
+					 */
+					if (Context.defined('xirsys_stdjs') && stdjs.match(result)) {
+						var _array = result.split(characters.dot);
+						result = _array[_array.length-1];
+					}
+					
+					if (_p.length != 0) {
+						result += characters.dot + characters.lesser;
+						for (param in _p) {
+							if (param != _p[0]) result += characters.comma + characters.space;
+							result += buildRecordType(param);
+						}
+						result += characters.greater;
+					}
+					
+					_typePartCache.set(cls.name, result);
 					
 				/**
 				 * Pass typedef back through buildRecordType and return
 				 */
 				case TType(_t, _p):
-					if (!recordTypeCache.exists(_t.get().name)) {
-						result = buildRecordType(_t.get().type, { parent:cast _t.get(), params:_p } );
-					} else {
-						result = recordTypeCache.get(_t.get().name);
-					}
+					result = buildRecordType(_t.get().type, { parent:cast _t.get(), params:_p } );
 				
 				/**
 				 * Build jsdoc function definition, usually used for param/typedef sigs
 				 */
 				case TFun(_a, _r):
 					var _return = buildRecordType(_r);
-					result = 'function(';
+					result = 'function' + characters.parentheses.open;
 					for (arg in _a) {
-						if (arg != _a[0]) result += charList.comma;
+						if (arg != _a[0]) result += characters.comma;
 						result += buildRecordType(arg.t);
-						if (arg.opt) result += '=';
+						if (arg.opt) result += characters.equals;
 					}
-					result += ')';
-					if (_return != charList.empty) result += charList.colon + _return;
+					result += characters.parentheses.close;
+					if (_return != characters.empty) result += characters.colon + _return;
 				
 				/**
 				 * Usually builds typedefs, which is why TAnonymous builds two different outputs,
 				 * a google closure compiler typedef and a truely anonymous sig.
 				 */
 				case TAnonymous(_a):
+					result = 'TAnonymous';
+					
 					if (data != null) {
 						
 						var def:BaseType = data.parent;
 						
-						if (def.name.length == 0) return charList.empty;
+						result = checkType(getPath(def));
+						var anon:AnonType = _a.get();
 						
-						if (!recordTypeCache.exists(def.name)) {
+						if (!typedefs.exists(result) && anon.fields.length != 0) {
+							var javaDoc = new Array<String>();
+							var output = characters.google._typedef + characters.space + characters.curly.open + characters.curly.open;
+							var prevBuf = buf;
+							var prevTab = tabs;
 							
-							result = checkType(getPath(def));
-							var anon:AnonType = _a.get();
+							createFile(def);
+							tabs = 1;
 							
-							if (!typedefs.exists(result) && anon.fields.length != 0) {
-								var javaDoc = new Array<String>();
-								var output = charList.google._typedef + charList.space + charList.brace.open + charList.brace.open;
-								var prevBuf = buf;
-								var prevTab = tabs;
-								
-								createFile(def);
-								tabs = 1;
-								
-								genPackage(def.pack);
-								
-								for (f in anon.fields) {
-									if (f != anon.fields[0]) output += charList.comma + charList.space;
-									output += f.name + charList.colon + buildRecordType(f.type);
-								}
-								
-								output += charList.brace.close + charList.brace.close;
-								
-								javaDoc.push(output);
-								
-								addJavaDoc(javaDoc);
-								
-								(def.pack.length == 0 ? print(charList.variable + charList.space) : charList.empty);
-								
-								(def.pack.length == 0 ?	fprint('$result', false) : fprint('$result'));
-								newline(true);
-								
-								typedefs.set(result, true);
-								
-								buf = prevBuf;
-								tabs = prevTab;
+							genPackage(def.pack);
+							
+							for (f in anon.fields) {
+								if (f != anon.fields[0]) output += characters.comma + characters.space;
+								output += f.name + characters.colon + buildRecordType(f.type);
 							}
-						} else {
-							result = recordTypeCache.get(def.name);
+							
+							output += characters.curly.close + characters.curly.close;
+							
+							javaDoc.push(output);
+							
+							addJavaDoc(javaDoc);
+							
+							(def.pack.length == 0 ? print(characters.variable + characters.space) : characters.empty);
+							
+							(def.pack.length == 0 ?	fprint('$result', false) : print(result));
+							newline(true);
+							
+							typedefs.set(result, true);
+							
+							buf = prevBuf;
+							tabs = prevTab;
 						}
 						
 					} else {
 						var anon:AnonType = _a.get();
-						result = charList.brace.open;
+						result = characters.curly.open;
 						for (f in anon.fields) {
-							if (f != anon.fields[0]) result += charList.comma + charList.space;
-							result += f.name + charList.colon + buildRecordType(f.type);
+							if (f != anon.fields[0]) result += characters.comma + characters.space;
+							result += f.name + characters.colon + buildRecordType(f.type);
 						}
-						result += charList.brace.close;
+						result += characters.curly.close;
 					}
-					result = 'TAnonymous';
 				
 				/**
 				 * If not null, send back through buildRecordType and return
@@ -939,9 +902,9 @@ class Uhu  {
 				case TLazy(_f):
 					result = 'TLazy';
 				default:
-					result = charList.empty;
+					result = characters.empty;
 			}
-			recordCache.set(Std.string(type), result);
+			_typeResultCache.set(Std.string(type), result);
 		}
 		
 		return result;
@@ -954,7 +917,7 @@ class Uhu  {
 	public function printType(type:Type, ?optional:Bool = false):String {
 		var _type = buildRecordType(type);
 		
-		if (optional) _type += '=';
+		if (optional) _type += characters.equals;
 		
 		return _type;
 		
@@ -966,7 +929,7 @@ class Uhu  {
 		var fieldAccess:String = printAccess(field);
 		var type:String;
 		
-		if (fieldAccess != '') javaDocs.push(printAccess(field));
+		if (fieldAccess != characters.empty) javaDocs.push(printAccess(field));
 		
 		switch (field.kind) {
 			case FMethod(k):
@@ -977,13 +940,13 @@ class Uhu  {
 						for (_arg in _args) {
 							type = printType(_arg.t, _arg.opt);
 							if (type == self) type = 'Object';
-							javaDocs.push (charList.google._param + ' {' + type + '} ' + _arg.name);
+							javaDocs.push (characters.google._param + characters.space + characters.curly.open + type + characters.curly.close + characters.space + _arg.name);
 						}
 						
-						if (printType(_return) != '') {
+						if (printType(_return) != characters.empty) {
 							type = printType(_return);
 							if (type == self) type = 'Object';
-							javaDocs.push(charList.google._return + ' {' + type + '}');
+							javaDocs.push(characters.google._return + characters.space + characters.curly.open + type + characters.curly.close);
 						}
 						
 					default:
@@ -991,8 +954,8 @@ class Uhu  {
 				
 			case FVar(_read, _write):
 				
-				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(charList.google._const);
-				javaDocs.push('@type {?' + printType(field.type) + '}');
+				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(characters.google._const);
+				javaDocs.push('@type ' + characters.curly.open + characters.question_mark + printType(field.type) + characters.curly.close);
 				
 			default:
 		}
@@ -1026,18 +989,18 @@ class Uhu  {
 			//javaDoc.push('@constructor');
 			javaDoc.push('@const');
 		}*/
-		javaDoc.push(charList.google._const);
+		javaDoc.push(characters.google._const);
 		
-		if (_class.isInterface) javaDoc.push(charList.google._interface);
+		if (_class.isInterface) javaDoc.push(characters.google._interface);
 		
 		if (_class.superClass != null) {
 			superClass = _class.superClass.t.get();
-			javaDoc.push('@extends ' + (superClass.pack.length > 0 ? superClass.pack.join(charList.dot) + charList.dot : '') + superClass.name);
+			javaDoc.push('@extends ' + (superClass.pack.length > 0 ? superClass.pack.join(characters.dot) + characters.dot : characters.empty) + superClass.name);
 		}
 		
 		if (_class.interfaces.length != 0) {
 			for (inter in _class.interfaces) {
-				javaDoc.push(charList.google._implements + ' {' + inter.t.get().module + '}');
+				javaDoc.push(characters.google._implements + characters.space + characters.curly.open + inter.t.get().module + characters.curly.close);
 			}
 		}
 		
@@ -1045,7 +1008,7 @@ class Uhu  {
 			switch (_class.constructor.get().type) {
 				case TFun(_args, _return):
 					for (_arg in _args) {
-						javaDoc.push(charList.google._param + ' {' + printType(_arg.t, _arg.opt) + '} ' + _arg.name);
+						javaDoc.push(characters.google._param + characters.space + characters.curly.open + printType(_arg.t, _arg.opt) + characters.curly.close + characters.space + _arg.name);
 					}
 				default:
 			}
