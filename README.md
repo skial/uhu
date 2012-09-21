@@ -62,11 +62,11 @@ You have just won $10000!
 Well, $6000.0, after taxes.
 ```
 
-## _ALPHA_ Uhu{JS} ##
+## _ALPHA_ Delko ##
 
-**_WARNING_** Uhu{JS} was written just before Haxe 2.10 released, so it needs updating, alot.
+**_WARNING_** Delko was written just before Haxe 2.10 released, so it needs updating, alot.
 
-Uhu{JS} is a custom haxejs generator. It outputs annotated javascript code to be processed by Google Closure Compiler, in advanced mode, producing
+Delko is a custom haxejs generator. It outputs annotated javascript code to be processed by Google Closure Compiler, in advanced mode, producing
 highly compressed, highly efficient javascript, that works exactly the same as the highly efficient javascript generated haxejs.
 
 ## _ALPHA_ Kort ##
