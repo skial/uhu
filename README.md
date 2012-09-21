@@ -129,3 +129,8 @@ isWindows(?input:File):Bool;
 isLinux(?input:File):Bool;
 isMac(?input:File):Bool;
 ```
+
+## _ALPHA_ Jumla ##
+
+Jumla is currently a very tiny Haxe Macro helper class. Helps remove switch statements and find the
+type of ```ExprDef``` you want.

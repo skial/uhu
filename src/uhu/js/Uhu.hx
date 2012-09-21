@@ -8,6 +8,7 @@ import haxe.macro.JSGenApi;
 import haxe.macro.Compiler;
 import haxe.macro.ExampleJSGenerator;
 import neko.FileSystem;
+import uhu.macro.Jumla;
 
 import massive.neko.io.FileSys;
 import massive.neko.util.PathUtil;
@@ -469,6 +470,31 @@ class Uhu  {
 		}
 		
 	}
+	
+	private static var externErrors:Hash<String> = new Hash<String>();
+	
+	public function checkExternClass(c:ClassType):Void {
+		
+		for (f in c.fields.get()) {
+			if (f.meta.has(':runtime')) {
+				
+				switch (f.kind) {
+					case FMethod(k):
+						switch (k) {
+							case MethInline:
+								var ex = Context.getTypedExpr( f.expr() );
+								trace(Jumla.constValue(Jumla.findConstant(ex)));
+								trace(Jumla.findEField(ex));
+							default:
+								
+						}
+					default:
+						
+				}
+				
+			}
+		}
+	}
 
 	function genStaticValue( c : ClassType, cf : ClassField ) {
 		var p = getPath(c);
@@ -494,7 +520,7 @@ class Uhu  {
 				var c = c.get();
 				if( c.init != null )
 					inits.add(c.init);
-				if( !c.isExtern ) genClass(c);
+				if ( !c.isExtern ) genClass(c); else checkExternClass(c);
 			case TEnum(r, _):
 				var e = r.get();
 				if( !e.isExtern ) genEnum(e);
