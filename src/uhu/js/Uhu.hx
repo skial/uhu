@@ -23,6 +23,7 @@ import tink.macro.tools.TypeTools;
 import tink.core.types.Outcome;
 import tink.core.types.Option;
 
+using uhu.macro.Jumla;
 using Lambda;
 using StringTools;
 using tink.macro.tools.MacroTools;
@@ -131,6 +132,7 @@ class Uhu  {
 	var typedefs : Hash<Bool>;
 	var forbidden : Hash<Bool>;
 	var types:Hash<String>;
+	var addFeature:Hash<Bool>;
 
 	public function new(api) {
 		this.api = api;
@@ -153,6 +155,7 @@ class Uhu  {
 		packages = new Hash();
 		typedefs = new Hash();
 		forbidden = new Hash();
+		addFeature = new Hash<Bool>();
 		
 		types = new Hash<String>();
 		types.set('Dynamic', 'Object');
@@ -353,6 +356,7 @@ class Uhu  {
 		newline(true, 1);
 		
 		for ( f in c.statics.get() ) {
+			
 			genStaticField(c, p, f);
 		}
 		
@@ -389,7 +393,6 @@ class Uhu  {
 		var i:Int = 0;
 		
 		for ( f in c.fields.get() ) {
-			
 			switch( f.kind ) {
 				case FVar(r, _):
 					if( r == AccResolve ) continue;
@@ -471,28 +474,19 @@ class Uhu  {
 		
 	}
 	
-	private static var externErrors:Hash<String> = new Hash<String>();
-	
-	public function checkExternClass(c:ClassType):Void {
+	/**
+	 * This is a, hopefully temporary, fix to $iterator appearing in the
+	 * output. 
+	 */
+	public function genExtern(c:ClassType):Void {
 		
 		for (f in c.fields.get()) {
-			if (f.meta.has(':runtime')) {
-				
-				switch (f.kind) {
-					case FMethod(k):
-						switch (k) {
-							case MethInline:
-								var ex = Context.getTypedExpr( f.expr() );
-								trace(Jumla.constValue(Jumla.findConstant(ex)));
-								trace(Jumla.findEField(ex));
-							default:
-								
-						}
-					default:
-						
-				}
-				
+			
+			if (f.meta.has(':runtime') && f.name == 'iterator') {
+				addFeature.set('$iterator', true);
+				addFeature.set('$bind', true);
 			}
+			
 		}
 	}
 
@@ -520,7 +514,7 @@ class Uhu  {
 				var c = c.get();
 				if( c.init != null )
 					inits.add(c.init);
-				if ( !c.isExtern ) genClass(c); else checkExternClass(c);
+				if ( !c.isExtern ) genClass(c); else genExtern(c);
 			case TEnum(r, _):
 				var e = r.get();
 				if( !e.isExtern ) genEnum(e);
@@ -529,6 +523,8 @@ class Uhu  {
 	}
 
 	public function generate() {
+		
+		var entryBuffer:StringBuf = buf;
 		
 		if (Context.defined('js_modern')) {
 			print(' "use strict";');
@@ -601,10 +597,24 @@ class Uhu  {
 		tabs--;
 		newline();
 		
+		buf = entryBuffer;
+		if (addFeature.exists('$bind')) {
+			print('var $_');
+			newline(true);
+			print("function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; }");
+			newline();
+		}
+		
+		if (addFeature.exists('$iterator')) {
+			print("function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }");
+			newline();
+		}
+		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
 		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + '_uhu_'), null, true);
 		var file = null;
+		var out = '';
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
@@ -612,10 +622,11 @@ class Uhu  {
 		 */
 		//for (f in bufA.keys()) {
 		for (f in bufA) {
+			out = f.b.toString().replace('.$bind', '["$bind"]');
 			//file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
 			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
 			//file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
-			file.writeString(f.b.toString().replace('.$bind', '["$bind"]'));
+			file.writeString(out);
 			file.close();
 		}
 		
@@ -636,7 +647,6 @@ class Uhu  {
 			
 			file.close();
 		}
-		
 	}
 	
 	/**

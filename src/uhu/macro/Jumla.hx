@@ -14,6 +14,23 @@ using tink.macro.tools.MacroTools;
  */
 class Jumla {
 	
+	public static function fieldKind(field:haxe.macro.Type.ClassField):String {
+		
+		var result = '';
+		
+		switch (field.kind) {
+			case FMethod(k):
+				switch (k) {
+					default:
+						result = Type.enumConstructor(k);
+				}
+			default:
+				result = Type.enumConstructor(field.kind);
+		}
+		
+		return result;
+	}
+	
 	public static function constValue(constant:Constant):String {
 		
 		var result:String = null;
@@ -36,7 +53,7 @@ class Jumla {
 	/**
 	 * This method just tries and finds a Constant enum.
 	 */
-	public inline static function findConstant(expr:Expr):Null<Constant> {
+	public inline static function findEConst(expr:Expr):Null<Constant> {
 		var result = findExpr(expr, 'EConst');
 		return (result != null) ? result[0] : null;
 	}
