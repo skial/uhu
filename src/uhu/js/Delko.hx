@@ -82,7 +82,7 @@ using tink.core.types.Option;
  * 		uhu_remove_class_ref	eg: __class__:MyClass
  */
 
-class Uhu  {
+class Delko  {
 	
 	public static var characters = {
 		dot:'.',
@@ -148,7 +148,7 @@ class Uhu  {
 		/**
 		 * Add the first string buffer
 		 */
-		bufA.push( { n:'UhuEntry', b:buf } );
+		bufA.push( { n:'DelkoEntry', b:buf } );
 		//bufA.set('UhuEntry', buf);
 		inits = new List();
 		statics = new List();
@@ -612,7 +612,7 @@ class Uhu  {
 		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
-		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + '_uhu_'), null, true);
+		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + 'fragments'), null, true);
 		var file = null;
 		var out = '';
 		/**
@@ -622,7 +622,8 @@ class Uhu  {
 		 */
 		//for (f in bufA.keys()) {
 		for (f in bufA) {
-			out = f.b.toString().replace('.$bind', '["$bind"]');
+			//out = f.b.toString().replace('.$bind', '["$bind"]');
+			out = f.b.toString();
 			//file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
 			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
 			//file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
@@ -642,7 +643,7 @@ class Uhu  {
 			
 			//for (f in bufA.keys()) {
 			for (f in bufA) {
-				file.writeString('--js .' + sep + '_uhu_' + sep + f.n + '.js ');
+				file.writeString('--js .' + sep + 'fragments' + sep + f.n + '.js ');
 			}
 			
 			file.close();
@@ -651,7 +652,7 @@ class Uhu  {
 	
 	/**
 	 * -------------------------
-	 * UHU METHODS AND VARIABLES
+	 * DELKO METHODS AND VARIABLES
 	 * -------------------------
 	 */ 
 	
@@ -735,7 +736,7 @@ class Uhu  {
 	private static var _typePartCache:Hash<String> = new Hash<String>();
 	private static var _typeResultCache:Hash<String> = new Hash();
 	/**
-	 * UHU GOD!
+	 * DELKO GOD!
 	 */
 	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
 		var result = _typeResultCache.get(Std.string(type));
@@ -1056,7 +1057,7 @@ class Uhu  {
 	
 	#if macro
 	public static function use() {
-		Compiler.setCustomJSGenerator(function(api) new Uhu(api).generate());
+		Compiler.setCustomJSGenerator(function(api) new Delko(api).generate());
 	}
 	#end
 	
