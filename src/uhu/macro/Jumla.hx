@@ -10,7 +10,7 @@ using tink.macro.tools.MacroTools;
  */
 
 /**
- * Swahili for macro
+ * Swahili for macro, I think
  */
 class Jumla {
 	

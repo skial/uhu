@@ -555,7 +555,7 @@ class Delko  {
 		newline();
 		
 		addJavaDoc(['@param {Object} src', '@param {string} path']);
-		printParts(['function $hxExpose(src, path) {', '\t/** @type {Window} */', '\tvar o = window;', 
+		printParts(['function $hxExpose(src, path) {', '\t/** @type {Window} */', '\tvar o = typeof window != \"undefined\" ? window : exports;', 
 		'\t/** @type {Array.<string>} */', '\tvar parts = path.split(".");', '\tfor (var ii = 0; ii < parts.length-1; ++ii) {', 
 		'\t\tvar p = parts[ii];', '\t\tif(typeof o[p] == "undefined") o[p] = {};', '\t\to = o[p];', '\t}', '\to[parts[parts.length-1]] = src;', '}']);
 		
