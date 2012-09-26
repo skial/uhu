@@ -8,6 +8,6 @@ import js.Dom;
  */
 
 typedef TWindow = { > Window,
-	function requestAnimationFrame(_callback:Dynamic, ?_element:HtmlDom):Bool;
+	function requestAnimationFrame(_callback:Dynamic, ?_element:HtmlDom):Dynamic;
 	function cancelAnimationFrame(id:Int):Void;
 }

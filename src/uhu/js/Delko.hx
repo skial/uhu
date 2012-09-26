@@ -573,9 +573,11 @@ class Delko  {
 		/**
 		 * Generate code for all __init__ methods
 		 */
-		for( e in inits ) {
-			print(api.generateStatement(e).replace(characters.newline, characters.newline + repeat(characters.tab, tabs)));
-			newline();
+		for ( e in inits ) {
+			var string = api.generateStatement(e);
+			string = string.replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
+			print(string);
+			newline(string.trim().endsWith('}') ? false : true);
 		}
 		
 		/**
