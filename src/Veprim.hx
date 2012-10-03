@@ -13,15 +13,19 @@ import uhu.Library;
  * @author Skial Bainn
  */
 
-// Veprim is Albanian for move
+// Veprim is Albanian for move, I hope...
 class Veprim extends Tween {
+	
+	#if raf
+	static var _rafId:Int;
+	#end
 
 	static function AddTween(tween : Tween) {
 		if ( !Tween._isTweening )
 		{
 			#if ( !nme && js )
 				#if raf
-				Library.window.requestAnimationFrame(cb_tick);
+				_rafId = Library.window.requestAnimationFrame(cb_tick);
 				#else
 				Tween._timer 		= new haxe.Timer( Tween.INTERVAL ) ;
 				Tween._timer.run 	= cb_tick;
@@ -34,6 +38,28 @@ class Veprim extends Tween {
 		}
 		
 		Tween._aTweens.add( tween );
+	}
+	
+	static function RemoveTween( tween : Tween ) : Void {
+		if ( !Tween._isTweening )
+			return;
+		Tween._aTweens.remove( tween );
+		if (Tween._aTweens.isEmpty() && Tween._aPaused.isEmpty() )	{
+			#if ( !nme && js )
+				#if raf
+				if (_rafId != null) {
+					Library.window.cancelAnimationFrame(_rafId);
+					_rafId = null;
+				}
+				#else
+				_timer.stop() ;
+				_timer	= null ;
+				#end
+			#else
+				Lib.current.stage.removeEventListener( Event.ENTER_FRAME, cb_tick );
+			#end
+			Tween._isTweening = false;
+		}
 	}
 	
 	static function cb_tick( #if ( raf || nme || flash ) ?_ #end ) : Void	{
@@ -57,8 +83,26 @@ class Veprim extends Tween {
 		if ( duration == 0 )
 			finish();
 		else
-			AddTween( this );
+			Veprim.AddTween( this );
 		isPlaying = true;
+	}
+	
+	override public function stop():Void {
+		Veprim.RemoveTween( this );
+		isPlaying = false;
+	}
+	
+	override private function finish():Void {
+		Veprim.RemoveTween( this );
+		var val = 0.0;
+		isPlaying = false;
+		if ( reversed )
+			val = _initVal;
+		else
+			val = _endVal;
+		
+		updateF( val );
+		endF();
 	}
 	
 }
@@ -70,8 +114,32 @@ class VeprimObject extends TweenObject {
 	}
 	
 	public function new(target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false) {
-		super(target, properties, duration, easing, onFinish, autoStart);
+		this.target		= target;
+		this.properties	= properties;
+		this.duration	= duration;
+		
+		if ( easing != null )
+			this.easing = easing;
+		if( onFinish != null )
+			endF = onFinish;
+		
+		tweens		= new FastList<Tween>();
+		for ( key in Reflect.fields( properties ) ) {
+			var prop = { };
+			Reflect.setProperty( prop, key, Reflect.getProperty( properties, key ) );
+			var tweenProp = new VeprimProperty(target, prop, duration, easing, _endF);
+			tweens.add( tweenProp );
+		}
+		
+		if ( autoStart )
+			start();
 	}
+	
+	/*override function _endF(tp:VeprimProperty) {
+		tweens.remove( tp );
+		if ( tweens.isEmpty() )			
+			endF();
+	}*/
 	
 }
 
