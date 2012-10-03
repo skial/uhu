@@ -2,11 +2,11 @@ package ;
 
 import feffects.Tween;
 import haxe.FastList;
-import uhu.js.Console;
 #if js
 	#if raf
 	import uhu.js.RAF;
 	#end
+import uhu.js.Console;
 import uhu.Library;
 #end
 
@@ -219,6 +219,7 @@ private class VeprimProperty extends Veprim {
 		_target = target;
 		_property = Reflect.fields( prop )[ 0 ];
 		__endF = endF;
+		
 		#if js
 		_isCss = Reflect.hasField(cssMap, _property);
 		_cssValue = _isCss ? Reflect.field(cssMap, _property) : '';
