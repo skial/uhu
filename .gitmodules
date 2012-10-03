@@ -1,6 +1,3 @@
 [submodule "domtools"]
 	path = domtools
 	url = https://github.com/jasononeil/domtools.git
-[submodule "actuate"]
-	path = actuate
-	url = https://github.com/skial/actuate.git
