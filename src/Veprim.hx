@@ -69,7 +69,7 @@ class Veprim extends Tween {
 			i.doInterval();
 		}
 		
-		#if raf
+		#if (js && raf)
 		Library.window.requestAnimationFrame(cb_tick);
 		#end
 	}
@@ -132,9 +132,7 @@ class VeprimObject {
 		this.target		= target;
 		this.properties	= properties;
 		this.duration	= duration;
-		Console.log(properties);
-		Console.log(Reflect.fields(properties));
-		Console.log(Reflect.fields(target));
+		
 		if ( easing != null )
 			this.easing = easing;
 		if( onFinish != null )
@@ -207,18 +205,27 @@ class VeprimObject {
 
 private class VeprimProperty extends Veprim {
 	
-	static var cssMap = { top:'px', left:'px', bottom:'px', right:'px', width:'px', height:'px', opacity:'' };
-	
 	var _target		: Dynamic;
 	var _property	: String;
 	var __endF		: VeprimProperty->Void;
+	
+	#if js
+	private static var cssMap = { top:'px', left:'px', bottom:'px', right:'px', width:'px', height:'px', opacity:'' };
+	var _isCss		: Bool;
+	var _cssValue	: String;
+	#end
 	
 	public function new( target : Dynamic, prop : Dynamic, duration : Int, ?easing : Easing, endF : VeprimProperty->Void ) {
 		_target = target;
 		_property = Reflect.fields( prop )[ 0 ];
 		__endF = endF;
-		
+		#if js
+		_isCss = Reflect.hasField(cssMap, _property);
+		_cssValue = _isCss ? Reflect.field(cssMap, _property) : '';
+		var init = (!_isCss ? Reflect.getProperty( target, _property ) : Std.parseFloat(Reflect.getProperty(untyped target.style, _property ) ));
+		#else
 		var init = Reflect.getProperty( target, _property );
+		#end
 		var end = Reflect.getProperty( prop, _property );
 		
 		super( init, end, duration, easing );
@@ -228,7 +235,15 @@ private class VeprimProperty extends Veprim {
 	}
 	
 	inline function _updateF( n : Float ) {
+		#if js
+		if (!_isCss) {
+			Reflect.setProperty( _target, _property, n );
+		} else {
+			Reflect.setProperty(untyped _target.style, _property, n + _cssValue);
+		}
+		#else
 		Reflect.setProperty( _target, _property, n );
+		#end
 	}
 	
 	inline function _endF() {
