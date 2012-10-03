@@ -130,6 +130,13 @@ isLinux(?input:File):Bool;
 isMac(?input:File):Bool;
 ```
 
+## Veprim ##
+
+Veprim is an extension to the [FEffects](http://code.google.com/p/feffects/) tween library. Current only adds the option of ```requestAnimationFrame```
+being used. More javascript specific addition will hopefully be added.
+
+Once I'm happy with the changes, I will try and get the changes accepted back into the FEffects library.
+
 ## _ALPHA_ Jumla ##
 
 Jumla is currently a very tiny Haxe Macro helper class. Helps remove switch statements and find the

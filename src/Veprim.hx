@@ -1,4 +1,4 @@
-package uhu;
+package ;
 
 import feffects.Tween;
 import uhu.js.RAF;
