@@ -130,59 +130,6 @@ isLinux(?input:File):Bool;
 isMac(?input:File):Bool;
 ```
 
-## Veprim ##
-
-Veprim is an extension to the [FEffects](http://code.google.com/p/feffects/) tween library. Currenty Veprim adds the following :
-	
-- requestAnimationFrame
-- animating the following css values :
-	* top
-	* left
-	* bottom
-	* right
-	* width
-	* height
-	
-```
-package ;
-
-import Detox;
-import UserAgent;
-import UserAgentContext;
-import feffects.Tween;
-import uhu.js.RAF;
-import uhu.Library;
-import Veprim;
-
-using Detox;
-using Veprim.VeprimObject;
-
-class Test {
-	
-	public static function main() {
-		new Test();
-	}
-
-	public function new() {
-		
-		var div:HTMLElement = untyped Detox.create('div');
-		var body = Detox.find('body');
-		
-		div.style.position = 'absolute';
-		div.style.width = div.style.height = '100px';
-		div.style.backgroundColor = 'black';
-		div.style.left = div.style.top = '0px';
-		
-		body.append(div);
-		
-		div.tween( { left:300, top:500 }, 3000).start();
-	}
-	
-}
-```
-
-Once I'm happy with the changes, I will try and get the changes accepted back into the FEffects library.
-
 ## _ALPHA_ Jumla ##
 
 Jumla is currently a very tiny Haxe Macro helper class. Helps remove switch statements and find the
