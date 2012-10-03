@@ -1,14 +1,19 @@
 package ;
 
 import feffects.Tween;
-import uhu.js.RAF;
+#if js
+	#if raf
+	import uhu.js.RAF;
+	#end
 import uhu.Library;
+#end
 
 /**
  * ...
  * @author Skial Bainn
  */
 
+// Veprim is Albanian for move
 class Veprim extends Tween {
 
 	static function AddTween(tween : Tween) {
@@ -52,8 +57,50 @@ class Veprim extends Tween {
 		if ( duration == 0 )
 			finish();
 		else
-			UTween.AddTween( this );
+			AddTween( this );
 		isPlaying = true;
+	}
+	
+}
+
+class VeprimObject extends TweenObject {
+	
+	public static function tween( target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false ) {
+		return new VeprimObject(target, properties, duration, easing, onFinish, autoStart);
+	}
+	
+	public function new(target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false) {
+		super(target, properties, duration, easing, onFinish, autoStart);
+	}
+	
+}
+
+private class VeprimProperty extends Veprim {
+	
+	var _target		: Dynamic;
+	var _property	: String;
+	var __endF		: VeprimProperty->Void;
+	
+	public function new( target : Dynamic, prop : Dynamic, duration : Int, ?easing : Easing, endF : VeprimProperty->Void ) {
+		_target = target;
+		_property = Reflect.fields( prop )[ 0 ];
+		__endF = endF;
+		
+		var init = Reflect.getProperty( target, _property );
+		var end = Reflect.getProperty( prop, _property );
+		
+		super( init, end, duration, easing );
+		
+		onUpdate( _updateF );
+		onFinish( _endF );
+	}
+	
+	inline function _updateF( n : Float ) {
+		Reflect.setProperty( _target, _property, n );
+	}
+	
+	inline function _endF() {
+		__endF( this );
 	}
 	
 }
