@@ -1,6 +1,8 @@
 package ;
 
 import feffects.Tween;
+import haxe.FastList;
+import uhu.js.Console;
 #if js
 	#if raf
 	import uhu.js.RAF;
@@ -107,27 +109,43 @@ class Veprim extends Tween {
 	
 }
 
-class VeprimObject extends TweenObject {
+class VeprimObject {
 	
-	public static function tween( target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false ) {
-		return new VeprimObject(target, properties, duration, easing, onFinish, autoStart);
+	public var tweens		(default, null)			: FastList<Veprim>;
+	public var target		(default, null)			: Dynamic;
+	public var properties	(default, null)			: Dynamic;
+	public var duration		(default, null)			: Int;
+	public var easing		(default, null)			: Easing;
+	public var isPlaing		(get_isPlaying, null)	: Bool;
+	function get_isPlaying() {
+		for ( tween in tweens ) 
+			if ( tween.isPlaying )
+				return true;
+		return false;
 	}
 	
-	public function new(target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false) {
+	public static function tween( target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false ) {
+		return new VeprimObject( target, properties, duration, easing, onFinish, autoStart );
+	}
+	
+	public function new( target : Dynamic, properties : Dynamic, duration : Int, ?easing : Easing, ?onFinish : Void->Void, autoStart = false ) {
 		this.target		= target;
 		this.properties	= properties;
 		this.duration	= duration;
-		
+		Console.log(properties);
+		Console.log(Reflect.fields(properties));
+		Console.log(Reflect.fields(target));
 		if ( easing != null )
 			this.easing = easing;
 		if( onFinish != null )
 			endF = onFinish;
 		
-		tweens		= new FastList<Tween>();
+		tweens		= new FastList<Veprim>();
 		for ( key in Reflect.fields( properties ) ) {
+			
 			var prop = { };
 			Reflect.setProperty( prop, key, Reflect.getProperty( properties, key ) );
-			var tweenProp = new VeprimProperty(target, prop, duration, easing, _endF);
+			var tweenProp = new VeprimProperty( target, prop, duration, easing, _endF );
 			tweens.add( tweenProp );
 		}
 		
@@ -135,15 +153,61 @@ class VeprimObject extends TweenObject {
 			start();
 	}
 	
-	/*override function _endF(tp:VeprimProperty) {
+	public function setEasing( easing : Easing ) {
+		for ( tweenProp in tweens )
+			tweenProp.setEasing( easing );
+		return this;
+	}
+	
+	public function start() {
+		for ( tweenProp in tweens )
+			tweenProp.start();
+		return tweens;
+	}
+	
+	public function pause() {
+		for ( tweenProp in tweens )
+			tweenProp.pause();
+	}
+	
+	public function resume() {
+		for ( tweenProp in tweens )
+			tweenProp.resume();
+	}
+	
+	public function seek( n : Int ) {
+		for ( tweenProp in tweens )
+			tweenProp.seek( n );
+	}
+	
+	public function reverse() {
+		for ( tweenProp in tweens )
+			tweenProp.reverse();
+	}
+	
+	public function stop() {
+		for ( tweenProp in tweens )
+			tweenProp.stop();
+	}
+	
+	public function onFinish( f : Void->Void ) {
+		endF = f;
+		return this;
+	}
+		
+	dynamic function endF() {}
+		
+	function _endF( tp : VeprimProperty ) {
 		tweens.remove( tp );
 		if ( tweens.isEmpty() )			
 			endF();
-	}*/
+	}
 	
 }
 
 private class VeprimProperty extends Veprim {
+	
+	static var cssMap = { top:'px', left:'px', bottom:'px', right:'px', width:'px', height:'px', opacity:'' };
 	
 	var _target		: Dynamic;
 	var _property	: String;

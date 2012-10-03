@@ -1,3 +1,6 @@
 [submodule "domtools"]
 	path = domtools
 	url = https://github.com/jasononeil/domtools.git
+[submodule "stdjs"]
+	path = stdjs
+	url = https://github.com/skial/stdjs.git
