@@ -98,7 +98,7 @@ class Veprim extends Tween {
 		Veprim.RemoveTween( this );
 		var val = 0.0;
 		isPlaying = false;
-		if ( reversed )
+		if ( isReversed )
 			val = _initVal;
 		else
 			val = _endVal;

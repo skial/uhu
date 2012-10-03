@@ -4,3 +4,6 @@
 [submodule "stdjs"]
 	path = stdjs
 	url = https://github.com/skial/stdjs.git
+[submodule "feffects"]
+	path = feffects
+	url = https://github.com/skial/feffects.git
