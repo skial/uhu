@@ -1,5 +1,5 @@
-[submodule "domtools"]
-	path = domtools
+[submodule "detox"]
+	path = detox
 	url = https://github.com/jasononeil/detox.git
 [submodule "stdjs"]
 	path = stdjs
