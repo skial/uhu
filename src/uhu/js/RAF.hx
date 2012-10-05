@@ -19,8 +19,7 @@ class RAF {
 	private static var lastTime:Int = 0;
 
 	public static function __init__():Void {
-		Console.log('RAF');
-		var _window:Dynamic = untyped window;
+		var _window:Dynamic = untyped __js__('window');
 		/**
 		 * http://www.andismith.com/blog/2012/02/modernizr-prefixed/
 		 * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -31,8 +30,17 @@ class RAF {
 		 * https://gist.github.com/1579671
 		 */
 		
-		_window.requestAnimationFrame = Check.prefixed('RequestAnimationFrame', _window);
-		_window.cancelAnimationFrame = Check.prefixed('CancelAnimationFrame', _window) || Check.prefixed('CancelRequestAnimationFrame', _window);
+		#if modernizr
+		_window.requestAnimationFrame = Modernizr.prefixed('RequestAnimationFrame', _window);
+		_window.cancelAnimationFrame = Modernizr.prefixed('CancelAnimationFrame', _window) || Modernizr.prefixed('CancelRequestAnimationFrame', _window);
+		#else
+		var vendors:Array<String> = ['ms', 'moz', 'webkit', 'o'];
+		for (x in vendors) {
+			if (Reflect.hasField(_window, x + 'RequestAnimationFrame')) _window.requestAnimationFrame = untyped _window[vendors[x] + 'RequestAnimationFrame'];
+			if (Reflect.hasField(_window, x + 'CancelAnimationFrame')) _window.requestAnimationFrame = untyped _window[vendors[x] + 'CancelAnimationFrame'];
+			if (Reflect.hasField(_window, x + 'CancelRequestAnimationFrame')) _window.requestAnimationFrame = untyped _window[vendors[x] + 'CancelRequestAnimationFrame'];
+		}
+		#end
 		
 		if (!_window.requestAnimationFrame) {
 			_window.requestAnimationFrame = function(_callback:Dynamic, element:HTMLElement) {
