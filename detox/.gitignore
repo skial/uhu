@@ -1,0 +1,11 @@
+Editor files
+*.sublime*
+.*~
+
+Compiled Files
+*.zip
+build/
+package/
+doc/
+report/
+tmp/
