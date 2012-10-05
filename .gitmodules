@@ -7,3 +7,6 @@
 [submodule "feffects"]
 	path = feffects
 	url = https://github.com/skial/feffects.git
+[submodule "beanhx"]
+	path = beanhx
+	url = https://github.com/skial/beanhx.git
