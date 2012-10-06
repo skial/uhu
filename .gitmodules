@@ -10,3 +10,6 @@
 [submodule "beanhx"]
 	path = beanhx
 	url = https://github.com/skial/beanhx.git
+[submodule "Modernizr"]
+	path = Modernizr
+	url = https://github.com/skial/Modernizr.git
