@@ -3,12 +3,14 @@ package uhu;
 #if macro
 typedef WindowProxy = Dynamic;
 typedef HTMLElement = Dynamic;
+typedef CSSStyleDeclaration = Dynamic;
 
 import haxe.macro.Compiler;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.tools.AST;
-import uhu.macro.compile.Du;
+
+import uhu.js.typedefs.TBoundingClientRect;
 
 using tink.macro.tools.MacroTools;
 #end 
@@ -17,8 +19,9 @@ using tink.macro.tools.MacroTools;
 //import js.Lib;
 import UserAgent;
 import UserAgentContext;
-import uhu.js.typedefs.TBoundingClientRect;
 #end
+
+import uhu.js.typedefs.TBoundingClientRect;
 
 /**
  * ...
@@ -27,7 +30,7 @@ import uhu.js.typedefs.TBoundingClientRect;
 
 class Library {
 	
-	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):Expr {
+	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
 		Context.getModule('uhu.js.RAF');
 		//return Context.parse('untyped window.requestAnimationFrame(handler, element)', Context.currentPos());
@@ -40,7 +43,7 @@ class Library {
 		return macro untyped __js__('window.cancelAnimationFrame')($id);
 	}
 	
-	#if js
+	
 	public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
 		return untyped element.getBoundingClientRect();
 	}
@@ -58,16 +61,6 @@ class Library {
 	}
 	
 	/**
-	 * Got this from [domtools (dtx, detox)?](https://github.com/jasononeil/domtools) 
-	 * Thanks!
-	 */
-	public static function parse(html:String):HTMLElement {
-		var e = UserAgent.window.document.createElement('div');
-		e.innerHTML = html;
-		return cast e.firstChild;
-	}
-	
-	/**
 	 * Not cool
 	 */
 	public static inline function addEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
@@ -77,7 +70,6 @@ class Library {
 	public static inline function removeEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
 		untyped element.removeEventListener(type, listener, useCapture);
 	}
-	#end
 	
 	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
