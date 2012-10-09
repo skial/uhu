@@ -1,21 +1,23 @@
 package uhu;
 
-#if (macro || neko)
+#if macro
+typedef WindowProxy = Dynamic;
+typedef HTMLElement = Dynamic;
+
+import haxe.macro.Compiler;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.tools.AST;
+import uhu.macro.compile.Du;
 
 using tink.macro.tools.MacroTools;
 #end 
 
 #if js
+//import js.Lib;
 import UserAgent;
 import UserAgentContext;
-import js.Lib;
-//import js.Dom;
 import uhu.js.typedefs.TBoundingClientRect;
-import uhu.js.typedefs.TDocument;
-import uhu.js.typedefs.TWindow;
 #end
 
 /**
@@ -25,10 +27,20 @@ import uhu.js.typedefs.TWindow;
 
 class Library {
 	
-	#if js
-	public static var window:TWindow = untyped __js__('window');
-	public static var document:TDocument = untyped __js__('document');
+	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):Expr {
+		Compiler.define('raf');
+		Context.getModule('uhu.js.RAF');
+		//return Context.parse('untyped window.requestAnimationFrame(handler, element)', Context.currentPos());
+		return macro untyped __js__('window.requestAnimationFrame')($handler, $element);
+	}
 	
+	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):Expr {
+		Compiler.define('raf');
+		Context.getModule('uhu.js.RAF');
+		return Context.parse('untyped window.cancelAnimationFrame(id)', Context.currentPos());
+	}
+	
+	#if js
 	public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
 		return untyped element.getBoundingClientRect();
 	}

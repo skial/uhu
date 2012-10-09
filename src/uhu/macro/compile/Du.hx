@@ -1,5 +1,7 @@
 package uhu.macro.compile;
 import haxe.io.Eof;
+import haxe.macro.Type;
+import haxe.macro.Compiler;
 import haxe.macro.Context;
 
 using StringTools;
@@ -9,12 +11,10 @@ using StringTools;
  * @author Skial Bainn
  */
 
-class Compiler {
+// Haitian Creole for compiler
+class Du {
 
-	#if !macro
-	@:macro 
-	#end
-	public static function patchTypes(file:String) {
+	@:macro public static function patchTypes(file:String) {
 		var file = neko.io.File.read(Context.resolvePath(file), true);
 		try {
 			while (true) {
@@ -87,6 +87,7 @@ class Compiler {
 		} catch (e:Eof) {
 			
 		}
+		return macro null;
 	}
 	
 }
