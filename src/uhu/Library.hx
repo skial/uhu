@@ -21,6 +21,8 @@ import UserAgent;
 import UserAgentContext;
 #end
 
+using Std;
+
 import uhu.js.typedefs.TBoundingClientRect;
 
 /**
@@ -33,11 +35,10 @@ class Library {
 	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
 		Context.getModule('uhu.js.RAF');
-		//return Context.parse('untyped window.requestAnimationFrame(handler, element)', Context.currentPos());
 		return macro untyped __js__('window.requestAnimationFrame')($handler, $element);
 	}
 	
-	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):Expr {
+	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):ExprOf<Void> {
 		Compiler.define('raf');
 		Context.getModule('uhu.js.RAF');
 		return macro untyped __js__('window.cancelAnimationFrame')($id);
@@ -63,19 +64,18 @@ class Library {
 	/**
 	 * Not cool
 	 */
-	public static inline function addEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
+	@:extern public static inline function addEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
 		untyped element.addEventListener(type, listener, useCapture);
 	}
 	
-	public static inline function removeEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
+	@:extern public static inline function removeEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
 		untyped element.removeEventListener(type, listener, useCapture);
 	}
 	
 	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
 	 */
-	@:macro 
-	public static function loadTemplate( fileName : ExprOf<String> )	{
+	@:macro public static function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
 		var p = Context.currentPos();
 		var f:String;
 		
@@ -109,11 +109,10 @@ class Library {
 			Context.error(errorMessage, p);
 		}
 		
-		return { expr : EConst(CString(f)), pos : p };
+		return macro f;
 	}
 	
-	@:macro
-	public static function untype(e:ExprOf<Dynamic>):Expr {
+	@:macro public static function untype(e:ExprOf<Dynamic>):ExprOf<Dynamic> {
 		/**
 		 * Returns the expression but untyped.
 		 */
@@ -123,8 +122,7 @@ class Library {
 	/**
 	 * https://developers.google.com/closure/compiler/docs/api-tutorial3#propnames
 	 */
-	@:macro
-	public static function exportProperty(e:ExprOf<Dynamic>):Expr {
+	@:macro public static function exportProperty(e:ExprOf<Dynamic>):Expr {
 		#if !display
 		var output:String = null;
 		
@@ -239,7 +237,7 @@ class Library {
 		#end
 	}
 	
-	#if (macro || neko)
+	#if macro
 	private static function getTypePath(from:ComplexType):TypePath {
 		switch(from) {
 			case TPath(_p):
