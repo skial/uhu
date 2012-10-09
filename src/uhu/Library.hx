@@ -37,7 +37,7 @@ class Library {
 	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):Expr {
 		Compiler.define('raf');
 		Context.getModule('uhu.js.RAF');
-		return Context.parse('untyped window.cancelAnimationFrame(id)', Context.currentPos());
+		return macro untyped __js__('window.cancelAnimationFrame')($id);
 	}
 	
 	#if js
