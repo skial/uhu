@@ -10,19 +10,22 @@ import feffects.Tween;
 class Veprim extends Tween.TweenObject {
 	
 	private var __onUpdate:Dynamic;
+	private var __onUpdateParams:Array<Dynamic>;
 	
-	public static function tween(target:Dynamic, properties:Dynamic, duration:Int, ?easing:Easing, autoStart = false, ?onUpdate:Dynamic, ?onFinish:Dynamic, ?onFinishParams:Array<Dynamic>) {
+	public static function tween(target:Dynamic, properties:Dynamic, duration:Int, ?easing:Easing, autoStart = false, ?onUpdate:Dynamic, onUpdateParams:Array<Dynamic>, ?onFinish:Dynamic, ?onFinishParams:Array<Dynamic>) {
 		return new Veprim(target, properties, duration, easing, autoStart, onUpdate, onFinish, onFinishParams);
 	}
 
-	public function new(target:Dynamic, properties:Dynamic, duration:Int, ?easing:Easing, autoStart = false, ?onUpdate:Dynamic, onFinish:Dynamic, ?onFinishParams:Array<Dynamic>) {
+	public function new(target:Dynamic, properties:Dynamic, duration:Int, ?easing:Easing, autoStart = false, ?onUpdate:Dynamic, onUpdateParams:Array<Dynamic>, onFinish:Dynamic, ?onFinishParams:Array<Dynamic>) {
 		super(target, properties, duration, easing, autoStart, onFinish, onFinishParams);
 		
 		__onUpdate = onUpdate;
+		__onUpdateParams = onUpdateParams;
 	}
 	
-	public function onUpdate(method:Dynamic):Veprim {
+	public function onUpdate(method:Dynamic, ?params:Array<Dynamic>):Veprim {
 		__onUpdate = method;
+		__onUpdateParams = params;
 		return this;
 	}
 	
@@ -35,7 +38,7 @@ class Veprim extends Tween.TweenObject {
 		}
 		
 		if (__onUpdate != null) {
-			this.tweens.last().onUpdate(__onUpdate);
+			this.tweens.last().onUpdate(__onUpdate, __onUpdateParams);
 		}
 		
 		return tweens;

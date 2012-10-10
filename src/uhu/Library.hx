@@ -9,6 +9,7 @@ import haxe.macro.Compiler;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.tools.AST;
+import uhu.macro.Du;
 
 import uhu.js.typedefs.TBoundingClientRect;
 
@@ -16,7 +17,6 @@ using tink.macro.tools.MacroTools;
 #end 
 
 #if js
-//import js.Lib;
 import UserAgent;
 import UserAgentContext;
 #end
@@ -34,13 +34,13 @@ class Library {
 	
 	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
-		Context.getModule('uhu.js.RAF');
+		Du.include(['uhu.js.RAF']);
 		return macro untyped __js__('window.requestAnimationFrame')($handler, $element);
 	}
 	
 	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):ExprOf<Void> {
 		Compiler.define('raf');
-		Context.getModule('uhu.js.RAF');
+		Du.include(['uhu.js.RAF']);
 		return macro untyped __js__('window.cancelAnimationFrame')($id);
 	}
 	

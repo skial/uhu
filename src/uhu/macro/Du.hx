@@ -1,4 +1,5 @@
-package uhu.macro.compile;
+package uhu.macro;
+
 import haxe.io.Eof;
 import haxe.macro.Type;
 import haxe.macro.Compiler;
@@ -13,6 +14,13 @@ using StringTools;
 
 // Haitian Creole for compiler
 class Du {
+	
+	@:macro public static function include(classes:Array<String>) {
+		for (cls in classes) {
+			Context.getModule(cls);
+		}
+		return macro null;
+	}
 
 	@:macro public static function patchTypes(file:String) {
 		var file = neko.io.File.read(Context.resolvePath(file), true);
