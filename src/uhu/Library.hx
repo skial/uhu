@@ -45,7 +45,7 @@ class Library {
 	}
 	
 	
-	public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
+	@:extern public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
 		return untyped element.getBoundingClientRect();
 	}
 	
@@ -122,8 +122,41 @@ class Library {
 	/**
 	 * https://developers.google.com/closure/compiler/docs/api-tutorial3#propnames
 	 */
-	@:macro public static function exportProperty(e:ExprOf<Dynamic>):Expr {
-		#if !display
+	@:macro public static function exportProperty(e:ExprOf<Dynamic>) {
+		var output = '';
+		
+		switch (e.expr) {
+			case EObjectDecl(_fields):
+				
+				if (_fields.length == 0) return e;
+				
+				output += 'untyped __js__("{';
+				
+				for (_field in _fields) {
+					
+					if (_field == _fields[0]) {
+						output += ' \'${_field.field}\':${_field.expr.toString()}'.format();
+					} else {
+						output +=', "${_field.field}":${_field.expr.toString()}'.format();
+					}
+					
+				}
+				
+				output += '}")';
+				
+				return Context.parse(output, e.pos);
+				
+			case EField(_expr, _field):
+				
+			default:
+				trace('default');
+				trace(e);
+		}
+		
+		return e;
+	}
+	
+	@:macro public static function _exportProperty(e:ExprOf<Dynamic>):Expr {
 		var output:String = null;
 		
 		switch(e.expr) {
@@ -232,9 +265,7 @@ class Library {
 				trace(e.toString());
 				return e;
 		}
-		#else
 		return e;
-		#end
 	}
 	
 	#if macro
