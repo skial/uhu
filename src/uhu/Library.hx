@@ -130,23 +130,27 @@ class Library {
 				
 				if (_fields.length == 0) return e;
 				
-				output += 'untyped __js__("{';
+				output += 'untyped __js__(\'{';
 				
 				for (_field in _fields) {
 					
 					if (_field == _fields[0]) {
-						output += ' \'${_field.field}\':${_field.expr.toString()}'.format();
+						output += ' "${_field.field}":${_field.expr.toString()}'.format();
 					} else {
 						output +=', "${_field.field}":${_field.expr.toString()}'.format();
 					}
 					
 				}
 				
-				output += '}")';
+				output += '}\')';
 				
 				return Context.parse(output, e.pos);
 				
 			case EField(_expr, _field):
+				
+				output += 'untyped __js__(\'${_expr.toString()}["$_field"]\')'.format();
+				
+				return Context.parse(output, e.pos);
 				
 			default:
 				trace('default');
