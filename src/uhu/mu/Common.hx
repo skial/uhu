@@ -2,8 +2,14 @@ package uhu.mu;
 
 import massive.neko.io.FileSys;
 import uhu.mu.typedefs.TParser;
-import mpartial.Partial;
 import uhu.mu.Settings;
+
+#if js
+import haxe.Http;
+#elseif neko
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 /**
  * ...
@@ -13,7 +19,7 @@ import uhu.mu.Settings;
 #if hocco
 @:hocco
 #end
-class Common implements Partial {
+class Common {
 	
 	public static var OPENING:String = '{{';
 	public static var CLOSING:String = '}}';
@@ -66,8 +72,52 @@ class Common implements Partial {
 	}
 	
 	public static function loadPartial(name:String, leadingWhitespace:String = null):Void->TParser {
-		throw 'This should have been replaced by a target specific method, using the MPartial library by MassiveInteractive.';
-		return null;
+		name = name + '.' + Settings.TEMPLATE_EXTENSION;
+		var path:String = Settings.TEMPLATE_PATH + name;
+		var result:TParser = { template:'', tokens:[] };
+		
+		#if neko
+		path = FileSystem.fullPath(path);
+		#end
+		
+		if (!_partialCache.exists(name)) {
+			
+			#if js
+			var http = new haxe.Http(path);
+			
+			http.async = false;
+			
+			http.onData = function(data:String) {
+				var _template:String = data;
+				
+				if (leadingWhitespace != null || leadingWhitespace != '') {
+					_template = ~/^(?=.)/m.replace(_template, leadingWhitespace);
+				}
+				
+				result = new Parser().parse(_template);
+				_partialCache.set(name, result);
+			}
+			
+			http.request(false);
+			#elseif neko
+			if (FileSystem.exists(path)) {
+				_partialCache.set(name, result);
+				var _template:String = File.getContent(path);
+				
+				if (leadingWhitespace != null || leadingWhitespace != '') {
+					_template = ~/^(?=.)/m.replace(_template, leadingWhitespace);
+				}
+				
+				result =  new Parser().parse(_template);
+				_partialCache.set(name, result);
+			}
+			#end
+			
+		} else {
+			result = _partialCache.get(name);
+		}
+		
+		return function () { return _partialCache.get(name); };
 	}
 	
 	public static function clearCache():Void {

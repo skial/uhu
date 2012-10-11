@@ -109,7 +109,7 @@ class Library {
 			Context.error(errorMessage, p);
 		}
 		
-		return macro f;
+		return Context.makeExpr(f, p);
 	}
 	
 	@:macro public static function untype(e:ExprOf<Dynamic>):ExprOf<Dynamic> {
