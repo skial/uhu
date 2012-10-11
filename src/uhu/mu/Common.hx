@@ -1,6 +1,5 @@
 package uhu.mu;
 
-import massive.neko.io.FileSys;
 import uhu.mu.typedefs.TParser;
 import uhu.mu.Settings;
 

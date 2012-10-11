@@ -11,6 +11,20 @@
 Hocco is [Docco](https://github.com/jashkenas/docco) for Haxe. Docco is a quick-and-dirty, hundred-line-long, literate-programming-style
 documentation generator.
 
+### Dependencies ###
+
+- [mlib](https://github.com/massiveinteractive/MassiveLib) by [Massive Interactive](https://github.com/massiveinteractive)
+
+```
+haxelib install mlib
+```
+
+- [tink_macros](https://github.com/back2dos/tinkerbell/wiki/tink_macros) by [back2dos](https://github.com/back2dos)
+
+```
+haxelib install tink_macros
+```
+
 ### Installation ###
 
 Open your command prompt and enter ```haxelib install Hocco```. That's it.
@@ -36,9 +50,15 @@ The template does nothing but reference methods in your view.
 
 This strict separation makes it easier to write clean templates, easier to test your views, and more fun to work on your app's front end.
 
-### Installation ###
+### Dependencies ###
 
-At the moment, clone this repo.
+- [thx](https://github.com/fponticelli/thx) by [Franco Ponticelli](https://github.com/fponticelli).
+
+```
+haxelib install thx
+```
+
+- [hocco](#hocco) for document generation.
 
 ### Quick Start ###
 
@@ -78,7 +98,7 @@ Well, $6000.0, after taxes.
 status - alpha
 ```
 
-### Requirements ###
+### Dependencies ###
 
 You will need [Google Closure Compiler](https://developers.google.com/closure/compiler/) in the same output directory use by Haxe.
 
