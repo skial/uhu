@@ -14,7 +14,9 @@ import uhu.mu.Settings;
  * Ron Burgundy
  * Albert Einstein
  */
+#if hocco
 @:hocco
+#end
 class Mustache {
 	
 	public static var VERSION:String = '0.2.0';

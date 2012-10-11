@@ -15,7 +15,9 @@ using StringTools;
  * @author Skial Bainn
  */
  
+#if hocco
 @:hocco
+#end
 class Parser {
 	
 	public var tokens(default, null):Array<ETag>;

@@ -5,7 +5,9 @@ package uhu.mu;
  * @author Skial Bainn
  */
 
+#if hocco
 @:hocco
+#end
 class Settings {
 	
 	public static var TEMPLATE_PATH:String = '';

@@ -16,7 +16,9 @@ import uhu.mu.Parser;
  * @author Skial Bainn
  */
  
+#if hocco
 @:hocco
+#end
 class Renderer {
 	
 	private var _parser:Parser;

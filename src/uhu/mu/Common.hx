@@ -10,7 +10,9 @@ import uhu.mu.Settings;
  * @author Skial Bainn
  */
 
+#if hocco
 @:hocco
+#end
 class Common implements Partial {
 	
 	public static var OPENING:String = '{{';

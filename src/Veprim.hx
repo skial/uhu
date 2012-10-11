@@ -2,6 +2,10 @@ package ;
 
 import feffects.Tween;
 
+#if js
+import uhu.js.RAF;
+#end
+
 /**
  * ...
  * @author Skial Bainn
