@@ -31,8 +31,8 @@ class RAF {
 		 */
 		
 		#if modernizr
-		_window.requestAnimationFrame = Modernizr.prefixed('RequestAnimationFrame', _window);
-		_window.cancelAnimationFrame = untyped Modernizr.prefixed('CancelAnimationFrame', _window) || Modernizr.prefixed('CancelRequestAnimationFrame', _window);
+		_window.requestAnimationFrame = Modernizr.prefixed('RequestAnimationFrame', _window).exportProperty();
+		_window.cancelAnimationFrame = untyped Modernizr.prefixed('CancelAnimationFrame', _window).exportProperty() || Modernizr.prefixed('CancelRequestAnimationFrame', _window).exportProperty();
 		#else
 		var vendors:Array<String> = ['ms', 'moz', 'webkit', 'o'];
 		for (x in vendors) {

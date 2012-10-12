@@ -22,6 +22,7 @@ import UserAgentContext;
 #end
 
 using Std;
+using StringTools;
 
 import uhu.js.typedefs.TBoundingClientRect;
 
@@ -151,6 +152,25 @@ class Library {
 				output += 'untyped __js__(\'${_expr.toString()}["$_field"]\')'.format();
 				
 				return Context.parse(output, e.pos);
+				
+			case ECall(_expr, _params):
+				
+				var expr = _expr.toString();
+				var parts = expr.split('.');
+				var last = parts.pop();
+				var params = '';
+				
+				for (param in _params) {
+					params += param.toString() != 'null' ? param.toString() : '';
+					if (param != _params[_params.length -1]) params += ', ';
+				}
+				
+				if (params.endsWith(', ')) params = params.substr(0, params.length - 2);
+				
+				output = parts.join('.') + '["' + last + '"]';
+				output += '(' + params + ')';
+				
+				return Context.parse('untyped __js__(\'' + output + '\')', e.pos);
 				
 			default:
 				trace('default');
