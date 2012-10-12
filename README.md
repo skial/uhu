@@ -95,7 +95,7 @@ Well, $6000.0, after taxes.
 ## Delko ##
 
 ```
-status - alpha
+status - beta
 ```
 
 ### Dependencies ###
@@ -125,6 +125,21 @@ Once compiled, the following will be created in the output directory :
 
 If your Haxe project is compiled with ```-D debug``` then each of the ```.bat``` files will compile with ```--formatting=pretty_print```.
 This allows for easier debugging.
+
+#### Tip ####
+
+To protect a anonoymous field, field access or method call from being shorten by Google Closure Compiler's Advanced mode, use
+```uhu.Library.exportProperty```.
+
+example
+
+```
+using uhu.Library;
+
+...
+
+_window.requestAnimationFrame = Modernizr.prefixed('RequestAnimationFrame', _window).exportProperty();
+```
 
 ### Example ###
 
