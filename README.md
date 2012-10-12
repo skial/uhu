@@ -128,7 +128,7 @@ This allows for easier debugging.
 
 #### Tip ####
 
-To protect a anonoymous field, field access or method call from being shorten by 
+To protect a anonymous field, field access or method call from being shorten by 
 Google Closure Compiler's Advanced mode, use ```uhu.Library.exportProperty```.
 
 example
