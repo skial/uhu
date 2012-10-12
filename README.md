@@ -141,7 +141,7 @@ using uhu.Library;
 _window.requestAnimationFrame = Modernizr.prefixed('RequestAnimationFrame', _window).exportProperty();
 ```
 
-### Example ###
+### Example Output ###
 
 Haxe
 
@@ -152,7 +152,7 @@ typedef Iterator<T> = {
 }
 ```
 
-Generated Javascript
+Generated Javascript before using google closure compiler
 
 ```
 /** @typedef {{hasNext:function():boolean, next:function():Iterator}} */
