@@ -10,6 +10,6 @@ typedef TBoundingClientRect = {
 	var left:Int;
 	var top:Int;
 	var right:Int;
-	var width:Null<Int>;
-	var height:Null<Int>;
+	@:optional var width:Int;
+	@:optional var height:Int;
 }
