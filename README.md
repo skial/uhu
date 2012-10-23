@@ -92,6 +92,10 @@ You have just won $10000!
 Well, $6000.0, after taxes.
 ```
 
+### Unit Tests ###
+
+Albert currently doesnt have unit tests for Mustaches optional Function module.
+
 ## Delko ##
 
 ```
@@ -129,7 +133,8 @@ This allows for easier debugging.
 #### Tip ####
 
 To protect a anonymous field, field access or method call from being shorten by 
-Google Closure Compiler's Advanced mode, use ```uhu.Library.exportProperty```.
+Google Closure Compiler's Advanced mode, use ```uhu.Library.exportProperty```. Also to 
+protect an entire classes variables and methods, add ```@:exportProperties``` before the class.
 
 example
 
