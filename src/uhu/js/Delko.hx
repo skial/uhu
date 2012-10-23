@@ -184,9 +184,14 @@ class Delko  {
 	
 	function createFile(c:BaseType):Void {
 		var path = getPath(c);
+		if (path.lastIndexOf('#') != -1) return;
+		for (b in bufA) {
+			if (b.n == path) return;
+		}
 		//if (!bufA.exists(path)) {
 			buf = new StringBuf();
-			bufA.push({n:getPath(c), b:buf});
+			//bufA.push({n:getPath(c), b:buf});
+			bufA.push({n:path, b:buf});
 			//bufA.set(path, buf);
 		/*} else {
 			buf = bufA.get(path);
@@ -223,7 +228,9 @@ class Delko  {
 	}
 	
 	public function getPath( t : BaseType ) {
-		return (t.pack.length == 0) ? t.name : t.pack.join(characters.dot) + characters.dot + t.name;
+		var name = t.name;
+		if (name.indexOf('#') != -1 ) name = 'Static' + name.substr(1);
+		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
 	}
 
 	function checkFieldName( c : ClassType, f : ClassField ) {
@@ -742,6 +749,7 @@ class Delko  {
 	 */
 	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
 		var result = _typeResultCache.get(Std.string(type));
+		var name = Std.string(type);
 		
 		if (result == null) {
 			switch(type) {
@@ -878,6 +886,7 @@ class Delko  {
 					if (data != null) {
 						
 						var def:BaseType = data.parent;
+						name = def.name;
 						
 						result = checkType(getPath(def));
 						var anon:AnonType = _a.get();
@@ -887,6 +896,8 @@ class Delko  {
 							var output = characters.google._typedef + characters.space + characters.curly.open + characters.curly.open;
 							var prevBuf = buf;
 							var prevTab = tabs;
+							
+							typedefs.set(result, true);
 							
 							createFile(def);
 							tabs = 1;
@@ -909,7 +920,7 @@ class Delko  {
 							(def.pack.length == 0 ?	fprint('$result', false) : print(result));
 							newline(true);
 							
-							typedefs.set(result, true);
+							
 							
 							buf = prevBuf;
 							tabs = prevTab;
@@ -943,7 +954,7 @@ class Delko  {
 				default:
 					result = characters.empty;
 			}
-			_typeResultCache.set(Std.string(type), result);
+			_typeResultCache.set(name, result);
 		}
 		
 		return result;
