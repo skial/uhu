@@ -648,7 +648,7 @@ class Delko  {
 		 */
 		for (op in ['WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']) {
 			file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
-			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --compilation_level ${op} --js_output_file ${dir.fileName} '));
+			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);${if(Context.defined("debug")){"//@ sourceMappingURL=" + dir.fileName + ".map";}}" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --source_map_format=V3 --compilation_level ${op} --js_output_file ${dir.fileName} '));
 			
 			//for (f in bufA.keys()) {
 			for (f in bufA) {
