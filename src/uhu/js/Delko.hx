@@ -748,8 +748,8 @@ class Delko  {
 	 * DELKO GOD!
 	 */
 	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
-		var result = _typeResultCache.get(Std.string(type));
 		var name = Std.string(type);
+		var result = _typeResultCache.get(name);
 		
 		if (result == null) {
 			switch(type) {
@@ -981,6 +981,35 @@ class Delko  {
 		
 		if (fieldAccess != characters.empty) javaDocs.push(printAccess(field));
 		
+		var annotated:Hash<Array<String>> = new Hash<Array<String>>();
+		
+		if (field.meta.has(':annotate')) {
+			for (m in field.meta.get()) {
+				if (m.name == ':annotate') {
+					for (p in m.params) {
+						switch(p.expr) {
+							case EFunction(_, f):
+								for (a in f.args) {
+									if (!annotated.exists(a.name)) {
+										annotated.set( a.name, [a.type.toString()] );
+									} else {
+										annotated.get(a.name).push( a.type.toString() );
+									}
+								}
+								if (f.ret != null) {
+									if (!annotated.exists('return')) {
+										annotated.set( 'return', [f.ret.toString()] );
+									} else {
+										annotated.get('return').push( f.ret.toString() );
+									}
+								}
+							default:
+						}
+					}
+				}
+			}
+		}
+		
 		switch (field.kind) {
 			case FMethod(k):
 				
@@ -988,13 +1017,21 @@ class Delko  {
 					
 					case TFun(_args, _return):
 						for (_arg in _args) {
-							type = printType(_arg.t, _arg.opt);
+							if (printType(_arg.t) == '*' && annotated.count() != 0) {
+								type = '{' + annotated.get(_arg.name).join('|') + '}';
+							} else {
+								type = printType(_arg.t, _arg.opt);
+							}
 							if (type == self) type = 'Object';
 							javaDocs.push (characters.google._param + characters.space + characters.curly.open + type + characters.curly.close + characters.space + _arg.name);
 						}
 						
 						if (printType(_return) != characters.empty) {
-							type = printType(_return);
+							if (printType(_return) == '*' && annotated.count() != 0) {
+								type = '{' + annotated.get('return').join('|') + '}';
+							} else {
+								type = printType(_return);
+							}
 							if (type == self) type = 'Object';
 							javaDocs.push(characters.google._return + characters.space + characters.curly.open + type + characters.curly.close);
 						}
