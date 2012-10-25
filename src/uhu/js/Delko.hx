@@ -1024,10 +1024,7 @@ class Delko  {
 		 * fields from classes with constructors, which cause reflection issues.
 		 * 
 		 * Marking every class, static or not with @const allows successful minification,
-		 * but outputs a boat load more warning, mainly about the dangerous use of 'this'.
-		 * 
-		 * Before switching to just @const, I only had 8 warnings about the use of 'this' 
-		 * as a possible bug. With just @const I have 158 warnings. :)
+		 * but outputs a boat load more warnings, mainly about the dangerous use of 'this'.
 		 * 
 		 * Code will be kept commented out.
 		 */
