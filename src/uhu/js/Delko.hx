@@ -629,13 +629,10 @@ class Delko  {
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
 		 * from tripping as Boot.hx sets it as Function.prototype["$bind"].
 		 */
-		//for (f in bufA.keys()) {
 		for (f in bufA) {
-			//out = f.b.toString().replace('.$bind', '["$bind"]');
 			out = f.b.toString();
-			//file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f + '.js'), true);
+			out = out.replace('.abstract', '.delkoabstract');
 			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
-			//file.writeString(bufA.get(f).toString().replace('.$bind', '["$bind"]'));
 			file.writeString(out);
 			file.close();
 		}
