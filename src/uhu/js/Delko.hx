@@ -632,6 +632,7 @@ class Delko  {
 		for (f in bufA) {
 			out = f.b.toString();
 			out = out.replace('.abstract', '.delkoabstract');
+			out = out.replace('"abstract"', '"delkoabstract"');
 			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
 			file.writeString(out);
 			file.close();
