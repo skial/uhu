@@ -63,17 +63,6 @@ class Library {
 	}
 	
 	/**
-	 * Not cool
-	 */
-	@:extern public static inline function addEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
-		untyped element.addEventListener(type, listener, useCapture);
-	}
-	
-	@:extern public static inline function removeEventListener(element:HTMLElement, type:String, listener:Dynamic, ?useCapture:Bool):Void {
-		untyped element.removeEventListener(type, listener, useCapture);
-	}
-	
-	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
 	 */
 	@:macro public static function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
