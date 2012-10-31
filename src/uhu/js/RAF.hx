@@ -1,7 +1,6 @@
 package uhu.js;
 
 import uhu.js.Console;
-import uhu.js.Check;
 import uhu.Library;
 
 import UserAgent;
