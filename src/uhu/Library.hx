@@ -53,7 +53,6 @@ class Library {
 		return macro untyped __js__('window.cancelAnimationFrame')($id);
 	}
 	
-	
 	@:extern public static inline function getBoundingClientRect(element:HTMLElement):TBoundingClientRect {
 		return untyped element.getBoundingClientRect();
 	}
@@ -69,6 +68,39 @@ class Library {
 		
 		return style;
 	}
+	
+	#if js
+	// https://github.com/cowboy/jquery-throttle-debounce/blob/master/jquery.ba-throttle-debounce.js
+	public static function debounce(method:Dynamic, delay:Int = 250, at_end:Bool = true):Dynamic {
+		var lastExec:Float = .0;
+		
+		var return_method = function() {
+			
+			Library.requestAnimationFrame(Detox.window, function(delta:Float) {
+				
+				var args = untyped __js__('arguments');
+				
+				if (at_end) {
+					if ( (delta - lastExec) > delay ) {
+						Reflect.callMethod( { }, method, args);
+						lastExec = delta;
+					}
+				} else {
+					if (lastExec == 0) {
+						Reflect.callMethod( { }, method, args);
+						lastExec = detla;
+					} else if ( (delta - lastExec) > delay ) {
+						lastExec = 0;
+					}
+				}
+				
+			} );
+			
+		}
+		
+		return return_method;
+	}
+	#end
 	
 	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
