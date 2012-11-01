@@ -11,8 +11,6 @@ import haxe.macro.Context;
 import tink.macro.tools.AST;
 import uhu.macro.Du;
 
-import uhu.js.typedefs.TBoundingClientRect;
-
 using tink.macro.tools.MacroTools;
 #end 
 

@@ -1,10 +1,12 @@
 package uhu.js;
 
+#if js
 import uhu.js.Console;
 import uhu.Library;
 
 import UserAgent;
 import UserAgentContext;
+#end
 
 using uhu.Library;
 
