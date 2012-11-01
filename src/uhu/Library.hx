@@ -33,13 +33,23 @@ class Library {
 	
 	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
-		Du.include(['uhu.js.RAF']);
+		
+		if ( Context.defined('raf_included') ) {
+			Du.include(['uhu.js.RAF']);
+			Compiler.define('raf_included');
+		}
+		
 		return macro untyped __js__('window.requestAnimationFrame')($handler, $element);
 	}
 	
 	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):ExprOf<Void> {
 		Compiler.define('raf');
-		Du.include(['uhu.js.RAF']);
+		
+		if ( Context.defined('raf_included') ) {
+			Du.include(['uhu.js.RAF']);
+			Compiler.define('raf_included');
+		}
+		
 		return macro untyped __js__('window.cancelAnimationFrame')($id);
 	}
 	
