@@ -35,53 +35,6 @@ using tink.core.types.Option;
  * @author Skial Bainn (http://blog.skialbainn.com)
  */
 
-/**
- * TODO
- * -----
- * 		Some odd code still lingers... fix it b!^#h
- * 		Add .sh files on osx and linux - play nice
- * 19/06/2012
- * -----
- * 		removed pause from generated .bat files.
- * 18th June 2012
- * -----
- * 		cleanup code. to much commented code around.
- * 		write more documentation, the most fun still awaits.
- * 
- * 		removed buildTypeInfo method
- * 		removed buildClosureTypedef method
- * 		removed getTypePath method - can find it in uhu.Library
- * 		removed buildJSTypedef method - part of buildRecordType method
- * 
- * 		fixed google closure compiler output wrapper problem. In batch files, windows cmd tries
- * 		to expand %output% to a existing variable, but removes it if it fails. Fix can be found at
- * 		https://groups.google.com/d/msg/closure-compiler-discuss/I71qjX1HXKY/l78ApDVeY5MJ
- * 
- * 		added @:exportProperties meta detection & support. At the moment it turns static fields
- * 		to org.haxe['Name'] = function() {} instead of org.haxe.Name = function() {}. This
- * 		stops google closure compiler from renaming 'Name' to 'a' for example
- * unknown date, whats git?
- * -----
- * 		added createFile method
- * 		added bufA which is an array of objects { b:StringBuf, n:String } - n is the name of the class, enum or typedef
- * 11th June 2012
- * -----
- * 		added bufA
- * 		added createFile
- * 11th May 2012
- * -----
- * 		added genExpose
- * 		static fields can now be :exposed to match offical haxe output
- * 
- * 8th May 2012
- * -----
- * 		added the following compiler flags and neccasary checks, which *will* break some standard library methods (Reflect), use with care.
- * 		uhu_remove_class_name	eg: MyClass.__name__=['MyClass']
- * 		uhu_remove_class_super	eg: MyClass.__super__=MySuperClass
- * 		uhu_remove_class_interfaces	eg: MyClass.__interfaces__=[Inter1,Inter2]
- * 		uhu_remove_class_ref	eg: __class__:MyClass
- */
-
 class Delko  {
 	
 	public static var characters = {
@@ -269,7 +222,7 @@ class Delko  {
 			 * If the class has the neta tag @:exportProperties, then all fields
 			 * become Class["field"] = {}.
 			 */
-			if (c.meta.has(':exportProperties')) {
+			if (f.meta.has(':export') || f.meta.has(':exportProperties')) {
 				fprint('$p["${f.name}"] = null');
 			} else {
 				fprint("$p$field = null");
@@ -284,7 +237,7 @@ class Delko  {
 				 * If the class has the neta tag @:exportProperties, then all fields
 				 * become Class["field"] = {}.
 				 */
-				if (c.meta.has(':exportProperties')) {
+				if (f.meta.has(':export') || f.meta.has(':exportProperties')) {
 					fprint('$p["${f.name}"] = ');
 				} else {
 					fprint("$p$field = ");
@@ -505,7 +458,7 @@ class Delko  {
 		 * If the class has the neta tag @:exportProperties, then all fields
 		 * become Class["field"] = {}.
 		 */
-		if (c.meta.has(':exportProperties')) {
+		if (cf.meta.has(':export') || cf.meta.has(':exportProperties')) {
 			fprint('$p["${cf.name}"] = ');
 		} else {
 			fprint("$p$f = ");
