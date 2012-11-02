@@ -222,7 +222,7 @@ class Delko  {
 			 * If the class has the neta tag @:exportProperties, then all fields
 			 * become Class["field"] = {}.
 			 */
-			if (f.meta.has(':export') || f.meta.has(':exportProperties')) {
+			if (c.meta.has(':export') || c.meta.has(':exportProperties') || f.meta.has(':export') || f.meta.has(':exportProperties')) {
 				fprint('$p["${f.name}"] = null');
 			} else {
 				fprint("$p$field = null");
@@ -237,7 +237,7 @@ class Delko  {
 				 * If the class has the neta tag @:exportProperties, then all fields
 				 * become Class["field"] = {}.
 				 */
-				if (f.meta.has(':export') || f.meta.has(':exportProperties')) {
+				if (c.meta.has(':export') || c.meta.has(':exportProperties') ||f.meta.has(':export') || f.meta.has(':exportProperties')) {
 					fprint('$p["${f.name}"] = ');
 				} else {
 					fprint("$p$field = ");
@@ -458,7 +458,7 @@ class Delko  {
 		 * If the class has the neta tag @:exportProperties, then all fields
 		 * become Class["field"] = {}.
 		 */
-		if (cf.meta.has(':export') || cf.meta.has(':exportProperties')) {
+		if (c.meta.has(':export') || c.meta.has(':exportProperties') || cf.meta.has(':export') || cf.meta.has(':exportProperties')) {
 			fprint('$p["${cf.name}"] = ');
 		} else {
 			fprint("$p$f = ");

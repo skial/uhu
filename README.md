@@ -138,7 +138,7 @@ This allows for easier debugging.
 
 To protect a anonymous field, field access or method call from being shorten by 
 Google Closure Compiler's Advanced mode, use ```uhu.Library.exportProperty```. Also to 
-protect an entire classes variables and methods, add ```@:exportProperties``` before the class.
+protect an entire classes fields, or individual fields, add ```@:export``` or ```@:exportProperties``` before the it.
 
 example
 
