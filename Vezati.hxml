@@ -8,4 +8,4 @@
 -lib tink_reactive
 -lib selecthxml
 -neko bin/vezati/vezati.n
--main uhu.js.Vezati
+-main Vezati

@@ -1,11 +1,7 @@
 package ;
+import uhu.vezati.Parser;
 
-import haxe.xml.Parser;
-import thx.html.Html;
-
-//using Detox;
 using uhu.Library;
-using selecthxml.SelectDom;
 
 /**
  * ...
@@ -21,9 +17,8 @@ class Vezati {
 		Vezati.compile('templates/vezati/basic.vezati.html'.loadTemplate());
 	}
 	
-	public static function compile(value:String) {
-		var xml = Html.toXml(value);
-		trace(xml.select('[dtx-repeat]'));
+	public static function compile(html:String) {
+		var tokens = Parser.parse(html);
 	}
 	
 }
