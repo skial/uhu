@@ -31,12 +31,23 @@ class Parser {
 	
 	private var _template:String;
 	
+	#if mu_grow
+	/**
+	 * extend(tag, tokens);
+	 */
+	public var extend:String->Array<ETag>->Void;
+	#end
+	
 	public function new(otag:String = null, ctag:String = null) {
 		tokens = new Array<ETag>();
 		sections = new Array<ETag>();
 		partials = new Hash<String>();
 		
-		setTag(otag, ctag);
+		this.otag = (otag == null ? Common.OPENING : otag);
+		this.ctag = (ctag == null ? Common.CLOSING : ctag);
+
+		if (regex == null) regex = Common.REGEX;
+		if (standalone == null) standalone = Common.STANDALONE;
 	}
 	
 	public function parse(template:String):TParser {
@@ -54,8 +65,8 @@ class Parser {
 	}
 	
 	public function setTag(otag:String, ctag:String):Void {
-		this.otag = otag;
-		this.ctag = ctag;
+		this.otag = (otag == null ? Common.OPENING : otag);
+		this.ctag = (ctag == null ? Common.CLOSING : ctag);
 		this.regex = Common.createRegex(otag, ctag);
 		this.standalone = Common.createStandalone(otag, ctag);
 	}
@@ -215,6 +226,11 @@ class Parser {
 				setTag(tags.first(), tags.last());
 				
 				tokens.push(Delimiter(content));
+			
+			#if mu_grow
+			default:
+				extend(tag, tokens);
+			#end
 		}
 		
 		_template  = remainder;

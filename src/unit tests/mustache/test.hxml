@@ -38,6 +38,8 @@
 -lib mpartial
 -lib tink_macros
 -lib thx
+-lib detox
+-lib xirsys_stdjs
 -cp src
 -cp ../../
 -cp test

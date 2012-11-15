@@ -31,6 +31,7 @@ import uhu.js.typedefs.TBoundingClientRect;
 
 class Library {
 	
+	#if js
 	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
 		
@@ -69,7 +70,6 @@ class Library {
 		return style;
 	}
 	
-	#if js
 	// https://github.com/cowboy/jquery-throttle-debounce/blob/master/jquery.ba-throttle-debounce.js
 	public static function debounce(method:Dynamic, delay:Int = 250, at_end:Bool = true):Dynamic {
 		var lastExec:Float = .0;

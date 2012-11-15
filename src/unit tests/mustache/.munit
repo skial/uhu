@@ -3,6 +3,6 @@ src=test
 bin=build
 report=report
 hxml=test.hxml
-classPaths=../../uhu
+classPaths=src,../../uhu
 resources=resources
 templates=templates
