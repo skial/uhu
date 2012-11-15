@@ -36,11 +36,7 @@ class Parser {
 		sections = new Array<ETag>();
 		partials = new Hash<String>();
 		
-		this.otag = (otag == null ? Common.OPENING : otag);
-		this.ctag = (ctag == null ? Common.CLOSING : ctag);
-		
-		if (regex == null) regex = Common.REGEX;
-		if (standalone == null) standalone = Common.STANDALONE;
+		setTag(otag, ctag);
 	}
 	
 	public function parse(template:String):TParser {
@@ -57,16 +53,16 @@ class Parser {
 		return { template:template, tokens:tokens };
 	}
 	
-	private function eos():Bool {
-		if (_template != '') return false;
-		return true;
-	}
-	
-	private function setTag(otag:String, ctag:String):Void {
+	public function setTag(otag:String, ctag:String):Void {
 		this.otag = otag;
 		this.ctag = ctag;
 		this.regex = Common.createRegex(otag, ctag);
 		this.standalone = Common.createStandalone(otag, ctag);
+	}
+	
+	private function eos():Bool {
+		if (_template != '') return false;
+		return true;
 	}
 	
 	private function scan() {
@@ -111,7 +107,7 @@ class Parser {
 		
 		var notInterpolating:Bool = ['', '&', '{'].indexOf(tag) == -1;
 		
-		#if debug
+		#if (debug && madness)
 		/* 
 		 * madness starts here
 		 */
