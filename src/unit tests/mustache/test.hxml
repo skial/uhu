@@ -58,4 +58,5 @@
 -cp src
 -cp ../../
 -cp test
+-D mu_grow
 -neko build/neko_test.n

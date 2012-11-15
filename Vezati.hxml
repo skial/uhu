@@ -1,0 +1,11 @@
+-cp src
+-cp ../detox/src
+-lib munit
+-lib thx
+-lib mlib
+-lib mdown
+-lib tink_macros
+-lib tink_reactive
+-lib selecthxml
+-neko bin/vezati/vezati.n
+-main uhu.js.Vezati
