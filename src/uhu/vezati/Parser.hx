@@ -17,7 +17,7 @@ class Parser {
 	
 	// private fields
 	
-	private static var manyActions:Array<String> = ['repeat'];
+	private static var manyActions:Array<String> = [];
 	private static var elements:Hash< Array<Xml> > = new Hash< Array<Xml> >();
 	
 	// public fields
@@ -57,6 +57,22 @@ class Parser {
 		}
 		
 		return { };
+	}
+	
+}
+
+class MyClass {
+	
+	public static var format:String;
+	
+	public var format:String;
+	
+	public function new() {
+		
+	}
+	
+	public function format(value:String):String {
+		return value.toUpperCase();
 	}
 	
 }

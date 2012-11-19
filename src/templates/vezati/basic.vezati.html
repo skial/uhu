@@ -4,7 +4,55 @@
 	<meta charset="utf-8">
 	<title>Vezati</title>
 </head>
-<body dtx-app>
-	<div dtx-repeat>Hello World</div>
+<body>
+	<div class="Class1 css1 css2 cssN">
+		<img id="myArray" src=""/>
+	</div>
+	
+<div id="Class1">
+	<!-- Now in scope Class1 -->
+	<h1>Hello World</h1>
+	<div id="Class2">
+		<!-- Now in scope Class2 -->
+		<img src="..." />
+		<p>more!</p>
+	</div>
+	<!-- Returned to scope Class1 -->
+	<img src="..."/>
+</div>
+
+<div class="Class1 format Class2 css">Hello World</div>
+<div class="Class1 Class2 ClassN">Hello <!-- field --> World</div>
+<div class="Class Class2 ClassN">This sentence is written by <!-- name --> who is <!-- age --> years old.</div>
+
+<div id="MyClass">
+	<ul id="field">
+		<li>One</li>
+		<li>Two</li>
+		<li>Three</li>
+	</ul>
+</div>
+
+<div class="MyClass fields" style="..." contenteditable="true" data-author="skial">Hello World</div>
+
+<div id="MyClass">
+	<div id="format">Hello World</div>
+</div>
+
+<div class="Grandad">
+	<!-- Grandad scope -->
+	<div class="name">value</div>	<!-- Checks against the Grandad instance -->
+	<div class="Bob name">value</div>	<!-- Sets Bob scope, name checked against Bob. If it fails its checked against Grandad -->
+</div>
+
+<div id="MyClass">
+	<!-- Within MyClass scope -->
+	<div id="myField">value</div>	<!-- Checks against MyClass -->
+	<div id="YourClass">
+		<!-- Within YourClass scope -->
+		<div id="yourField">value</div> <!-- Checks against YourClass. If it fails, its checked against MyClass -->
+	</div>
+</div>
+
 </body>
 </html>
