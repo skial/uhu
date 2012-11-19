@@ -4,7 +4,9 @@ import Xml;
 import haxe.xml.Parser;
 import thx.html.Html;
 
-using Std;
+using de.polygonal.core.fmt.ASCII;
+using Lambda;
+using Detox;
 using uhu.Library;
 using selecthxml.SelectDom;
 
@@ -13,66 +15,91 @@ using selecthxml.SelectDom;
  * @author Skial Bainn
  */
 
+typedef TField = {
+	// name is the full path to field eg my.package.MyClass.myField
+	var name:String;
+	var isStatic:Bool;
+	var element:Xml;
+}
+
 class Parser {
 	
 	// private fields
 	
-	private static var manyActions:Array<String> = [];
-	private static var elements:Hash< Array<Xml> > = new Hash< Array<Xml> >();
+	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
+	private static var haxeClasses:Hash<Class<Dynamic>> = new Hash<Class<Dynamic>>();
+	
+	private static var idElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
+	
+	// Used by both non/static class fields
+	private static var haxeFields:Hash<TField> = new Hash<TField>();
+	
+	private static var ignore:Array<String> = ['Class'];
+	
+	private static function checkCssClasses(classes:Array<Xml>) {
+		var names:Array<String>;
+		var resolved = null;
+		
+		for (_class in classes) {
+			
+			names = _class.get('class').split(' ');
+			
+			for (n in names) {
+				
+				if (ignore.indexOf(n) != -1) {
+					continue;
+				}
+				
+				// Find the matching Haxe class. Will be `null` more often than not.
+				resolved = Type.resolveClass(n);
+				
+				if (resolved != null && n.charCodeAt(0).isUpperCaseAlphabetic()) {
+					
+					// Set the Haxe class to resolve to the css class if not already done.
+					if (!haxeClasses.exists(n)) {
+						haxeClasses.set(n, resolved);
+					}
+					// Set or add to the array of elements that have this class name.
+					if (!classElements.exists(n)) {
+						classElements.set(n, [_class]);
+					} else {
+						classElements.get(n).push(_class);
+					}
+					
+				} else {
+					
+					// TODO match css name to class instance fields.
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	private static function checkCssIds(ids:Array<Xml>) {
+		
+	}
 	
 	// public fields
-	
-	public static var prefix:String = 'dtx-';
 
 	public static function parse(html:String) {
 		var xml:Xml = Html.toXml(html);
+		var elements:Array<Xml>;
 		
-		var _v;
+		// handle `class="..."`
+		elements = xml.runtimeSelect('[class]');
+		checkCssClasses( elements );
+		// handle `class="..."`
+		elements = xml.runtimeSelect('[id]');
+		checkCssIds( elements );
 		
-		// Required - app is the root element to work from
-		_v = xml.runtimeSelect( '[${prefix}app]'.format() );
-		
-		if (_v.length == 1) {
-			elements.set('${prefix}app'.format(), _v);
-		} else {
-			// Could default to body if it exists
-			throw 'You need to defind ${prefix}app ONCE in your html file.'.format();
-		}
-		
-		// Actions DONT have values and ARE prefixed
-		for (action in manyActions) {
-			_v = xml.runtimeSelect( '[$prefix$action]'.format() );
-			
-			if (_v.length != 0) {
-				if (elements.exists(action)) {
-					elements.set(action, elements.get(action).concat(_v));
-				} else {
-					elements.set(action, _v);
-				}
-			}
-		}
-		
-		for (k in elements.keys()) {
-			trace(elements.get(k));
+		for (k in haxeClasses.keys()) {
+			trace(haxeClasses.get(k));
 		}
 		
 		return { };
-	}
-	
-}
-
-class MyClass {
-	
-	public static var format:String;
-	
-	public var format:String;
-	
-	public function new() {
-		
-	}
-	
-	public function format(value:String):String {
-		return value.toUpperCase();
 	}
 	
 }

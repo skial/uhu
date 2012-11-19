@@ -9,6 +9,7 @@ using uhu.Library;
  */
 
 /*
+ * TODO - need to rename to something better.
  * "bind" in Croatian
  */
 class Vezati {
@@ -19,6 +20,14 @@ class Vezati {
 	
 	public static function compile(html:String) {
 		var tokens = Parser.parse(html);
+	}
+	
+}
+
+class MyClass {
+	
+	public function new() {
+		
 	}
 	
 }
