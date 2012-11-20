@@ -19,7 +19,7 @@ class Vezati {
 	private static var userClasses:Array<String> = [];
 	
 	public static function main() {
-		Vezati.setClasses([MyClass, Class1]);
+		Vezati.setClasses([MyClass, Class1, YourClass]);
 		Vezati.compile('templates/vezati/basic.vezati.html'.loadTemplate());
 	}
 	

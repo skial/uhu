@@ -1,6 +1,7 @@
 package uhu.vezati;
 
 import haxe.macro.Context;
+import selecthxml.SelectDom;
 import uhu.macro.Du;
 import Xml;
 import haxe.xml.Parser;
@@ -138,45 +139,41 @@ class Parser {
 		
 	}
 	
-	private static function processXML(xml:Xml) {
+	private static function processXML(x:Xml) {
 		var names:Array<String>;
 		
-		for (x in xml) {
+		if (x.attr('class') != '') {
 			
-			if (x.attr('class') != '') {
-				
-				names = x.attr('class').split(' ');
-				
-				for (name in names) {
-					
-					// If the first letter is uppercase then its assumed to be
-					// a possible Haxe class, otherwise a possible field.
-					if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
-						matchClass(name, x);
-					} else {
-						matchField(name, x, false);
-					}
-					
-				}
-				
-			}
+			names = x.attr('class').split(' ');
 			
-			if (x.attr('id') != '') {
+			for (name in names) {
 				
-				names = x.attr('id').split(' ');
-				
-				if (names[0].charCodeAt(0).isUpperCaseAlphabetic()) {
-					matchId(names[0], x);
+				// If the first letter is uppercase then its assumed to be
+				// a possible Haxe class, otherwise a possible field.
+				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
+					matchClass(name, x);
 				} else {
-					matchField(names[0], x, true);
+					matchField(name, x, false);
 				}
 				
 			}
 			
-			for (c in x.children()) {
-				processXML(c);
+		}
+		
+		if (x.attr('id') != '') {
+			
+			names = x.attr('id').split(' ');
+			
+			if (names[0].charCodeAt(0).isUpperCaseAlphabetic()) {
+				matchId(names[0], x);
+			} else {
+				matchField(names[0], x, true);
 			}
 			
+		}
+		
+		for (c in x.children()) {
+			processXML(c);
 		}
 		
 	}
@@ -193,7 +190,9 @@ class Parser {
 		var xml:Xml = Html.toXml(html);
 		var elements:Array<Xml>;
 		
-		processXML(xml);
+		for (x in xml) {
+			processXML(x);
+		}
 		
 		trace(xml.runtimeSelect('[x-binding]'));
 		trace(xml.runtimeSelect('[x-binding-static]'));
@@ -211,9 +210,9 @@ class Class1 {
 class MyClass {
 	public function new() { }
 	public function fields() { }
+	public static var myField = 0;
 }
 
 class YourClass {
-	public function new() { }
 	public static function yourField() {}
 }
