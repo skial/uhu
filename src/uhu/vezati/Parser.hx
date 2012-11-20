@@ -31,50 +31,67 @@ class Parser {
 	
 	private static var ignore:Array<String> = ['Class'];
 	
-	private static function checkCssClasses(classes:Array<Xml>) {
-		var names:Array<String>;
+	private static function matchClass(css:String, element:Xml) {
 		var resolved = null;
 		
-		for (_class in classes) {
+		if (ignore.indexOf(css) != -1) {
+			return;
+		}
+		
+		// Find the matching Haxe class. Will be `null` more often than not.
+		resolved = Type.resolveClass( userClasses.exists(css) ? userClasses.get(css) : css );
+		
+		if (resolved != null) {
 			
-			names = _class.get('class').split(' ');
+			css = Type.getClassName(resolved);
 			
-			for (n in names) {
+			foundClasses.push(css);
+			
+			// Set the Haxe class to resolve to the css class if not already done.
+			if (!haxeClasses.exists(css)) {
+				haxeClasses.set(css, resolved);
+			}
+			// Set or add to the array of elements that have this class name.
+			if (!classElements.exists(css)) {
+				classElements.set(css, [element]);
+			} else {
+				classElements.get(css).push(element);
+			}
+			
+		}
+		
+	}
+	
+	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
+		if (ignore.indexOf(css) != -1) {
+			return;
+		}
+		
+		// Find the matching field from last matched class, backwards until found or non match.
+		var classes = foundClasses.copy();
+		var cls:Class<Dynamic>;
+		var fields:Array<String>;
+		var path:String;
+		
+		classes.reverse();
+		
+		for (c in classes) {
+			
+			cls = haxeClasses.get(c);
+			fields = !isStatic ? Type.getInstanceFields(cls) : Type.getClassFields(cls);
+			
+			if (fields.indexOf(css) != -1) {
 				
-				if (ignore.indexOf(n) != -1) {
-					continue;
-				}
+				path = Type.getClassName(cls) + '.' + css;
 				
-				// Find the matching Haxe class. Will be `null` more often than not.
-				resolved = Type.resolveClass( userClasses.exists(n) ? userClasses.get(n) : n );
-				
-				if (resolved != null && n.charCodeAt(0).isUpperCaseAlphabetic()) {
-					
-					n = Type.getClassName(resolved);
-					
-					foundClasses.push(n);
-					
-					// Set the Haxe class to resolve to the css class if not already done.
-					if (!haxeClasses.exists(n)) {
-						haxeClasses.set(n, resolved);
-					}
-					// Set or add to the array of elements that have this class name.
-					if (!classElements.exists(n)) {
-						classElements.set(n, [_class]);
-					} else {
-						classElements.get(n).push(_class);
-					}
-					
+				if (element.attr('x-binding') == '') {
+					element.setAttr('x-binding', path);
 				} else {
 					
-					for (c in foundClasses) {
-						
-						for ( field in Type.getInstanceFields( haxeClasses.get(c) ) ) {
-							
-							
-							
-						}
-						
+					var bindings = element.attr('x-binding').split(' ');
+					if (bindings.indexOf(path) == -1) {
+						bindings.push(Type.getClassName(cls) + '.' + css);
+						element.setAttr('x-binding', bindings.join(' '));
 					}
 					
 				}
@@ -86,6 +103,41 @@ class Parser {
 	}
 	
 	private static function checkCssIds(ids:Array<Xml>) {
+		
+	}
+	
+	private static function processXML(xml:Xml) {
+		var names:Array<String>;
+		
+		for (x in xml) {
+			
+			if (x.attr('class') != '') {
+				
+				names = x.attr('class').split(' ');
+				
+				for (name in names) {
+					
+					if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
+						matchClass(name, x);
+					} else {
+						matchField(name, x);
+					}
+					
+				}
+				
+			}
+			
+			if (x.attr('id') != '') {
+				
+				
+				
+			}
+			
+			for (c in x.children()) {
+				processXML(c);
+			}
+			
+		}
 		
 	}
 	
@@ -101,12 +153,16 @@ class Parser {
 		var xml:Xml = Html.toXml(html);
 		var elements:Array<Xml>;
 		
+		processXML(xml);
+		
 		// handle `class="..."`
-		elements = xml.runtimeSelect('[class]');
-		checkCssClasses( elements );
+		/*elements = xml.runtimeSelect('[class]');
+		checkCssClasses( elements );*/
 		// handle `class="..."`
-		elements = xml.runtimeSelect('[id]');
-		checkCssIds( elements );
+		/*elements = xml.runtimeSelect('[id]');
+		checkCssIds( elements );*/
+		
+		trace(xml.runtimeSelect('[x-binding]'));
 		
 		return { };
 	}
