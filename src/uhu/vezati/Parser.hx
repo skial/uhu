@@ -1,5 +1,7 @@
 package uhu.vezati;
 
+import haxe.macro.Context;
+import uhu.macro.Du;
 import Xml;
 import haxe.xml.Parser;
 import thx.html.Html;
@@ -15,24 +17,17 @@ using selecthxml.SelectDom;
  * @author Skial Bainn
  */
 
-typedef TField = {
-	// name is the full path to field eg my.package.MyClass.myField
-	var name:String;
-	var isStatic:Bool;
-	var element:Xml;
-}
-
 class Parser {
 	
 	// private fields
 	
+	private static var userClasses:Hash<String> = new Hash<String>();
+	
 	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var haxeClasses:Hash<Class<Dynamic>> = new Hash<Class<Dynamic>>();
+	private static var foundClasses:Array<String> = new Array<String>();
 	
 	private static var idElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
-	
-	// Used by both non/static class fields
-	private static var haxeFields:Hash<TField> = new Hash<TField>();
 	
 	private static var ignore:Array<String> = ['Class'];
 	
@@ -51,9 +46,13 @@ class Parser {
 				}
 				
 				// Find the matching Haxe class. Will be `null` more often than not.
-				resolved = Type.resolveClass(n);
+				resolved = Type.resolveClass( userClasses.exists(n) ? userClasses.get(n) : n );
 				
 				if (resolved != null && n.charCodeAt(0).isUpperCaseAlphabetic()) {
+					
+					n = Type.getClassName(resolved);
+					
+					foundClasses.push(n);
 					
 					// Set the Haxe class to resolve to the css class if not already done.
 					if (!haxeClasses.exists(n)) {
@@ -68,7 +67,15 @@ class Parser {
 					
 				} else {
 					
-					// TODO match css name to class instance fields.
+					for (c in foundClasses) {
+						
+						for ( field in Type.getInstanceFields( haxeClasses.get(c) ) ) {
+							
+							
+							
+						}
+						
+					}
 					
 				}
 				
@@ -84,7 +91,13 @@ class Parser {
 	
 	// public fields
 
-	public static function parse(html:String) {
+	public static function parse(html:String, ?classes:Array<String>) {
+		if (classes != null) {
+			for (c in classes) {
+				userClasses.set(c.split('.').pop(), c);
+			}
+		}
+		
 		var xml:Xml = Html.toXml(html);
 		var elements:Array<Xml>;
 		
@@ -95,11 +108,17 @@ class Parser {
 		elements = xml.runtimeSelect('[id]');
 		checkCssIds( elements );
 		
-		for (k in haxeClasses.keys()) {
-			trace(haxeClasses.get(k));
-		}
-		
 		return { };
 	}
 	
+}
+
+class Class1 {
+	public function new() { }
+	public function format() {}
+}
+
+class MyClass {
+	public function new() { }
+	public function format() {}
 }

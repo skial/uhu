@@ -4,6 +4,7 @@ import haxe.io.Eof;
 import haxe.macro.Type;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
+import haxe.macro.Expr;
 
 using StringTools;
 
@@ -14,6 +15,10 @@ using StringTools;
 
 // Haitian Creole for compiler
 class Du {
+	
+	@:macro public static function allClasses():ExprOf<Array<String>> {
+		return macro Context.getClassPath();
+	}
 	
 	@:macro public static function include(classes:Array<String>) {
 		for (cls in classes) {
