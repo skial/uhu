@@ -22,6 +22,7 @@ class Parser {
 	// private fields
 	
 	private static var userClasses:Hash<String> = new Hash<String>();
+	private static var macroClasses:Hash<String> = new Hash<String>();
 	
 	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var haxeClasses:Hash<Class<Dynamic>> = new Hash<Class<Dynamic>>();
@@ -84,6 +85,7 @@ class Parser {
 				
 				path = Type.getClassName(cls) + '.' + css;
 				
+				// Add a attribute to current element pointing to field
 				if (element.attr('x-binding') == '') {
 					element.setAttr('x-binding', path);
 				} else {
@@ -117,6 +119,8 @@ class Parser {
 				
 				for (name in names) {
 					
+					// If the first letter is uppercase then its assumed to be
+					// a possible Haxe class, otherwise a possible field.
 					if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
 						matchClass(name, x);
 					} else {
@@ -155,13 +159,6 @@ class Parser {
 		
 		processXML(xml);
 		
-		// handle `class="..."`
-		/*elements = xml.runtimeSelect('[class]');
-		checkCssClasses( elements );*/
-		// handle `class="..."`
-		/*elements = xml.runtimeSelect('[id]');
-		checkCssIds( elements );*/
-		
 		trace(xml.runtimeSelect('[x-binding]'));
 		
 		return { };
@@ -176,5 +173,5 @@ class Class1 {
 
 class MyClass {
 	public function new() { }
-	public function format() {}
+	public function fields() {}
 }
