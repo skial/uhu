@@ -210,7 +210,9 @@ class Parser {
 			
 			names = x.attr('id').split(' ');
 			
-			if (names[0].charCodeAt(0).isUpperCaseAlphabetic()) {
+			// If the first letter is uppercase then its assumed to be
+				// a possible Haxe class, otherwise a possible field.
+			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
 				matchId(names[0], x);
 			} else {
 				matchField(names[0], x, true);
