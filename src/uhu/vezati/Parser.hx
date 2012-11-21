@@ -21,8 +21,6 @@ using selecthxml.SelectDom;
 
 class Parser {
 	
-	// private fields
-	
 	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var foundClasses:Array<String> = new Array<String>();
 	
@@ -93,13 +91,63 @@ class Parser {
 		
 	}
 	
+	private static function findParents(element:Xml, type:String) {
+		var result:Array<String> = [];
+		var attribute:String;
+		
+		// Not sure if pulling all possibly valid class names on current element is needed. Problem point.
+		if ( type == 'class' && element.attr(type) != '' ) {
+			
+			attribute = element.attr(type);
+			
+			for (attr in attribute.split(' ')) {
+				
+				if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
+					result.push(Common.userClasses.get(attr));
+				}
+				
+			}
+			
+		}
+		
+		for (p in element.ancestors()) {
+			
+			if (p.attr(type) != '') {
+				attribute = p.attr(type);
+				if ( type == 'id' ) {
+					
+					attribute = attribute.split(' ')[0];
+					
+					if ( attribute.split(' ')[0].charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attribute.split(' ')[0]) ) {
+						result.push(Common.userClasses.get(attribute.split(' ')[0]));
+					}
+					
+				} else if ( type == 'class' ) {
+					
+					for (attr in attribute.split(' ')) {
+						
+						if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
+							result.push(Common.userClasses.get(attr));
+						}
+						
+					}
+					
+				}
+			}
+			
+		}
+		
+		return result;
+	}
+	
 	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
 		if (Common.ignoreNames.indexOf(css) != -1) {
 			return;
 		}
 		
 		// Find the matching field from last matched class, backwards until found or non match.
-		var classes = isStatic ? foundIds.copy() : foundClasses.copy();
+		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
+		var classes = findParents(element, isStatic ? 'id' : 'class' );
 		var cls:Class<Dynamic>;
 		var fields:Array<String>;
 		var path:String;
@@ -108,6 +156,8 @@ class Parser {
 		classes.reverse();
 		
 		for (c in classes) {
+			
+			if (!haxeClasses.exists(c)) continue;
 			
 			cls = haxeClasses.get(c);
 			fields = isStatic ? Type.getClassFields(cls) : Type.getInstanceFields(cls);
@@ -173,8 +223,6 @@ class Parser {
 		}
 		
 	}
-	
-	// public fields
 
 	public static function parse(html:String) {
 		var xml:Xml = Html.toXml(html);
