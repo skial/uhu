@@ -14,6 +14,13 @@ using Detox;
 using uhu.Library;
 using selecthxml.SelectDom;
 
+using tink.core.types.Outcome;
+
+#if macro
+import haxe.macro.Expr;
+using tink.macro.tools.MacroTools;
+#end
+
 /**
  * ...
  * @author Skial Bainn
@@ -32,7 +39,7 @@ class Parser {
 	private static function matchClass(css:String, element:Xml) {
 		var resolved = null;
 		
-		if (Common.ignoreNames.indexOf(css) != -1) {
+		if (Common.ignoreClass.indexOf(css) != -1) {
 			return;
 		}
 		
@@ -63,7 +70,7 @@ class Parser {
 	private static function matchId(css:String, element:Xml) {
 		var resolved = null;
 		
-		if (Common.ignoreNames.indexOf(css) != -1) {
+		if (Common.ignoreClass.indexOf(css) != -1) {
 			return;
 		}
 		
@@ -91,7 +98,53 @@ class Parser {
 		
 	}
 	
+	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
+		if (Common.ignoreClass.indexOf(css) != -1) {
+			return;
+		}
+		
+		// Find the matching field from last matched class, backwards until found or non match.
+		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
+		var classes = findParents(element, isStatic ? 'id' : 'class' );
+		var cls:Class<Dynamic>;
+		var fields:Array<String>;
+		var path:String;
+		var attribute:String = 'x-binding' + (isStatic ? '-static' : '');
+		
+		classes.reverse();
+		
+		for (c in classes) {
+			
+			if (!haxeClasses.exists(c)) continue;
+			
+			cls = haxeClasses.get(c);
+			fields = isStatic ? Type.getClassFields(cls) : Type.getInstanceFields(cls);
+			
+			if (fields.indexOf(css) != -1) {
+				
+				path = Type.getClassName(cls) + '.' + css;
+				
+				// Add a attribute to current element pointing to field
+				if (element.attr(attribute) == '') {
+					element.setAttr(attribute, path);
+				} else {
+					
+					var bindings = element.attr(attribute).split(' ');
+					if (bindings.indexOf(path) == -1) {
+						bindings.push(Type.getClassName(cls) + '.' + css);
+						element.setAttr(attribute, bindings.join(' '));
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
 	private static function findParents(element:Xml, type:String) {
+		// Change type to enum??
 		var result:Array<String> = [];
 		var attribute:String;
 		
@@ -138,51 +191,6 @@ class Parser {
 		}
 		
 		return result;
-	}
-	
-	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
-		if (Common.ignoreNames.indexOf(css) != -1) {
-			return;
-		}
-		
-		// Find the matching field from last matched class, backwards until found or non match.
-		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
-		var classes = findParents(element, isStatic ? 'id' : 'class' );
-		var cls:Class<Dynamic>;
-		var fields:Array<String>;
-		var path:String;
-		var attribute:String = 'x-binding' + (isStatic ? '-static' : '');
-		
-		classes.reverse();
-		
-		for (c in classes) {
-			
-			if (!haxeClasses.exists(c)) continue;
-			
-			cls = haxeClasses.get(c);
-			fields = isStatic ? Type.getClassFields(cls) : Type.getInstanceFields(cls);
-			
-			if (fields.indexOf(css) != -1) {
-				
-				path = Type.getClassName(cls) + '.' + css;
-				
-				// Add a attribute to current element pointing to field
-				if (element.attr(attribute) == '') {
-					element.setAttr(attribute, path);
-				} else {
-					
-					var bindings = element.attr(attribute).split(' ');
-					if (bindings.indexOf(path) == -1) {
-						bindings.push(Type.getClassName(cls) + '.' + css);
-						element.setAttr(attribute, bindings.join(' '));
-					}
-					
-				}
-				
-			}
-			
-		}
-		
 	}
 	
 	private static function processXML(x:Xml) {
@@ -234,8 +242,8 @@ class Parser {
 			processXML(x);
 		}
 		
-		trace(xml.runtimeSelect('[x-binding]'));
-		trace(xml.runtimeSelect('[x-binding-static]'));
+		trace(xml.select('[x-binding]'));
+		trace(xml.select('[x-binding-static]'));
 		
 		return xml;
 	}

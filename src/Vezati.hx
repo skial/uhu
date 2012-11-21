@@ -1,7 +1,13 @@
 package ;
+import sys.FileSystem;
+import sys.io.File;
 import uhu.vezati.Binder;
 import uhu.vezati.Parser;
 import uhu.vezati.Common;
+
+#if macro
+import haxe.macro.Context;
+#end
 
 using uhu.Library;
 using Lambda;
@@ -22,7 +28,7 @@ class Vezati {
 	
 	public static function main() {
 		Vezati.setClasses([MyClass, Class1, YourClass]);
-		Vezati.compile('templates/vezati/basic.vezati.html'.loadTemplate());
+		Vezati.compile('templates/vezati/basic.vezati.html');
 	}
 	
 	public static function setClasses(classes:Array<Class<Dynamic>>) {
@@ -31,9 +37,11 @@ class Vezati {
 		}
 	}
 	
-	public static function compile(html:String) {
+	@:macro public static function compile(path:String) {
+		var html = File.getContent( Context.resolvePath(path ));
 		var xml = Parser.parse(html);
 		var bind = Binder.parse(xml);
+		return macro Void;
 	}
 	
 }

@@ -142,6 +142,7 @@ class Library {
 		return Context.makeExpr(f, p);
 	}
 	
+	#if js
 	@:macro public static function untype(e:ExprOf<Dynamic>):ExprOf<Dynamic> {
 		/**
 		 * Returns the expression but untyped.
@@ -208,6 +209,7 @@ class Library {
 		
 		return e;
 	}
+	#end
 	
 	#if macro
 	private static function getTypePath(from:ComplexType):TypePath {
