@@ -38,7 +38,7 @@ class Vezati {
 	}
 	
 	@:macro public static function compile(path:String) {
-		var html = File.getContent( Context.resolvePath(path ));
+		var html = File.getContent( Context.resolvePath(path) );
 		var xml = Parser.parse(html);
 		var bind = Binder.parse(xml);
 		return macro Void;
