@@ -5,6 +5,10 @@ import haxe.macro.Type;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import massive.neko.io.File;
+import massive.neko.io.FileSys;
+import massive.neko.util.PathUtil;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -16,8 +20,28 @@ using StringTools;
 // Haitian Creole for compiler
 class Du {
 	
-	@:macro public static function allClasses():ExprOf<Array<String>> {
-		return macro Context.getClassPath();
+	@:macro public static function getAllClasses():ExprOf<Array<String>> {
+		var cls_path = Context.getClassPath();
+		var result:Array<String> = [];
+		var path:String = '';
+		var file:File;
+		
+		for (cls in cls_path) {
+			
+			if (cls != '') {
+				
+				file = File.create(PathUtil.cleanUpPath(FileSystem.fullPath(cls)));
+				// Using MassiveInteractive's File.hx class feels to heavy just for this
+				// but I like write as little code as I can :D
+				for (f in file.getRecursiveDirectoryListing(~/.hx/)) {
+					result.push(f.nativePath);
+				}
+				
+			}
+			
+		}
+		
+		return macro $(result);
 	}
 	
 	@:macro public static function include(classes:Array<String>) {

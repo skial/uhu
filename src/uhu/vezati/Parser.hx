@@ -242,8 +242,10 @@ class Parser {
 			processXML(x);
 		}
 		
-		trace(xml.select('[x-binding]'));
-		trace(xml.select('[x-binding-static]'));
+		//trace(Util.select(xml, '[x-binding]'));
+		//trace(Util.select(xml, '[x-binding-static]'));
+		trace(xml.runtimeSelect('[x-binding]'));
+		trace(xml.runtimeSelect('[x-binding-static]'));
 		
 		return xml;
 	}
