@@ -1,5 +1,7 @@
 package ;
+import uhu.vezati.Binder;
 import uhu.vezati.Parser;
+import uhu.vezati.Common;
 
 using uhu.Library;
 using Lambda;
@@ -25,14 +27,13 @@ class Vezati {
 	
 	public static function setClasses(classes:Array<Class<Dynamic>>) {
 		for (c in classes) {
-			if (userClasses.indexOf(c.getClassName()) == -1) {
-				userClasses.push(c.getClassName());
-			}
+			Common.userClasses.set(c.getClassName().split('.').pop(), c.getClassName());
 		}
 	}
 	
 	public static function compile(html:String) {
-		var tokens = Parser.parse(html, userClasses);
+		var xml = Parser.parse(html);
+		var bind = Binder.parse(xml);
 	}
 	
 }

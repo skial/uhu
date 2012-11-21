@@ -6,6 +6,7 @@ import uhu.macro.Du;
 import Xml;
 import haxe.xml.Parser;
 import thx.html.Html;
+import uhu.vezati.Common;
 
 using de.polygonal.core.fmt.ASCII;
 using Lambda;
@@ -22,9 +23,6 @@ class Parser {
 	
 	// private fields
 	
-	private static var userClasses:Hash<String> = new Hash<String>();
-	private static var macroClasses:Hash<String> = new Hash<String>();
-	
 	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var foundClasses:Array<String> = new Array<String>();
 	
@@ -33,17 +31,15 @@ class Parser {
 	
 	private static var haxeClasses:Hash<Class<Dynamic>> = new Hash<Class<Dynamic>>();
 	
-	private static var ignore:Array<String> = ['Class'];
-	
 	private static function matchClass(css:String, element:Xml) {
 		var resolved = null;
 		
-		if (ignore.indexOf(css) != -1) {
+		if (Common.ignoreNames.indexOf(css) != -1) {
 			return;
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Type.resolveClass( userClasses.exists(css) ? userClasses.get(css) : css );
+		resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
 		
 		if (resolved != null) {
 			
@@ -69,12 +65,12 @@ class Parser {
 	private static function matchId(css:String, element:Xml) {
 		var resolved = null;
 		
-		if (ignore.indexOf(css) != -1) {
+		if (Common.ignoreNames.indexOf(css) != -1) {
 			return;
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Type.resolveClass( userClasses.exists(css) ? userClasses.get(css) : css );
+		resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
 		
 		if (resolved != null) {
 			
@@ -98,7 +94,7 @@ class Parser {
 	}
 	
 	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
-		if (ignore.indexOf(css) != -1) {
+		if (Common.ignoreNames.indexOf(css) != -1) {
 			return;
 		}
 		
@@ -180,13 +176,7 @@ class Parser {
 	
 	// public fields
 
-	public static function parse(html:String, ?classes:Array<String>) {
-		if (classes != null) {
-			for (c in classes) {
-				userClasses.set(c.split('.').pop(), c);
-			}
-		}
-		
+	public static function parse(html:String) {
 		var xml:Xml = Html.toXml(html);
 		var elements:Array<Xml>;
 		
@@ -197,7 +187,7 @@ class Parser {
 		trace(xml.runtimeSelect('[x-binding]'));
 		trace(xml.runtimeSelect('[x-binding-static]'));
 		
-		return { };
+		return xml;
 	}
 	
 }
