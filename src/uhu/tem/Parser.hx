@@ -75,11 +75,11 @@ class Parser {
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
+		resolved = Common.userClasses.get(css);
 		
 		if (resolved != null) {
 			
-			css = Type.getClassName(resolved);
+			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
 			
 			foundIds.push(css);
 			
@@ -106,11 +106,12 @@ class Parser {
 		// Find the matching field from last matched class, backwards until found or non match.
 		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
 		var classes = findParents(element, isStatic ? 'id' : 'class' );
-		var cls:ClassType;
+		var tem:TemClass;
 		var fields:Array<ClassField>;
 		var path:String;
 		var attribute:String = 'x-binding' + (isStatic ? '-static' : '');
 		var field:ClassField;
+		var values:Array<String>;
 		
 		classes.reverse();
 		
@@ -118,15 +119,21 @@ class Parser {
 			
 			if (!haxeClasses.exists(c)) continue;
 			
-			cls = haxeClasses.get(c).cls;
+			tem = haxeClasses.get(c);
 			
-			fields = isStatic ? cls.statics.get() : cls.fields.get();
+			fields = isStatic ? tem.cls.statics.get() : tem.cls.fields.get();
 			
 			field = fields.getClassField(css);
 			
 			if (field == null) continue;
 			
-			
+			if (element.attr(attribute) == '') {
+				element.setAttr(attribute, tem.name + '.' + field.name);
+			} else {
+				values = element.attr(attribute).split(' ');
+				values.push(tem.name + '.' + field.name);
+				element.setAttr(attribute, values.join(' '));
+			}
 			
 		}
 		
