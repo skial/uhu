@@ -42,7 +42,7 @@ class Tem {
 	#end
 	
 	@:macro public static function setClasses(classes:ExprOf<Array<Class<Dynamic>>>) {
-		var user_cls:Array<{cls:ClassType, params:Array<Type>}> = [];
+		
 		switch (classes.expr) {
 			case EArrayDecl(values):
 				
@@ -51,7 +51,9 @@ class Tem {
 					switch (v.expr) {
 						case EConst(c):
 							var s:String = Jumla.constValue(c);
-							user_cls.push(Jumla.getClass( s ));
+							var t = Jumla.getClass( s );
+							var r = { name:t.cls.pack.join('.') + '.' + t.cls.name, cls:t.cls, params:t.params };
+							Common.userClasses.set(r.name, r);
 						default:
 					}
 					

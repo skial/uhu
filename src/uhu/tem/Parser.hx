@@ -7,19 +7,17 @@ import Xml;
 import haxe.xml.Parser;
 import thx.html.Html;
 import uhu.tem.Common;
+import haxe.macro.Expr;
+import haxe.macro.Type;
 
+using uhu.tem.Util;
 using de.polygonal.core.fmt.ASCII;
 using Lambda;
 using Detox;
 using uhu.Library;
 using selecthxml.SelectDom;
-
 using tink.core.types.Outcome;
-
-#if macro
-import haxe.macro.Expr;
 using tink.macro.tools.MacroTools;
-#end
 
 /**
  * ...
@@ -34,7 +32,7 @@ class Parser {
 	private static var idElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var foundIds:Array<String> = new Array<String>();
 	
-	private static var haxeClasses:Hash<Class<Dynamic>> = new Hash<Class<Dynamic>>();
+	private static var haxeClasses:Hash<TemClass> = new Hash<TemClass>();
 	
 	private static function matchClass(css:String, element:Xml) {
 		var resolved = null;
@@ -44,11 +42,13 @@ class Parser {
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
+		//resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
+		resolved = Common.userClasses.get(css);
 		
 		if (resolved != null) {
 			
-			css = Type.getClassName(resolved);
+			//css = Type.getClassName(resolved);
+			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
 			
 			foundClasses.push(css);
 			
@@ -106,10 +106,11 @@ class Parser {
 		// Find the matching field from last matched class, backwards until found or non match.
 		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
 		var classes = findParents(element, isStatic ? 'id' : 'class' );
-		var cls:Class<Dynamic>;
-		var fields:Array<String>;
+		var cls:ClassType;
+		var fields:Array<ClassField>;
 		var path:String;
 		var attribute:String = 'x-binding' + (isStatic ? '-static' : '');
+		var field:ClassField;
 		
 		classes.reverse();
 		
@@ -117,27 +118,15 @@ class Parser {
 			
 			if (!haxeClasses.exists(c)) continue;
 			
-			cls = haxeClasses.get(c);
-			fields = isStatic ? Type.getClassFields(cls) : Type.getInstanceFields(cls);
+			cls = haxeClasses.get(c).cls;
 			
-			if (fields.indexOf(css) != -1) {
-				
-				path = Type.getClassName(cls) + '.' + css;
-				
-				// Add a attribute to current element pointing to field
-				if (element.attr(attribute) == '') {
-					element.setAttr(attribute, path);
-				} else {
-					
-					var bindings = element.attr(attribute).split(' ');
-					if (bindings.indexOf(path) == -1) {
-						bindings.push(Type.getClassName(cls) + '.' + css);
-						element.setAttr(attribute, bindings.join(' '));
-					}
-					
-				}
-				
-			}
+			fields = isStatic ? cls.statics.get() : cls.fields.get();
+			
+			field = fields.getClassField(css);
+			
+			if (field == null) continue;
+			
+			
 			
 		}
 		
@@ -156,7 +145,7 @@ class Parser {
 			for (attr in attribute.split(' ')) {
 				
 				if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
-					result.push(Common.userClasses.get(attr));
+					result.push( Common.userClasses.get(attr).name );
 				}
 				
 			}
@@ -172,7 +161,7 @@ class Parser {
 					attribute = attribute.split(' ')[0];
 					
 					if ( attribute.split(' ')[0].charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attribute.split(' ')[0]) ) {
-						result.push(Common.userClasses.get(attribute.split(' ')[0]));
+						result.push( Common.userClasses.get(attribute.split(' ')[0]).name );
 					}
 					
 				} else if ( type == 'class' ) {
@@ -180,7 +169,7 @@ class Parser {
 					for (attr in attribute.split(' ')) {
 						
 						if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
-							result.push(Common.userClasses.get(attr));
+							result.push( Common.userClasses.get(attr).name );
 						}
 						
 					}

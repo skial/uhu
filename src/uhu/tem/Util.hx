@@ -1,8 +1,11 @@
 package uhu.tem;
+
 import haxe.io.StringInput;
 import selecthxml.engine.Lexer;
 import selecthxml.SelectDom;
+import haxe.macro.Type;
 
+using Lambda;
 using tink.macro.tools.MacroTools;
 
 /**
@@ -11,8 +14,30 @@ using tink.macro.tools.MacroTools;
  */
 
 class Util {
+	
+	private static var last_field:ClassField = null;
+	
+	public static function hasClassField(fields:Array<ClassField>, name:String):Bool {
+		return fields.exists( function(f) {
+			if (f.name == name) {
+				last_field = f;
+				return true;
+			}
+			return false;
+		} );
+	}
+	
+	public static function getClassField(fields:Array<ClassField>, name:String):Null<ClassField> {
+		if (last_field != null && last_field.name == name) return last_field;
+		
+		if ( Util.hasClassField(fields, name) ) {
+			return last_field;
+		}
+		
+		return null;
+	}
 
-	public static function select(element:Xml, selectorString:String) {
+	/*public static function select(element:Xml, selectorString:String) {
 		var lexer = new Lexer(new StringInput(selectorString));
 		var parser = new selecthxml.engine.Parser(lexer);
 		var selector = parser.parse();
@@ -73,6 +98,6 @@ class Util {
 			&& p.attrs.length == 0
 			&& p.pseudos.length == 0
 			&& p.combinator == null;
-	}
+	}*/
 	
 }
