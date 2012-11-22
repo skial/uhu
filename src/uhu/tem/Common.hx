@@ -20,7 +20,7 @@ class Common {
 	public static var userClasses:Hash<TemClass> = new Hash<TemClass>();
 	
 	public static var ignoreClass:Array<String> = ['Class'];
-	// This will be improved by detecting invalid characters before search this.
+	// This will be improved by detecting invalid characters before searching this.
 	public static var ignoreField:Array<String> = ['x-binding', 'x-binding-static'];
 	
 }
