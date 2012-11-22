@@ -2,6 +2,7 @@ package uhu.tem;
 
 import haxe.macro.Context;
 import selecthxml.SelectDom;
+import sys.io.File;
 import uhu.macro.Du;
 import Xml;
 import haxe.xml.Parser;
@@ -206,8 +207,6 @@ class Parser {
 			processXML(x);
 		}
 		
-		//trace(Util.select(xml, '[x-binding]'));
-		//trace(Util.select(xml, '[x-binding-static]'));
 		trace(xml.runtimeSelect('[x-binding]'));
 		trace(xml.runtimeSelect('[x-binding-static]'));
 		

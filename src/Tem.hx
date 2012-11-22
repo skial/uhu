@@ -53,7 +53,7 @@ class Tem {
 							var s:String = Jumla.constValue(c);
 							var t = Jumla.getClass( s );
 							var r = { name:t.cls.pack.join('.') + '.' + t.cls.name, cls:t.cls, params:t.params };
-							Common.userClasses.set(r.name, r);
+							Common.userClasses.set(s, r);
 						default:
 					}
 					
