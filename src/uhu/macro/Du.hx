@@ -21,10 +21,15 @@ using StringTools;
 class Du {
 	
 	@:macro public static function getAllClasses():ExprOf<Array<String>> {
+		// This method NEEDS to be cached.
+		
+		if (Context.defined('display')) return macro [];
+		
 		var cls_path = Context.getClassPath();
 		var result:Array<String> = [];
 		var path:String = '';
 		var file:File;
+		var files:Array<File>;
 		
 		for (cls in cls_path) {
 			
@@ -32,8 +37,9 @@ class Du {
 				
 				file = File.create(PathUtil.cleanUpPath(FileSystem.fullPath(cls)));
 				// Using MassiveInteractive's File.hx class feels to heavy just for this
-				// but I like write as little code as I can :D
-				for (f in file.getRecursiveDirectoryListing(~/.hx/)) {
+				// but I like writing as little code as I can :D
+				files = file.getRecursiveDirectoryListing(~/.hx/);
+				for (f in files) {
 					result.push(f.nativePath);
 				}
 				

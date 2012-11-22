@@ -9,4 +9,4 @@
 -lib tink_reactive
 -lib polygonal-core
 -neko bin/vezati/vezati.n
--main Vezati
+-main Tem

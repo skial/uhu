@@ -1,4 +1,4 @@
-package uhu.vezati;
+package uhu.tem;
 
 import haxe.macro.Context;
 import selecthxml.SelectDom;
@@ -6,7 +6,7 @@ import uhu.macro.Du;
 import Xml;
 import haxe.xml.Parser;
 import thx.html.Html;
-import uhu.vezati.Common;
+import uhu.tem.Common;
 
 using de.polygonal.core.fmt.ASCII;
 using Lambda;

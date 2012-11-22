@@ -2,11 +2,12 @@ package ;
 import haxe.macro.Expr;
 import sys.FileSystem;
 import sys.io.File;
-import uhu.vezati.Binder;
-import uhu.vezati.Parser;
-import uhu.vezati.Common;
+import uhu.tem.Binder;
+import uhu.tem.Parser;
+import uhu.tem.Common;
 
 #if macro
+import haxe.macro.Type;
 import uhu.macro.Du;
 import uhu.macro.Jumla;
 import haxe.macro.Context;
@@ -16,6 +17,7 @@ using tink.macro.tools.MacroTools;
 
 using tink.core.types.Outcome;
 
+using StringTools;
 using uhu.Library;
 using Lambda;
 
@@ -25,19 +27,23 @@ using Lambda;
  */
 
 /*
- * TODO - need to rename to something better.
- * "bind" in Croatian
+ * Might rename to Albert because he was awesome
+ * Vezati is "bind" in Croatian
  */
-class Vezati {
+class Tem {
 	
 	private static var userClasses:Array<String> = [];
 	
+	#if !macro
 	public static function main() {
-		Vezati.setClasses([MyClass, Class1, YourClass]);
-		Vezati.compile('templates/vezati/basic.vezati.html');
+		Tem.setClasses([MyClass, Class1, YourClass]);
+		Tem.compile('templates/vezati/basic.vezati.html');
 	}
+	#end
 	
 	@:macro public static function setClasses(classes:ExprOf<Array<Class<Dynamic>>>) {
+		trace(Context.getLocalClass().get().module);
+		
 		var user_cls:Array<String> = [];
 		switch (classes.expr) {
 			case EArrayDecl(values):
@@ -46,6 +52,12 @@ class Vezati {
 					
 					switch (v.expr) {
 						case EConst(c):
+							var t = Context.getType(Jumla.constValue(c));
+							switch (t) {
+								case TInst(c, p):
+									trace(c.get().module);
+								default:
+							}
 							user_cls.push(Jumla.constValue(c));
 						default:
 					}
@@ -54,10 +66,16 @@ class Vezati {
 				
 			default:
 		}
+		
 		trace(user_cls);
-		Du.getAllClasses();
+		/*var _classes:Array<String> = Du.getAllClasses();
+		
+		for (c in _classes) {
+			if (c == null) continue;
+			
+		}*/
 		/*for (c in classes) {
-			Common.userClasses.set(c.getClassName().split('.').pop(), c.getClassName());
+			Common.userClasses.set(Type.getClassName(c).split('.').pop(), Type.getClassName(c));
 		}*/
 		return macro Void;
 	}

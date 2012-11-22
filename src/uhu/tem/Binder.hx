@@ -1,4 +1,4 @@
-package uhu.vezati;
+package uhu.tem;
 
 using selecthxml.SelectDom;
 using tink.reactive.bindings.BindingTools;
