@@ -1,6 +1,10 @@
 package uhu.macro;
 
+typedef StdType = Type;
+
+import haxe.macro.Type;
 import haxe.macro.Expr;
+import haxe.macro.Context;
 
 using tink.macro.tools.MacroTools;
 
@@ -14,7 +18,16 @@ using tink.macro.tools.MacroTools;
  */
 class Jumla {
 	
-	public static function fieldKind(field:haxe.macro.Type.ClassField):String {
+	public static function getClass(name:String):Null<{cls:ClassType, params:Array<Type>}> {
+		switch (Context.getType(name)) {
+			case TInst(c, p):
+				return { cls:c.get(), params:p };
+			default:
+		}
+		return null;
+	}
+	
+	public static function fieldKind(field:ClassField):String {
 		
 		var result = '';
 		
@@ -22,10 +35,10 @@ class Jumla {
 			case FMethod(k):
 				switch (k) {
 					default:
-						result = Type.enumConstructor(k);
+						result = StdType.enumConstructor(k);
 				}
 			default:
-				result = Type.enumConstructor(field.kind);
+				result = StdType.enumConstructor(field.kind);
 		}
 		
 		return result;
@@ -76,8 +89,8 @@ class Jumla {
 			
 			if (result != null && result.length != 0) {
 				for (r in result) {
-					if (Type.enumConstructor(r.expr) == type) {
-						return Type.enumParameters(r.expr);
+					if (StdType.enumConstructor(r.expr) == type) {
+						return StdType.enumParameters(r.expr);
 					} else {
 						expr = r;
 						break;

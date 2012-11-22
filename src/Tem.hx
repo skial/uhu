@@ -42,9 +42,7 @@ class Tem {
 	#end
 	
 	@:macro public static function setClasses(classes:ExprOf<Array<Class<Dynamic>>>) {
-		trace(Context.getLocalClass().get().module);
-		
-		var user_cls:Array<String> = [];
+		var user_cls:Array<{cls:ClassType, params:Array<Type>}> = [];
 		switch (classes.expr) {
 			case EArrayDecl(values):
 				
@@ -52,13 +50,8 @@ class Tem {
 					
 					switch (v.expr) {
 						case EConst(c):
-							var t = Context.getType(Jumla.constValue(c));
-							switch (t) {
-								case TInst(c, p):
-									trace(c.get().module);
-								default:
-							}
-							user_cls.push(Jumla.constValue(c));
+							var s:String = Jumla.constValue(c);
+							user_cls.push(Jumla.getClass( s ));
 						default:
 					}
 					
@@ -67,16 +60,6 @@ class Tem {
 			default:
 		}
 		
-		trace(user_cls);
-		/*var _classes:Array<String> = Du.getAllClasses();
-		
-		for (c in _classes) {
-			if (c == null) continue;
-			
-		}*/
-		/*for (c in classes) {
-			Common.userClasses.set(Type.getClassName(c).split('.').pop(), Type.getClassName(c));
-		}*/
 		return macro Void;
 	}
 	
