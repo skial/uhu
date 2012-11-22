@@ -34,41 +34,10 @@ class Parser {
 	
 	private static var haxeClasses:Hash<TemClass> = new Hash<TemClass>();
 	
-	private static function matchClass(css:String, element:Xml) {
+	private static function matchCSS(css:String, element:Xml, id:Bool) {
 		var resolved = null;
-		
-		if (Common.ignoreClass.indexOf(css) != -1) {
-			return;
-		}
-		
-		// Find the matching Haxe class. Will be `null` more often than not.
-		//resolved = Type.resolveClass( Common.userClasses.exists(css) ? Common.userClasses.get(css) : css );
-		resolved = Common.userClasses.get(css);
-		
-		if (resolved != null) {
-			
-			//css = Type.getClassName(resolved);
-			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
-			
-			foundClasses.push(css);
-			
-			// Set the Haxe class to resolve to the css class if not already done.
-			if (!haxeClasses.exists(css)) {
-				haxeClasses.set(css, resolved);
-			}
-			// Set or add to the array of elements that have this class name.
-			if (!classElements.exists(css)) {
-				classElements.set(css, [element]);
-			} else {
-				classElements.get(css).push(element);
-			}
-			
-		}
-		
-	}
-	
-	private static function matchId(css:String, element:Xml) {
-		var resolved = null;
+		var found = id ? foundIds : foundClasses;
+		var elements = id ? idElements : classElements;
 		
 		if (Common.ignoreClass.indexOf(css) != -1) {
 			return;
@@ -81,21 +50,20 @@ class Parser {
 			
 			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
 			
-			foundIds.push(css);
+			found.push(css);
 			
 			// Set the Haxe class to resolve to the css class if not already done.
 			if (!haxeClasses.exists(css)) {
 				haxeClasses.set(css, resolved);
 			}
 			// Set or add to the array of elements that have this class name.
-			if (!idElements.exists(css)) {
-				idElements.set(css, [element]);
+			if (!elements.exists(css)) {
+				elements.set(css, [element]);
 			} else {
-				idElements.get(css).push(element);
+				elements.get(css).push(element);
 			}
 			
 		}
-		
 	}
 	
 	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
@@ -201,7 +169,7 @@ class Parser {
 				// If the first letter is uppercase then its assumed to be
 				// a possible Haxe class, otherwise a possible field.
 				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
-					matchClass(name, x);
+					matchCSS(name, x, false);
 				} else {
 					matchField(name, x, false);
 				}
@@ -217,7 +185,7 @@ class Parser {
 			// If the first letter is uppercase then its assumed to be
 				// a possible Haxe class, otherwise a possible field.
 			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
-				matchId(names[0], x);
+				matchCSS(names[0], x, true);
 			} else {
 				matchField(names[0], x, true);
 			}
