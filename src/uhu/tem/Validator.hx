@@ -1,5 +1,6 @@
 package uhu.tem;
 
+import haxe.macro.Context;
 import uhu.tem.Common;
 import haxe.macro.Type;
 
@@ -7,6 +8,7 @@ using uhu.tem.Util;
 using Detox;
 using StringTools;
 using selecthxml.SelectDom;
+using tink.macro.tools.MacroTools;
 
 /**
  * ...
@@ -15,7 +17,8 @@ using selecthxml.SelectDom;
 
 class Validator {
 	
-	private static var current:Xml = null;
+	private static var currentElement:Xml = null;
+	private static var currentTem:TemClass = null;
 
 	public static function parse(xml:Xml) {
 		
@@ -26,7 +29,7 @@ class Validator {
 		
 		for (i in instances) {
 			
-			current = i;
+			currentElement = i;
 			fields = i.attr('x-binding').split(' ');
 			
 			for (field in fields) {
@@ -36,6 +39,8 @@ class Validator {
 				
 				var tem:TemClass = Common.classes.get(pack.pop());
 				var mfield:ClassField = tem.cls.fields.get().getClassField(name);
+				
+				currentTem = tem;
 				
 				instanceField(mfield);
 				
@@ -59,6 +64,36 @@ class Validator {
 	}
 	
 	private static function instanceVariable(field:ClassField) {
+		var canSet:Bool = false;
+		var canGet:Bool = false;
+		
+		// AccInline work around?
+		switch(field.kind) {
+			case FVar(read, write):
+				
+				switch(read) {
+					case AccNo, AccNever, AccInline, AccResolve, AccRequire(_):
+						canGet = false;
+					default:
+						canGet = true;
+				}
+				
+				switch (write) {
+					case AccNo, AccNever, AccInline, AccResolve, AccRequire(_):
+						canSet = false;
+					default:
+						canSet = true;
+				}
+				
+			default:
+		}
+		
+		var first = currentElement.firstChild();
+		
+		
+		
+		trace(currentElement.firstChild());
+		trace(field.type.getID());
 		
 	}
 	
