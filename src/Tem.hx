@@ -5,6 +5,7 @@ import sys.io.File;
 import uhu.tem.Binder;
 import uhu.tem.Parser;
 import uhu.tem.Common;
+import uhu.tem.Validator;
 
 #if macro
 import haxe.macro.Type;
@@ -32,8 +33,6 @@ using Lambda;
  */
 class Tem {
 	
-	private static var userClasses:Array<String> = [];
-	
 	#if !macro
 	public static function main() {
 		Tem.setClasses([MyClass, Class1, YourClass]);
@@ -53,7 +52,7 @@ class Tem {
 							var s:String = Jumla.constValue(c);
 							var t = Jumla.getClass( s );
 							var r = { name:t.cls.pack.join('.') + '.' + t.cls.name, cls:t.cls, params:t.params };
-							Common.userClasses.set(s, r);
+							Common.classes.set(s, r);
 						default:
 					}
 					
@@ -68,7 +67,8 @@ class Tem {
 	@:macro public static function compile(path:String) {
 		var html = File.getContent( Context.resolvePath(path) );
 		var xml = Parser.parse(html);
-		var bind = Binder.parse(xml);
+		var valid = Validator.parse(xml);
+		var bind = Binder.parse(valid);
 		return macro Void;
 	}
 	

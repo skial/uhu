@@ -17,7 +17,7 @@ typedef TemClass = {
 
 class Common {
 	
-	public static var userClasses:Hash<TemClass> = new Hash<TemClass>();
+	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	
 	public static var ignoreClass:Array<String> = ['Class'];
 	// This will be improved by detecting invalid characters before searching this.

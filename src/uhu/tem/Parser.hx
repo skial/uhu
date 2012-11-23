@@ -45,7 +45,7 @@ class Parser {
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Common.userClasses.get(css);
+		resolved = Common.classes.get(css);
 		
 		if (resolved != null) {
 			
@@ -120,8 +120,8 @@ class Parser {
 			
 			for (attr in attribute.split(' ')) {
 				
-				if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
-					result.push( Common.userClasses.get(attr).name );
+				if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attr) ) {
+					result.push( Common.classes.get(attr).name );
 				}
 				
 			}
@@ -136,16 +136,16 @@ class Parser {
 					
 					attribute = attribute.split(' ')[0];
 					
-					if ( attribute.split(' ')[0].charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attribute.split(' ')[0]) ) {
-						result.push( Common.userClasses.get(attribute.split(' ')[0]).name );
+					if ( attribute.split(' ')[0].charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attribute.split(' ')[0]) ) {
+						result.push( Common.classes.get(attribute.split(' ')[0]).name );
 					}
 					
 				} else if ( type == 'class' ) {
 					
 					for (attr in attribute.split(' ')) {
 						
-						if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.userClasses.exists(attr) ) {
-							result.push( Common.userClasses.get(attr).name );
+						if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attr) ) {
+							result.push( Common.classes.get(attr).name );
 						}
 						
 					}
@@ -206,9 +206,6 @@ class Parser {
 		for (x in xml) {
 			processXML(x);
 		}
-		
-		trace(xml.runtimeSelect('[x-binding]'));
-		trace(xml.runtimeSelect('[x-binding-static]'));
 		
 		return xml;
 	}

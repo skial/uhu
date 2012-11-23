@@ -1,5 +1,8 @@
 package uhu.tem;
 
+import uhu.tem.Common;
+import haxe.macro.Expr;
+
 using selecthxml.SelectDom;
 using tink.reactive.bindings.BindingTools;
 
@@ -15,8 +18,12 @@ class Binder {
 		var instances = html.runtimeSelect('[x-binding]');
 		var statics = html.runtimeSelect('[x-binding-static]');
 		
-		for (instance in instances) {
-			
+		for (i in instances) {
+			trace(i);
+		}
+		
+		for (s in statics) {
+			trace(s);
 		}
 		
 	}
