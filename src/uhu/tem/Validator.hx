@@ -44,28 +44,45 @@ class Validator {
 				
 				currentTem = tem;
 				
-				instanceField(mfield);
+				fieldKind(mfield);
 				
 			}
+			
+		}
+		
+		for (s in statics) {
+			
+			currentElement = s;
+			var field = s.attr('x-binding-static').split(' ')[0];
+			
+			var pack:Array<String> = field.split('.');
+			var name:String = pack.pop();
+			
+			var tem:TemClass = Common.classes.get(pack.pop());
+			var mfield:ClassField = tem.cls.statics.get().getClassField(name);
+			
+			currentTem = tem;
+			
+			fieldKind(mfield);
 			
 		}
 		
 		return xml;
 	}
 	
-	private static function instanceField(field:ClassField) {
+	private static function fieldKind(field:ClassField) {
 		
 		switch (field.kind) {
 			case FVar(_, _):
-				instanceVariable(field);
+				variable(field);
 			case FMethod(_):
-				instanceMethod(field);
+				method(field);
 			default:
 		}
 		
 	}
 	
-	private static function instanceVariable(field:ClassField) {
+	private static function variable(field:ClassField) {
 		var canSet:Bool = false;
 		var canGet:Bool = false;
 		
@@ -121,15 +138,15 @@ class Validator {
 		
 	}
 	
-	private static function instanceMethod(field:ClassField) {
+	private static function method(field:ClassField) {
 		var isDynamic:Bool = false;
 		
 		switch (field.kind) {
 			case FMethod(kind):
 				
 				switch (kind) {
-					case MethInline, MethMacro:
-						Context.warning(currentTem.name + '.' + field.name + ' can not be used to bind with the element ' + currentElement.toString() + ' because its inline or a macro.', Context.currentPos());
+					case MethInline, MethMacro, MethDynamic:
+						Context.error(currentTem.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because its inline, dynamic or a macro.', Context.currentPos());
 					default:
 				}
 				

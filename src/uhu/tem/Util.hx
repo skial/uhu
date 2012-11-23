@@ -2,6 +2,7 @@ package uhu.tem;
 
 import haxe.macro.Type;
 
+using Detox;
 using Lambda;
 using StringTools;
 using tink.macro.tools.MacroTools;
@@ -52,6 +53,31 @@ class Util {
 		
 		return t;
 		
+	}
+	
+	public static function hasBinding(element:DOMNode, value:String, isStatic:Bool) {
+		return element.attr('x-binding' + (isStatic ? '-static' : '')).indexOf(value) != -1;
+	}
+	
+	public static function addBinding(element:DOMNode, value:String, isStatic:Bool) {
+		var attr = 'x-binding' + (isStatic ? '-static' : '');
+		var prev = element.attr(attr);
+		
+		if (prev == '') {
+			element.setAttr(attr, value);
+		} else if ( !Util.hasBinding(element, value, isStatic) ) {
+			var old = prev.split(' ');
+			old.push(value);
+			element.setAttr(attr, old.join(' '));
+		}
+		
+	}
+	
+	public static function removeBinding(element:DOMNode, value:String, isStatic:Bool) {
+		var attr = 'x-binding' + (isStatic ? '-static' : '');
+		var prev = element.attr(attr).split(' ');
+		prev.remove(value);
+		element.setAttr(attr, prev.join(' '));
 	}
 	
 }
