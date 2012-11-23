@@ -96,13 +96,9 @@ class Parser {
 			
 			if (field == null) continue;
 			
-			if (element.attr(attribute) == '') {
-				element.setAttr(attribute, tem.name + '.' + field.name);
-			} else {
-				values = element.attr(attribute).split(' ');
-				values.push(tem.name + '.' + field.name);
-				element.setAttr(attribute, values.join(' '));
-			}
+			// Added x-binding[-static] with full path to field.
+			// Allows easy access for other parts of Tem
+			element.addBinding(tem.name + '.' + field.name, isStatic);
 			
 		}
 		
