@@ -24,15 +24,15 @@ class Validator {
 
 	public static function parse(xml:Xml) {
 		
-		var instances = xml.runtimeSelect('[x-binding]');
-		var statics = xml.runtimeSelect('[x-binding-static]');
+		var instances = xml.runtimeSelect('[' + Common.x_instance + ']');
+		var statics = xml.runtimeSelect('[' + Common.x_static + ']');
 		
 		var fields:Array<String>;
 		
 		for (i in instances) {
 			
 			currentElement = i;
-			fields = i.attr('x-binding').split(' ');
+			fields = i.attr(Common.x_instance).split(' ');
 			
 			for (field in fields) {
 				
@@ -53,7 +53,7 @@ class Validator {
 		for (s in statics) {
 			
 			currentElement = s;
-			var field = s.attr('x-binding-static').split(' ')[0];
+			var field = s.attr(Common.x_static).split(' ')[0];
 			
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
@@ -139,19 +139,19 @@ class Validator {
 	}
 	
 	private static function method(field:ClassField) {
-		var isDynamic:Bool = false;
 		
 		switch (field.kind) {
 			case FMethod(kind):
 				
 				switch (kind) {
 					case MethInline, MethMacro, MethDynamic:
-						Context.error(currentTem.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because its inline, dynamic or a macro.', Context.currentPos());
+						Context.error(currentTem.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because inline, dynamic or macro methods are not currently supported.', Context.currentPos());
 					default:
 				}
 				
 			default:
 		}
+		
 	}
 	
 }

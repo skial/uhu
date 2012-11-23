@@ -3,7 +3,7 @@ import haxe.macro.Expr;
 import sys.FileSystem;
 import sys.io.File;
 import uhu.tem.Binder;
-import uhu.tem.Parser;
+import uhu.tem.Scope;
 import uhu.tem.Common;
 import uhu.tem.Validator;
 
@@ -66,9 +66,10 @@ class Tem {
 	
 	@:macro public static function compile(path:String) {
 		var html = File.getContent( Context.resolvePath(path) );
-		var xml = Parser.parse(html);
-		var valid = Validator.parse(xml);
-		var bind = Binder.parse(valid);
+		var xml = Scope.parse(html);
+		xml = Validator.parse(xml);
+		var bind = Binder.parse(xml);
+		
 		return macro Void;
 	}
 	

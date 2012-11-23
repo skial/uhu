@@ -25,7 +25,7 @@ using tink.macro.tools.MacroTools;
  * @author Skial Bainn
  */
 
-class Parser {
+class Scope {
 	
 	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var foundClasses:Array<String> = new Array<String>();
@@ -78,7 +78,7 @@ class Parser {
 		var tem:TemClass;
 		var fields:Array<ClassField>;
 		var path:String;
-		var attribute:String = 'x-binding' + (isStatic ? '-static' : '');
+		var attribute:String = isStatic ? Common.x_static : Common.x_instance;
 		var field:ClassField;
 		var values:Array<String>;
 		

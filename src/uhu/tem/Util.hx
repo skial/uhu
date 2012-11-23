@@ -56,11 +56,11 @@ class Util {
 	}
 	
 	public static function hasBinding(element:DOMNode, value:String, isStatic:Bool) {
-		return element.attr('x-binding' + (isStatic ? '-static' : '')).indexOf(value) != -1;
+		return element.attr(isStatic ? Common.x_static : Common.x_instance).indexOf(value) != -1;
 	}
 	
 	public static function addBinding(element:DOMNode, value:String, isStatic:Bool) {
-		var attr = 'x-binding' + (isStatic ? '-static' : '');
+		var attr = isStatic ? Common.x_static : Common.x_instance;
 		var prev = element.attr(attr);
 		
 		if (prev == '') {
@@ -74,7 +74,7 @@ class Util {
 	}
 	
 	public static function removeBinding(element:DOMNode, value:String, isStatic:Bool) {
-		var attr = 'x-binding' + (isStatic ? '-static' : '');
+		var attr = isStatic ? Common.x_static : Common.x_instance;
 		var prev = element.attr(attr).split(' ');
 		prev.remove(value);
 		element.setAttr(attr, prev.join(' '));
