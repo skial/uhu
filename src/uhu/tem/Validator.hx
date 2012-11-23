@@ -1,11 +1,13 @@
 package uhu.tem;
 
+import dtx.XMLWrapper;
 import haxe.macro.Context;
 import uhu.tem.Common;
 import haxe.macro.Type;
 
 using uhu.tem.Util;
 using Detox;
+using Lambda;
 using StringTools;
 using selecthxml.SelectDom;
 using tink.macro.tools.MacroTools;
@@ -89,16 +91,50 @@ class Validator {
 		}
 		
 		var first = currentElement.firstChild();
+		var mtype = field.type;
+		var stype = field.type.getFieldType();
 		
-		
-		
-		trace(currentElement.firstChild());
-		trace(field.type.getID());
+		if (!stype.startsWith('Array')) {
+			
+			switch (stype) {
+				case 'Dynamic':
+					Context.warning(currentTem.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
+				case 'String':
+					if ( first.isComment() || first.isElement() ) {
+						Context.error(currentTem.name + '.' + field.name + ' type of [String] has to be of type DOMNode to accept ' + first.toString(), Context.currentPos());
+					}
+				default:
+			}
+			
+		} else {
+			
+			var sub = stype.split('::').pop();
+			
+			if (['String', 'DOMNode', 'Dynamic'].indexOf(sub) == -1) {
+				if (sub == 'Dynamic') {
+					Context.warning(currentTem.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
+				}
+				Context.error(currentTem.name + '.' + field.name + ' type of [Array<' + sub + '>] has to be of type DOMNode, String or Dynamic.', Context.currentPos());
+			}
+			
+		}
 		
 	}
 	
 	private static function instanceMethod(field:ClassField) {
+		var isDynamic:Bool = false;
 		
+		switch (field.kind) {
+			case FMethod(kind):
+				
+				switch (kind) {
+					case MethInline, MethMacro:
+						Context.warning(currentTem.name + '.' + field.name + ' can not be used to bind with the element ' + currentElement.toString() + ' because its inline or a macro.', Context.currentPos());
+					default:
+				}
+				
+			default:
+		}
 	}
 	
 }
