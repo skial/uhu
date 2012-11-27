@@ -108,7 +108,7 @@ class Validator {
 		}
 		
 		if (!canGet && !canSet) {
-			Context.error(currentTem.name + '.' + field.name + ' can not set or read.', Context.currentPos());
+			Context.error(currentTem.name + '.' + field.name + ' can not be set or read.', Context.currentPos());
 		}
 		
 		var first = currentElement.firstChild();

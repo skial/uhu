@@ -15,6 +15,7 @@ using selecthxml.SelectDom;
 
 class Binder {
 	
+	private static var isStatic:Bool = false;
 	private static var currentElement:Xml = null;
 	private static var currentTem:TemClass = null;
 	
@@ -45,6 +46,8 @@ class Binder {
 			}
 			
 		}
+		
+		isStatic = true;
 		
 		for (s in statics) {
 			
@@ -78,10 +81,61 @@ class Binder {
 	}
 	
 	private static function variable(field:ClassField) {
+		var canSet:Bool = false;
+		var canGet:Bool = false;
+		
+		var getter:ClassField = null;
+		var setter:ClassField = null;
+		
+		// Find out if it variable can be set or read.
+		// Get any getter or setter it might already have.
+		// AccInline work around?
+		switch(field.kind) {
+			case FVar(read, write):
+				
+				switch(read) {
+					case AccNormal:
+						canGet = true;
+					case AccCall(g):
+						if (isStatic) {
+							getter = currentTem.cls.statics.get().getClassField(g);
+						} else {
+							getter = currentTem.cls.fields.get().getClassField(g);
+						}
+						canGet = true;
+					default:
+						canGet = false;
+				}
+				
+				switch (write) {
+					case AccNormal:
+						canSet = true;
+					case AccCall(s):
+						if (isStatic) {
+							setter = currentTem.cls.statics.get().getClassField(s);
+						} else {
+							setter = currentTem.cls.fields.get().getClassField(s);
+						}
+						canSet = true;
+					default:
+						canSet = false;
+				}
+				
+			default:
+		}
+		
 		
 	}
 	
 	private static function method(field:ClassField) {
+		
+	}
+	
+	private static function createGetter(field:ClassField) {
+		
+	}
+	
+	private static function createSetter(field:ClassField) {
 		
 	}
 	
