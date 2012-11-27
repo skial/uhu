@@ -3,6 +3,8 @@ import haxe.macro.Expr;
 import massive.neko.util.PathUtil;
 import sys.FileSystem;
 import sys.io.File;
+import thx.html.Html;
+import thx.xml.NormalizeNewlineValueFormat;
 import uhu.tem.Binder;
 import uhu.tem.Scope;
 import uhu.tem.Common;
@@ -66,20 +68,25 @@ class Tem {
 	}
 	
 	@:macro public static function compile(path:String) {
-		var html = File.getContent( Context.resolvePath(path) );
+		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
+		//var html = File.getContent( Context.resolvePath(path) );
+		var html = input.readString();
 		var xml = Scope.parse(html);
 		xml = Validator.parse(xml);
 		xml = Binder.parse(xml);
 		
 		xml.addChild(Xml.createComment('Generated with Tem by Skial Bainn.'));
 		
-		var output = massive.neko.io.File.create( 
+		var output = MFile.create( 
 			PathUtil.cleanUpPath(
 				Compiler.getOutput().substr( 0, Compiler.getOutput().lastIndexOf('/') + 1 )
 			)
 		);
 		
-		File.saveContent( Compiler.getOutput().substr(0, Compiler.getOutput().lastIndexOf('/')-1), xml.toString() );
+		File.saveContent( 
+			PathUtil.cleanUpPath(output.nativePath + MFile.seperator + input.fileName), 
+			new NormalizeNewlineValueFormat().format(xml.toString()) 
+		);
 		
 		return macro Void;
 	}

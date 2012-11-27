@@ -5,6 +5,7 @@ package uhu.tem;
  * @author Skial Bainn
  */
 
+typedef MFile = massive.neko.io.File;
 typedef StdType = Type;
  
 import haxe.macro.Type;
