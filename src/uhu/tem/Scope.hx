@@ -169,9 +169,7 @@ class Scope {
 				// a possible Haxe class, otherwise a possible field.
 				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
 					matchCSS(name, x, false);
-				}/* else {
-					matchField(name, x, false);
-				}*/
+				}
 				
 			}
 			
@@ -185,9 +183,7 @@ class Scope {
 				// a possible Haxe class, otherwise a possible field.
 			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
 				matchCSS(names[0], x, true);
-			}/* else {
-				matchField(names[0], x, true);
-			}*/
+			}
 			
 		}
 		

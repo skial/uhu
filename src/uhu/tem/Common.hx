@@ -24,6 +24,6 @@ class Common {
 	
 	public static var ignoreClass:Array<String> = ['Class'];
 	// This will be improved by detecting invalid characters before searching this.
-	public static var ignoreField:Array<String> = [x_instance, x_static, 'class', 'id'];
+	public static var ignoreField:Array<String> = [x_instance, x_static, 'data-class', 'class', 'data-id', 'id'];
 	
 }
