@@ -66,6 +66,7 @@ class Binder {
 			
 		}
 		
+		return html;
 	}
 	
 	private static function fieldKind(field:ClassField) {

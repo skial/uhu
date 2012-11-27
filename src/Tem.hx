@@ -1,5 +1,6 @@
 package ;
 import haxe.macro.Expr;
+import massive.neko.util.PathUtil;
 import sys.FileSystem;
 import sys.io.File;
 import uhu.tem.Binder;
@@ -35,7 +36,7 @@ class Tem {
 	
 	#if !macro
 	public static function main() {
-		Tem.setClasses([MyClass, Class1, YourClass]);
+		Tem.setClasses([MyClass1, MyClass2, Class1, YourClass]);
 		Tem.compile('templates/vezati/basic.vezati.html');
 	}
 	#end
@@ -68,7 +69,17 @@ class Tem {
 		var html = File.getContent( Context.resolvePath(path) );
 		var xml = Scope.parse(html);
 		xml = Validator.parse(xml);
-		var bind = Binder.parse(xml);
+		xml = Binder.parse(xml);
+		
+		xml.addChild(Xml.createComment('Generated with Tem by Skial Bainn.'));
+		
+		var output = massive.neko.io.File.create( 
+			PathUtil.cleanUpPath(
+				Compiler.getOutput().substr( 0, Compiler.getOutput().lastIndexOf('/') + 1 )
+			)
+		);
+		
+		File.saveContent( Compiler.getOutput().substr(0, Compiler.getOutput().lastIndexOf('/')-1), xml.toString() );
 		
 		return macro Void;
 	}
@@ -83,7 +94,13 @@ class Class1 {
 	public function set_format(value:Array<String>):Array<String> { return value; }
 }
 
-class MyClass {
+class MyClass1 {
+	public function new() { }
+	public function fields() { }
+	public static var myField = 0;
+}
+
+class MyClass2 {
 	public function new() { }
 	public function fields() { }
 	public static var myField = 0;
