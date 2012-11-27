@@ -107,6 +107,10 @@ class Validator {
 			default:
 		}
 		
+		if (!canGet && !canSet) {
+			Context.error(currentTem.name + '.' + field.name + ' can not set or read.', Context.currentPos());
+		}
+		
 		var first = currentElement.firstChild();
 		var mtype = field.type;
 		var stype = field.type.getFieldType();
