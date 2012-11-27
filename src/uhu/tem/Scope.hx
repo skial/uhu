@@ -207,21 +207,3 @@ class Scope {
 	}
 	
 }
-
-class Class1 {
-	public function new() { }
-	public var format(get_format, set_format):Array<String>;
-	
-	public function get_format():Array<String> { return format; }
-	public function set_format(value:Array<String>):Array<String> { return value; }
-}
-
-class MyClass {
-	public function new() { }
-	public function fields() { }
-	public static var myField = 0;
-}
-
-class YourClass {
-	public static function yourField() {}
-}
