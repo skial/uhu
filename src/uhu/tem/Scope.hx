@@ -1,5 +1,6 @@
 package uhu.tem;
 
+import dtx.XMLWrapper;
 import haxe.macro.Context;
 import selecthxml.SelectDom;
 import sys.io.File;
@@ -14,6 +15,7 @@ import haxe.macro.Type;
 using uhu.tem.Util;
 using de.polygonal.core.fmt.ASCII;
 using Lambda;
+using StringTools;
 using Detox;
 using uhu.Library;
 using selecthxml.SelectDom;
@@ -167,9 +169,9 @@ class Scope {
 				// a possible Haxe class, otherwise a possible field.
 				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
 					matchCSS(name, x, false);
-				} else {
+				}/* else {
 					matchField(name, x, false);
-				}
+				}*/
 				
 			}
 			
@@ -183,11 +185,34 @@ class Scope {
 				// a possible Haxe class, otherwise a possible field.
 			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
 				matchCSS(names[0], x, true);
-			} else {
+			}/* else {
 				matchField(names[0], x, true);
-			}
+			}*/
 			
 		}
+		
+		var attr:String;
+		
+		// Some html makes Haxe's xml parser cry
+		try {
+			for (a in x.attributes()) {
+				
+				if (Common.ignoreField.indexOf(a) == -1) {
+					
+					attr = a.trim();
+					if (attr.startsWith('data-')) {
+						attr = attr.substr(5);
+					}
+					
+					// First check static classes
+					matchField(attr, x, true);
+					// Then check instances
+					matchField(attr, x, false);
+					
+				}
+				
+			}
+		} catch (e:Dynamic) {}
 		
 		for (c in x.children()) {
 			processXML(c);
