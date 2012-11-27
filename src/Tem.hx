@@ -1,10 +1,9 @@
 package ;
+import dtx.XMLWrapper;
 import haxe.macro.Expr;
 import massive.neko.util.PathUtil;
 import sys.FileSystem;
 import sys.io.File;
-import thx.html.Html;
-import thx.xml.NormalizeNewlineValueFormat;
 import uhu.tem.Binder;
 import uhu.tem.Scope;
 import uhu.tem.Common;
@@ -69,13 +68,11 @@ class Tem {
 	
 	@:macro public static function compile(path:String) {
 		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
-		//var html = File.getContent( Context.resolvePath(path) );
+		
 		var html = input.readString();
 		var xml = Scope.parse(html);
 		xml = Validator.parse(xml);
 		xml = Binder.parse(xml);
-		
-		xml.addChild(Xml.createComment('Generated with Tem by Skial Bainn.'));
 		
 		var output = MFile.create( 
 			PathUtil.cleanUpPath(
@@ -85,7 +82,7 @@ class Tem {
 		
 		File.saveContent( 
 			PathUtil.cleanUpPath(output.nativePath + MFile.seperator + input.fileName), 
-			new NormalizeNewlineValueFormat().format(xml.toString()) 
+			xml.toString() + '\n<!-- Generated with Tem (https://github.com/skial/uhu#readme) by Skial Bainn. -->'
 		);
 		
 		return macro Void;
