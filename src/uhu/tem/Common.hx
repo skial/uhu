@@ -1,14 +1,14 @@
 package uhu.tem;
-
+import haxe.macro.Type;
+import Type in StdType;
 /**
  * ...
  * @author Skial Bainn
  */
 
 typedef MFile = massive.neko.io.File;
-typedef StdType = Type;
- 
-import haxe.macro.Type;
+//typedef StdType = Type;
+//typedef MacroType = haxe.macro.Type;
  
 typedef TemClass = {
 	var name:String;

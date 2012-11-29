@@ -1,6 +1,7 @@
 package uhu.tem;
 
 import dtx.XMLWrapper;
+import haxe.macro.Compiler;
 import haxe.macro.Context;
 import selecthxml.SelectDom;
 import sys.io.File;
@@ -19,8 +20,8 @@ using StringTools;
 using Detox;
 using uhu.Library;
 using selecthxml.SelectDom;
-using tink.core.types.Outcome;
-using tink.macro.tools.MacroTools;
+//using tink.core.types.Outcome;
+//using tink.macro.tools.MacroTools;
 
 /**
  * ...
@@ -50,6 +51,8 @@ class Scope {
 		resolved = Common.classes.get(css);
 		
 		if (resolved != null) {
+			
+			//resolved.cls.interfaces.push({t, params
 			
 			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
 			

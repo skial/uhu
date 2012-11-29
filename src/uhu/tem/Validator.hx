@@ -10,7 +10,7 @@ using Detox;
 using Lambda;
 using StringTools;
 using selecthxml.SelectDom;
-using tink.macro.tools.MacroTools;
+//using tink.macro.tools.MacroTools;
 
 /**
  * ...

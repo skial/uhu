@@ -28,7 +28,7 @@ class Du {
 	}
 
 	@:macro public static function patchTypes(file:String) {
-		var file = neko.io.File.read(Context.resolvePath(file), true);
+		var file = sys.io.File.read(Context.resolvePath(file), true);
 		try {
 			while (true) {
 				var line = file.readLine().trim();

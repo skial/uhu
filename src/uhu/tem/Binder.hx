@@ -1,12 +1,15 @@
 package uhu.tem;
 
+import haxe.macro.Context;
 import uhu.tem.Common;
+import haxe.macro.Expr;
 import haxe.macro.Type;
 import tink.reactive.bindings.BindingTools;
 
 using uhu.tem.Util;
 using Detox;
 using selecthxml.SelectDom;
+//using tink.macro.tools.MacroTools;
 
 /**
  * ...
@@ -14,6 +17,11 @@ using selecthxml.SelectDom;
  */
 
 class Binder {
+	
+	public static function build():Array<Field> {
+		
+		return Context.getBuildFields();
+	}
 	
 	private static var isStatic:Bool = false;
 	private static var currentElement:Xml = null;
@@ -125,18 +133,30 @@ class Binder {
 			default:
 		}
 		
+		trace(currentTem.cls.meta.get());
 		
+		modifyConstructor('');
 	}
 	
 	private static function method(field:ClassField) {
 		
 	}
 	
-	private static function createGetter(field:ClassField) {
+	private static function modifyConstructor(selector:String) {
+		var expr = Context.getTypedExpr( currentTem.cls.constructor.get().expr() );
+		trace(currentTem.name);
+		switch (expr.expr) {
+			case EFunction(name, method):
+				method.args.push( { name:'temID', opt:true, type:Context.toComplexType(Context.getType('String')) } );
+			default:
+		}
+	}
+	
+	private static function createGetter(field:ClassField, hasGetter:Bool = false) {
 		
 	}
 	
-	private static function createSetter(field:ClassField) {
+	private static function createSetter(field:ClassField, hasSetter:Bool = false) {
 		
 	}
 	

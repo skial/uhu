@@ -1,7 +1,7 @@
 package uhu.macro;
 
-typedef StdType = Type;
-
+//typedef StdType = Type;
+import Type in StdType;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;

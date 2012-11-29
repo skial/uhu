@@ -2,11 +2,12 @@
 -cp ../detox/src
 -cp ../thx/src
 -cp ../selecthxml/src
--lib munit
--lib mlib
+-cp ../stdjs/haxelib
+-cp ../tinkerbell/src
+-cp ../massivelib/haxe/src
+-cp ../massivelib/neko/src
 -lib mdown
--lib tink_macros
--lib tink_reactive
 -lib polygonal-core
 -neko bin/vezati/vezati.n
+-D haxe3
 -main Tem

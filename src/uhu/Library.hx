@@ -1,17 +1,13 @@
 package uhu;
 
-#if macro
-typedef WindowProxy = Dynamic;
-typedef HTMLElement = Dynamic;
-typedef CSSStyleDeclaration = Dynamic;
+import uhu.js.typedefs.TBoundingClientRect;
 
+#if macro
 import haxe.macro.Compiler;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.tools.AST;
 import uhu.macro.Du;
-
-using tink.macro.tools.MacroTools;
 #end 
 
 #if js
@@ -19,10 +15,18 @@ import UserAgent;
 import UserAgentContext;
 #end
 
+#if macro
+using tink.macro.tools.MacroTools;
+#end
+
 using Std;
 using StringTools;
 
-import uhu.js.typedefs.TBoundingClientRect;
+#if macro
+typedef WindowProxy = Dynamic;
+typedef HTMLElement = Dynamic;
+typedef CSSStyleDeclaration = Dynamic;
+#end
 
 /**
  * ...
@@ -130,7 +134,7 @@ class Library {
 			/*
 			 * Try to read the specified file
 			 */
-			f = neko.io.File.getContent(Context.resolvePath(templateFile));
+			f = sys.io.File.getContent(Context.resolvePath(templateFile));
 		} catch( e : Dynamic ) {
 			/*
 			 * If it fails, give an error message at compile time
