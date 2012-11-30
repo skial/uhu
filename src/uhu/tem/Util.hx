@@ -6,7 +6,6 @@ using Detox;
 using Lambda;
 using StringTools;
 using uhu.macro.Jumla;
-//using tink.macro.tools.MacroTools;
 
 /**
  * ...

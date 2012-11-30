@@ -15,10 +15,6 @@ import UserAgent;
 import UserAgentContext;
 #end
 
-#if macro
-//using tink.macro.tools.MacroTools;
-#end
-
 using Std;
 using StringTools;
 
