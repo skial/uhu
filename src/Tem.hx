@@ -1,5 +1,7 @@
 package ;
 
+import Type in StdType;
+
 #if macro
 import dtx.XMLWrapper;
 import haxe.macro.Expr;
@@ -15,8 +17,6 @@ import uhu.macro.Du;
 import uhu.macro.Jumla;
 import haxe.macro.Context;
 import haxe.macro.Compiler;
-//using tink.macro.tools.MacroTools;
-//using tink.core.types.Outcome;
 using uhu.Library;
 #end
 
@@ -32,18 +32,18 @@ using Lambda;
  * Might rename to Albert because he was awesome
  * Vezati is "bind" in Croatian
  */
-class Tem {
+@:keep class Tem {
 	
 	#if !macro
 	public static function main() {
-		Tem.setClasses([MyClass1, MyClass2, Class1, YourClass]);
+		//Tem.setClasses(['MyClass1', 'MyClass2', 'Class1', 'YourClass']);
 		Tem.compile('templates/vezati/basic.vezati.html');
 	}
 	#end
 	
-	@:macro public static function setClasses(classes:ExprOf<Array<Class<Dynamic>>>) {
+	@:macro public static function setClasses(classes:Array<String>) {
 		
-		switch (classes.expr) {
+		/*switch (classes.expr) {
 			case EArrayDecl(values):
 				
 				for (v in values) {
@@ -52,7 +52,15 @@ class Tem {
 						case EConst(c):
 							var s:String = Jumla.constValue(c);
 							var t = Jumla.getClass( s );
-							var r = { name:t.cls.pack.join('.') + '.' + t.cls.name, cls:t.cls, params:t.params };
+							var p = t.cls.pack.join('.');
+							var m = t.cls.module;
+							var r = { name:(p == '' ? p + m + '.' : p + '.') + t.cls.name, cls:t.cls, params:t.params };
+							//t.cls.meta.add(':build(uhu.tem.Binder.build())', [], t.cls.pos);
+							//t.cls.meta.add('@:build', [Context.parseInlineString('uhu.tem.Binder.build()', t.cls.pos)], t.cls.pos);
+							Compiler.addMetadata('@:build(uhu.tem.Binder.build())', r.name);
+							Compiler.keep(r.name, null, true);
+							trace(t.cls.meta.get());
+							//trace(Context.toComplexType(Context.getType(s)));
 							Common.classes.set(s, r);
 						default:
 					}
@@ -60,6 +68,40 @@ class Tem {
 				}
 				
 			default:
+		}*/
+		
+		for (path in Context.getClassPath()) {
+			
+			if (path != '') {
+				
+				if ( PathUtil.isAbsolutePath(path) ) {
+					
+					path = PathUtil.cleanUpPath( path );
+					
+				} else if ( PathUtil.isRelativePath(path) ) {
+					
+					if (path.startsWith('..')) path = path.substr(2);
+					path = PathUtil.cleanUpPath( FileSystem.fullPath(path) );
+					
+				}
+				
+				var files:Array<MFile> = MFile.create(path).getRecursiveDirectoryListing(~/.hx/);
+				
+				for (file in files) {
+					
+					try {
+						var cls = StdType.resolveClass(file.name);
+						if (cls != null) {
+							trace( StdType.getClassName( cls ) );
+							trace( StdType.getInstanceFields( cls ) );
+							trace( StdType.getClassFields( cls ) );
+						}
+					} catch (e:Dynamic) { }
+					
+				}
+				
+			}
+			
 		}
 		
 		return macro null;

@@ -22,7 +22,8 @@ class Du {
 	
 	@:macro public static function include(classes:Array<String>) {
 		for (cls in classes) {
-			Context.getModule(cls);
+			//Context.getModule(cls);
+			Compiler.include(cls);
 		}
 		return macro null;
 	}

@@ -4,12 +4,9 @@ import haxe.macro.Context;
 import uhu.tem.Common;
 import haxe.macro.Expr;
 import haxe.macro.Type;
-//import tink.reactive.bindings.BindingTools;
 
 using uhu.tem.Util;
 using Detox;
-//using selecthxml.SelectDom;
-//using tink.macro.tools.MacroTools;
 
 /**
  * ...
@@ -19,7 +16,8 @@ using Detox;
 class Binder {
 	
 	public static function build():Array<Field> {
-		
+		trace(Context.getLocalClass());
+		trace(Context.getBuildFields());
 		return Context.getBuildFields();
 	}
 	
@@ -143,8 +141,6 @@ class Binder {
 			default:
 		}
 		
-		trace(currentTem.cls.meta.get());
-		
 		modifyConstructor('');
 	}
 	
@@ -154,7 +150,7 @@ class Binder {
 	
 	private static function modifyConstructor(selector:String) {
 		var expr = Context.getTypedExpr( currentTem.cls.constructor.get().expr() );
-		trace(currentTem.name);
+		//trace(currentTem.name);
 		switch (expr.expr) {
 			case EFunction(name, method):
 				method.args.push( { name:'temID', opt:true, type:Context.toComplexType(Context.getType('String')) } );

@@ -48,9 +48,7 @@ class Scope {
 		
 		if (resolved != null) {
 			
-			//resolved.cls.interfaces.push({t, params
-			
-			css = resolved.cls.pack.join('.') + '.' + resolved.cls.name;
+			css = resolved.name;
 			
 			found.push(css);
 			
