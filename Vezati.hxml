@@ -1,9 +1,7 @@
 -cp src
 -cp ../detox/src
 -cp ../thx/src
--cp ../selecthxml/src
 -cp ../stdjs/haxelib
--cp ../tinkerbell/src
 -cp ../massivelib/haxe/src
 -cp ../massivelib/neko/src
 -lib mdown

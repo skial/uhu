@@ -6,7 +6,7 @@ import uhu.js.typedefs.TBoundingClientRect;
 import haxe.macro.Compiler;
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import tink.macro.tools.AST;
+//import tink.macro.tools.AST;
 import uhu.macro.Du;
 #end 
 
@@ -16,7 +16,7 @@ import UserAgentContext;
 #end
 
 #if macro
-using tink.macro.tools.MacroTools;
+//using tink.macro.tools.MacroTools;
 #end
 
 using Std;

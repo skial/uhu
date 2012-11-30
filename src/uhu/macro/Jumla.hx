@@ -6,7 +6,7 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 
-using tink.macro.tools.MacroTools;
+//using tink.macro.tools.MacroTools;
 
 /**
  * ...
@@ -25,6 +25,30 @@ class Jumla {
 			default:
 		}
 		return null;
+	}
+	
+	// Compat code for tink_macros
+	@:extern public static inline function getID(type:haxe.macro.Type, ?reduce:Bool = false) {
+		return getName(type);
+	}
+	
+	public static function getName(type:haxe.macro.Type):String {
+		switch (type) {
+			case TInst(t, _):
+				return t.toString();
+			case TEnum(t, _):
+				return t.toString();
+			case TType(t, _):
+				return t.toString();
+			#if haxe3
+			case TAbstract(t, _):
+				return t.toString();
+			#end
+			default:
+				
+		}
+		
+		return '';
 	}
 	
 	public static function fieldKind(field:ClassField):String {
@@ -61,6 +85,10 @@ class Jumla {
 		}
 		
 		return result;
+	}
+	
+	@:extern public static inline function toExpr(value:Dynamic, ?pos:Position) {
+		return Context.makeExpr(value, pos);
 	}
 	
 	/**

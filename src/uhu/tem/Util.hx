@@ -5,7 +5,8 @@ import haxe.macro.Type;
 using Detox;
 using Lambda;
 using StringTools;
-using tink.macro.tools.MacroTools;
+using uhu.macro.Jumla;
+//using tink.macro.tools.MacroTools;
 
 /**
  * ...

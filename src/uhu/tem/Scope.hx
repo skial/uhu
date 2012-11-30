@@ -3,7 +3,7 @@ package uhu.tem;
 import dtx.XMLWrapper;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
-import selecthxml.SelectDom;
+//import selecthxml.SelectDom;
 import sys.io.File;
 import uhu.macro.Du;
 import Xml;
@@ -19,7 +19,7 @@ using Lambda;
 using StringTools;
 using Detox;
 using uhu.Library;
-using selecthxml.SelectDom;
+//using selecthxml.SelectDom;
 //using tink.core.types.Outcome;
 //using tink.macro.tools.MacroTools;
 

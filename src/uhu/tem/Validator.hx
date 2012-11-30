@@ -9,7 +9,7 @@ using uhu.tem.Util;
 using Detox;
 using Lambda;
 using StringTools;
-using selecthxml.SelectDom;
+//using selecthxml.SelectDom;
 //using tink.macro.tools.MacroTools;
 
 /**
@@ -24,15 +24,22 @@ class Validator {
 
 	public static function parse(xml:Xml) {
 		
-		var instances = xml.runtimeSelect('[' + Common.x_instance + ']');
-		var statics = xml.runtimeSelect('[' + Common.x_static + ']');
+		for (x in xml) {
+			try {
+				processXML(x);
+			} catch (e:Dynamic) { }
+		}
 		
+		return xml;
+	}
+	
+	private static function processXML(xml:Xml) {
 		var fields:Array<String>;
 		
-		for (i in instances) {
+		if ( xml.exists(Common.x_instance) ) {
 			
-			currentElement = i;
-			fields = i.attr(Common.x_instance).split(' ');
+			currentElement = xml;
+			fields = xml.attr(Common.x_instance).split(' ');
 			
 			for (field in fields) {
 				
@@ -50,10 +57,10 @@ class Validator {
 			
 		}
 		
-		for (s in statics) {
+		if ( xml.exists(Common.x_static) ) {
 			
-			currentElement = s;
-			var field = s.attr(Common.x_static).split(' ')[0];
+			currentElement = xml;
+			var field = xml.attr(Common.x_static).split(' ')[0];
 			
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
@@ -67,7 +74,9 @@ class Validator {
 			
 		}
 		
-		return xml;
+		for (c in xml.children()) {
+			processXML(c);
+		}
 	}
 	
 	private static function fieldKind(field:ClassField) {

@@ -4,11 +4,11 @@ import haxe.macro.Context;
 import uhu.tem.Common;
 import haxe.macro.Expr;
 import haxe.macro.Type;
-import tink.reactive.bindings.BindingTools;
+//import tink.reactive.bindings.BindingTools;
 
 using uhu.tem.Util;
 using Detox;
-using selecthxml.SelectDom;
+//using selecthxml.SelectDom;
 //using tink.macro.tools.MacroTools;
 
 /**
@@ -27,17 +27,25 @@ class Binder {
 	private static var currentElement:Xml = null;
 	private static var currentTem:TemClass = null;
 	
-	public static function parse(html:Xml) {
+	public static function parse(xml:Xml) {
 		
-		var instances = html.runtimeSelect('[' + Common.x_instance + ']');
-		var statics = html.runtimeSelect('[' + Common.x_static + ']');
+		for (x in xml) {
+			try {
+				processXML(x);
+			} catch (e:Dynamic) { }
+		}
 		
+		
+		return xml;
+	}
+	
+	private static function processXML(xml:Xml) {
 		var fields:Array<String>;
 		
-		for (i in instances) {
+		if ( xml.exists(Common.x_instance) ) {
 			
-			currentElement = i;
-			fields = i.attr(Common.x_instance).split(' ');
+			currentElement = xml;
+			fields = xml.attr(Common.x_instance).split(' ');
 			
 			for (field in fields) {
 				
@@ -57,10 +65,10 @@ class Binder {
 		
 		isStatic = true;
 		
-		for (s in statics) {
+		if ( xml.exists(Common.x_static) ) {
 			
-			currentElement = s;
-			var field = s.attr(Common.x_static).split(' ')[0];
+			currentElement = xml;
+			var field = xml.attr(Common.x_static).split(' ')[0];
 			
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
@@ -74,7 +82,9 @@ class Binder {
 			
 		}
 		
-		return html;
+		for (c in xml.children()) {
+			processXML(c);
+		}
 	}
 	
 	private static function fieldKind(field:ClassField) {
