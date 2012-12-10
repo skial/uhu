@@ -1,6 +1,6 @@
 package uhu.tem;
-import haxe.macro.Type;
 import Type in StdType;
+import haxe.macro.Type;
 /**
  * ...
  * @author Skial Bainn

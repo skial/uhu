@@ -16,8 +16,9 @@ using Detox;
 class Binder {
 	
 	public static function build():Array<Field> {
+		trace('BINDDDERRRRR!!!!!');
 		trace(Context.getLocalClass());
-		trace(Context.getBuildFields());
+		//trace(Context.getBuildFields());
 		return Context.getBuildFields();
 	}
 	

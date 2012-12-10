@@ -92,9 +92,21 @@ using Lambda;
 					try {
 						var cls = StdType.resolveClass(file.name);
 						if (cls != null) {
-							trace( StdType.getClassName( cls ) );
-							trace( StdType.getInstanceFields( cls ) );
-							trace( StdType.getClassFields( cls ) );
+							
+							//trace( Context.getType(file.name) );
+							//trace( StdType.getClassName( cls ) );
+							//trace( StdType.getInstanceFields( cls ) );
+							//trace( StdType.getClassFields( cls ) );
+							var pack = file.nativePath.replace(path, '').replace('.hx', '').replace(MFile.seperator, '.');
+							trace(pack);
+							trace(pack.replace(file.name, ''));
+							try {
+								Compiler.include(pack.replace(file.name, ''));
+								Compiler.addMetadata('@:build(uhu.tem.Binder.build())', '');
+								Compiler.keep(path, null, true);
+							} catch (e:Dynamic) {
+								trace('FAIIILED');
+							}
 						}
 					} catch (e:Dynamic) { }
 					
