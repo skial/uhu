@@ -16,11 +16,17 @@ typedef TemClass = {
 	var params:Array<Type>;
 }
 
+typedef TemTemplate = {
+	var path:String;
+	var xml:Xml;
+}
+
 class Common {
 	
 	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	
-	public static var current_template:String = null;
+	public static var partials:Array<TemTemplate> = [];
+	public static var index:TemTemplate = null;
 	
 	public static var x_instance:String = 'data-binding';
 	public static var x_static:String = 'data-binding-static';

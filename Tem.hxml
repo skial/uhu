@@ -9,4 +9,4 @@
 -neko bin/vezati/vezati.n
 -D haxe3
 -main Tem
---macro Tem.setTemplate('templates/vezati/basic.vezati.html')
+--macro Tem.setIndex('templates/vezati/basic.vezati.html')

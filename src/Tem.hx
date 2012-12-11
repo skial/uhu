@@ -17,6 +17,7 @@ import uhu.macro.Du;
 import uhu.macro.Jumla;
 import haxe.macro.Context;
 import haxe.macro.Compiler;
+import thx.html.Html;
 using uhu.Library;
 #end
 
@@ -34,75 +35,71 @@ using Lambda;
  */
 
 @:keep
-@:ignore
 #if !macro
-@:autoBuild(uhu.tem.TemMacro.scan())
+@:autoBuild(uhu.tem.TemMacro.modify())
 #end
 class Tem {
 	
 	#if !macro
+	/*
+	 * Tem.hxml entry point
+	 */
 	public static function main() {
-		//Tem.setClasses(['MyClass1', 'MyClass2', 'Class1', 'YourClass']);
-		//Tem.setTemplate('templates/vezati/basic.vezati.html');
+		
 	}
 	#end
 	
+	public function new() {
+		
+	}
+	
 	/**
-	 * Call this method by adding ``--macro Tem.setTemplate("path/to/my/file.html")`` to your ``.hxml`` file.
+	 * Call this method by adding ``--macro Tem.setIndex("path/to/my/file.html")`` to your ``.hxml`` file.
 	 */
-	@:macro public static function setTemplate(value:String) {
-		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(value)) );
-		Common.current_template = input.readString();
+	@:macro public static function setIndex(path:String) {
+		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
+		Common.index = { xml:Html.toXml( input.readString() ), path:path };
 		return macro null;
 	}
 	//17:10
-	@:macro public static function compile(path:String) {
-		trace('compile');
-		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
-		//var html = input.readString();
-		var html = Common.current_template;
-		var xml = Scope.parse(html);
-		xml = Validator.parse(xml);
-		xml = Binder.parse(xml);
-		
-		// FileSystem.fullPath stops linux from crying
-		var output = MFile.create( 
-			PathUtil.cleanUpPath(
-				FileSystem.fullPath( Compiler.getOutput().substr( 0, Compiler.getOutput().lastIndexOf('/') + 1 ) )
-			)
-		);
-		
-		File.saveContent( 
-			PathUtil.cleanUpPath(output.nativePath + MFile.seperator + input.fileName), 
-			// I dont know how to add a newline with xml.addChild
-			xml.toString() + '\n<!-- Generated with Tem (https://github.com/skial/uhu#readme). -->'
-		);
-		
-		return macro null;
-	}
 	
 }
 
-class Class1 implements Tem {
-	public function new() { }
+class Class1 extends Tem {
+	
+	public function new() {
+		super();
+	}
+	
 	public var format(get_format, set_format):Array<String>;
 	
 	public function get_format():Array<String> { return []; }
 	public function set_format(value:Array<String>):Array<String> { return value; }
+	
 }
 
-class MyClass1 implements Tem {
-	public function new() { }
+class MyClass1 extends Tem {
+	
+	public function new() {
+		super();
+	}
+	
 	public function fields() { }
 	public static var myField = 0;
+	
 }
 
-class MyClass2 implements Tem {
-	public function new(bob='') { }
+class MyClass2 extends Tem {
+	
+	public function new(bob = '') { 
+		super();
+	}
+	
 	public function fields() { }
 	public static var myField = 0;
+	
 }
 
-class YourClass implements Tem {
+class YourClass extends Tem {
 	public static function yourField() {}
 }
