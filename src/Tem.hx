@@ -29,100 +29,38 @@ using Lambda;
  */
 
 /*
- * Might rename to Albert because he was awesome
+ * Might rename to Albert because he's awesome
  * Vezati is "bind" in Croatian
  */
-@:keep class Tem {
+
+@:keep
+@:ignore
+#if !macro
+@:autoBuild(uhu.tem.TemMacro.scan())
+#end
+class Tem {
 	
 	#if !macro
 	public static function main() {
 		//Tem.setClasses(['MyClass1', 'MyClass2', 'Class1', 'YourClass']);
-		Tem.compile('templates/vezati/basic.vezati.html');
+		//Tem.setTemplate('templates/vezati/basic.vezati.html');
 	}
 	#end
 	
-	@:macro public static function setClasses(classes:Array<String>) {
-		
-		/*switch (classes.expr) {
-			case EArrayDecl(values):
-				
-				for (v in values) {
-					
-					switch (v.expr) {
-						case EConst(c):
-							var s:String = Jumla.constValue(c);
-							var t = Jumla.getClass( s );
-							var p = t.cls.pack.join('.');
-							var m = t.cls.module;
-							var r = { name:(p == '' ? p + m + '.' : p + '.') + t.cls.name, cls:t.cls, params:t.params };
-							//t.cls.meta.add(':build(uhu.tem.Binder.build())', [], t.cls.pos);
-							//t.cls.meta.add('@:build', [Context.parseInlineString('uhu.tem.Binder.build()', t.cls.pos)], t.cls.pos);
-							Compiler.addMetadata('@:build(uhu.tem.Binder.build())', r.name);
-							Compiler.keep(r.name, null, true);
-							trace(t.cls.meta.get());
-							//trace(Context.toComplexType(Context.getType(s)));
-							Common.classes.set(s, r);
-						default:
-					}
-					
-				}
-				
-			default:
-		}*/
-		
-		for (path in Context.getClassPath()) {
-			
-			if (path != '') {
-				
-				if ( PathUtil.isAbsolutePath(path) ) {
-					
-					path = PathUtil.cleanUpPath( path );
-					
-				} else if ( PathUtil.isRelativePath(path) ) {
-					
-					if (path.startsWith('..')) path = path.substr(2);
-					path = PathUtil.cleanUpPath( FileSystem.fullPath(path) );
-					
-				}
-				
-				var files:Array<MFile> = MFile.create(path).getRecursiveDirectoryListing(~/.hx/);
-				
-				for (file in files) {
-					
-					try {
-						var cls = StdType.resolveClass(file.name);
-						if (cls != null) {
-							
-							//trace( Context.getType(file.name) );
-							//trace( StdType.getClassName( cls ) );
-							//trace( StdType.getInstanceFields( cls ) );
-							//trace( StdType.getClassFields( cls ) );
-							var pack = file.nativePath.replace(path, '').replace('.hx', '').replace(MFile.seperator, '.');
-							trace(pack);
-							trace(pack.replace(file.name, ''));
-							try {
-								Compiler.include(pack.replace(file.name, ''));
-								Compiler.addMetadata('@:build(uhu.tem.Binder.build())', '');
-								Compiler.keep(path, null, true);
-							} catch (e:Dynamic) {
-								trace('FAIIILED');
-							}
-						}
-					} catch (e:Dynamic) { }
-					
-				}
-				
-			}
-			
-		}
-		
+	/**
+	 * Call this method by adding ``--macro Tem.setTemplate("path/to/my/file.html")`` to your ``.hxml`` file.
+	 */
+	@:macro public static function setTemplate(value:String) {
+		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(value)) );
+		Common.current_template = input.readString();
 		return macro null;
 	}
-	
+	//17:10
 	@:macro public static function compile(path:String) {
+		trace('compile');
 		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
-		
-		var html = input.readString();
+		//var html = input.readString();
+		var html = Common.current_template;
 		var xml = Scope.parse(html);
 		xml = Validator.parse(xml);
 		xml = Binder.parse(xml);
@@ -145,7 +83,7 @@ using Lambda;
 	
 }
 
-class Class1 {
+class Class1 implements Tem {
 	public function new() { }
 	public var format(get_format, set_format):Array<String>;
 	
@@ -153,18 +91,18 @@ class Class1 {
 	public function set_format(value:Array<String>):Array<String> { return value; }
 }
 
-class MyClass1 {
+class MyClass1 implements Tem {
 	public function new() { }
 	public function fields() { }
 	public static var myField = 0;
 }
 
-class MyClass2 {
+class MyClass2 implements Tem {
 	public function new(bob='') { }
 	public function fields() { }
 	public static var myField = 0;
 }
 
-class YourClass {
+class YourClass implements Tem {
 	public static function yourField() {}
 }

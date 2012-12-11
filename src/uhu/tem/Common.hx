@@ -20,6 +20,8 @@ class Common {
 	
 	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	
+	public static var current_template:String = null;
+	
 	public static var x_instance:String = 'data-binding';
 	public static var x_static:String = 'data-binding-static';
 	

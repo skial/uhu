@@ -9,4 +9,4 @@
 -neko bin/vezati/vezati.n
 -D haxe3
 -main Tem
---macro "Tem.setClasses(['MyClass1', 'MyClass2', 'Class1', 'YourClass'])"
+--macro Tem.setTemplate('templates/vezati/basic.vezati.html')
