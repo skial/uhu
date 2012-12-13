@@ -5,18 +5,17 @@ import Type in StdType;
 #if macro
 import dtx.XMLWrapper;
 import haxe.macro.Expr;
-import massive.neko.util.PathUtil;
+import haxe.macro.Type;
+import haxe.macro.Context;
+import haxe.macro.Compiler;
 import sys.FileSystem;
 import sys.io.File;
 import uhu.tem.Binder;
 import uhu.tem.Scope;
 import uhu.tem.Common;
 import uhu.tem.Validator;
-import haxe.macro.Type;
 import uhu.macro.Du;
 import uhu.macro.Jumla;
-import haxe.macro.Context;
-import haxe.macro.Compiler;
 import thx.html.Html;
 using uhu.Library;
 #end
@@ -57,8 +56,8 @@ class Tem {
 	 * Call this method by adding ``--macro Tem.setIndex("path/to/my/file.html")`` to your ``.hxml`` file.
 	 */
 	@:macro public static function setIndex(path:String) {
-		var input = MFile.create( FileSystem.fullPath(Context.resolvePath(path)) );
-		Common.index = { xml:Html.toXml( input.readString() ), path:path };
+		var input = File.getContent( FileSystem.fullPath(Context.resolvePath(path)) );
+		Common.index = { xml:Html.toXml( input ), path:path };
 		return macro null;
 	}
 	//17:10

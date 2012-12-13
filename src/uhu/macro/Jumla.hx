@@ -78,7 +78,6 @@ class Jumla {
 			case CType( s ):
 				result = s;
 			#end
-			default:
 		}
 		
 		return result;
@@ -91,7 +90,7 @@ class Jumla {
 	/**
 	 * This method just tries and finds a Constant enum.
 	 */
-	public inline static function findEConst(expr:Expr):Null<Constant> {
+	/*public inline static function findEConst(expr:Expr):Null<Constant> {
 		var result = findExpr(expr, 'EConst');
 		return (result != null) ? result[0] : null;
 	}
@@ -125,14 +124,14 @@ class Jumla {
 		}
 		
 		return null;
-	}
+	}*/
 
 	/**
 	 * This method just gathers all the Expr values and returns them.
 	 * It doesnt care about the type the expr comes from. Useful to
 	 * dig through nested values.
 	 */
-	public static function getExprs(expr:Expr):Null<Array<Expr>> {
+	/*public static function getExprs(expr:Expr):Null<Array<Expr>> {
 		
 		var result:Array<Expr> = [];
 		
@@ -203,6 +202,6 @@ class Jumla {
 		
 		return result.length == 0 ? null : result;
 		
-	}
+	}*/
 	
 }

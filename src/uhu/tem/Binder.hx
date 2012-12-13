@@ -93,7 +93,6 @@ class Binder {
 				variable(field);
 			case FMethod(_):
 				method(field);
-			default:
 		}
 		
 	}
@@ -153,7 +152,7 @@ class Binder {
 		var expr = Context.getTypedExpr( currentTem.cls.constructor.get().expr() );
 		//trace(currentTem.name);
 		switch (expr.expr) {
-			case EFunction(name, method):
+			case EFunction(_, method):
 				method.args.push( { name:'temID', opt:true, type:Context.toComplexType(Context.getType('String')) } );
 			default:
 		}

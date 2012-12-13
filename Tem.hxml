@@ -2,8 +2,6 @@
 -cp ../detox/src
 -cp ../thx/src
 -cp ../stdjs/haxelib
--cp ../massivelib/haxe/src
--cp ../massivelib/neko/src
 -lib mdown
 -lib polygonal-core
 -neko bin/vezati/vezati.n

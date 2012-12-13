@@ -5,9 +5,9 @@ import haxe.macro.Type;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import massive.neko.io.File;
-import massive.neko.io.FileSys;
-import massive.neko.util.PathUtil;
+//import massive.neko.io.File;
+//import massive.neko.io.FileSys;
+//import massive.neko.util.PathUtil;
 import sys.FileSystem;
 
 using StringTools;

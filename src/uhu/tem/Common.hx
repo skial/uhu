@@ -6,7 +6,7 @@ import haxe.macro.Type;
  * @author Skial Bainn
  */
 
-typedef MFile = massive.neko.io.File;
+//typedef MFile = massive.neko.io.File;
 //typedef StdType = Type;
 //typedef MacroType = haxe.macro.Type;
  
