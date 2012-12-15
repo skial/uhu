@@ -70,10 +70,10 @@ class Class1 extends Tem {
 		super();
 	}
 	
-	public var format(get_format, set_format):Array<String>;
+	public var format(get_format, set_format):Array<Dynamic>;
 	
-	public function get_format():Array<String> { return []; }
-	public function set_format(value:Array<String>):Array<String> { return value; }
+	public function get_format():Array<Dynamic> { return []; }
+	public function set_format(value:Array<Dynamic>):Array<Dynamic> { return value; }
 	
 }
 

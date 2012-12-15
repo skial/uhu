@@ -1,7 +1,6 @@
 -cp src
 -cp ../detox/src
 -cp ../thx/src
--cp ../stdjs/haxelib
 -lib mdown
 -lib polygonal-core
 -neko bin/vezati/vezati.n

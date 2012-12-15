@@ -32,7 +32,7 @@ class Scope {
 	private static var idElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
 	private static var foundIds:Array<String> = new Array<String>();
 	
-	private static var haxeClasses:Hash<TemClass> = new Hash<TemClass>();
+	private static var haxeClasses:Hash<ClassType> = new Hash<ClassType>();
 	
 	private static function matchCSS(css:String, element:Xml, id:Bool) {
 		var resolved = null;
@@ -44,7 +44,8 @@ class Scope {
 		}
 		
 		// Find the matching Haxe class. Will be `null` more often than not.
-		resolved = Common.classes.get(css);
+		//resolved = Common.classes.get(css);
+		resolved = Common.currentClass;
 		
 		if (resolved != null) {
 			
@@ -71,44 +72,46 @@ class Scope {
 			return;
 		}
 		
-		// Find the matching field from last matched class, backwards until found or non match.
+		// Find the matching field from last matched class, backwards until found or none match.
 		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
-		var classes = findParents(element, isStatic ? 'id' : 'class' );
-		var tem:TemClass;
+		//var classes = findParents(element, isStatic ? 'id' : 'class' );
+		var tem:ClassType;
 		var fields:Array<ClassField>;
 		var path:String;
 		var attribute:String = isStatic ? Common.x_static : Common.x_instance;
 		var field:ClassField;
 		var values:Array<String>;
 		
-		classes.reverse();
+		//classes.reverse();
 		
-		for (c in classes) {
+		//for (c in classes) {
 			
-			if (!haxeClasses.exists(c)) continue;
+			//if (!haxeClasses.exists(c)) continue;
 			
-			tem = haxeClasses.get(c);
+			//tem = haxeClasses.get(c);
+			tem = Common.currentClass;
 			
-			fields = isStatic ? tem.cls.statics.get() : tem.cls.fields.get();
+			fields = isStatic ? tem.statics.get() : tem.fields.get();
 			
 			field = fields.getClassField(css);
 			
-			if (field == null) continue;
+			//if (field == null) continue;
+			if (field == null) return;
 			
 			// Added x-binding[-static] with full path to field.
 			// Allows easy access for other parts of Tem
 			element.addBinding(tem.name + '.' + field.name, isStatic);
 			
-		}
+		//}
 		
 	}
 	
 	private static function findParents(element:Xml, type:String) {
-		// Change type to enum??
+		// TODO Change type to enum??
 		var result:Array<String> = [];
 		var attribute:String;
 		
-		// Not sure if pulling all possibly valid class names on current element is needed. Problem point.
+		// TODO Not sure if pulling all possibly valid class names on current element is needed. Problem point.
 		if ( type == 'class' && element.attr(type) != '' ) {
 			
 			attribute = element.attr(type);
@@ -213,9 +216,7 @@ class Scope {
 		
 	}
 
-	public static function parse(html:String) {
-		var xml:Xml = Html.toXml(html);
-		var elements:Array<Xml>;
+	public static function parse(xml:Xml) {
 		
 		for (x in xml) {
 			processXML(x);

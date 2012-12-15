@@ -17,7 +17,7 @@ using Lambda;
 /*
  * Possible future metadata -
  *  + `@:template('pathOrHtml')` - optional value. Embeds the Html partial into the generated output as
- *  a resource. Only gets checked against the metadatas class.
+ *  a resource. Only gets checked against its own class.
  */
  
 class TemMacro {
@@ -27,23 +27,22 @@ class TemMacro {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
-		if ( Common.index != null && (Context.defined('debug') || Context.defined('js') || Context.defined('nodejs'))  ) {
+		for (f in fields) {
+			trace(f.name);
+		}
+		
+		if ( Common.index != null /*&& (Context.defined('debug') || Context.defined('js'))*/ ) {
 			
-			var array = [];
+			Common.currentClass = cls;
 			
-			if (Common.partials.indexOf(Common.index) == -1) {
-				
-			}
+			var xml = Common.index.xml;
+			
+			xml = Scope.parse(xml);
+			xml = Validator.parse(xml);
 			
 		}
 		
 		return fields;
-	}
-	
-	public static function walkXml(value:String) {
-		
-		
-		return macro null;
 	}
 	
 }

@@ -2,8 +2,8 @@ package uhu.tem;
 
 import dtx.XMLWrapper;
 import haxe.macro.Context;
-import uhu.tem.Common;
 import haxe.macro.Type;
+import uhu.tem.Common;
 
 using uhu.tem.Util;
 using Detox;
@@ -18,7 +18,7 @@ using StringTools;
 class Validator {
 	
 	private static var currentElement:Xml = null;
-	private static var currentTem:TemClass = null;
+	//private static var currentTem:TemClass = null;
 
 	public static function parse(xml:Xml) {
 		
@@ -44,10 +44,11 @@ class Validator {
 				var pack:Array<String> = field.split('.');
 				var name:String = pack.pop();
 				
-				var tem:TemClass = Common.classes.get(pack.pop());
-				var mfield:ClassField = tem.cls.fields.get().getClassField(name);
+				//var tem:TemClass = Common.classes.get(pack.pop());
+				//var mfield:ClassField = tem.cls.fields.get().getClassField(name);
+				var mfield:ClassField = Common.currentClass.fields.get().getClassField(name);
 				
-				currentTem = tem;
+				//currentTem = tem;
 				
 				fieldKind(mfield);
 				
@@ -63,10 +64,11 @@ class Validator {
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
 			
-			var tem:TemClass = Common.classes.get(pack.pop());
-			var mfield:ClassField = tem.cls.statics.get().getClassField(name);
+			//var tem:TemClass = Common.classes.get(pack.pop());
+			//var mfield:ClassField = tem.cls.statics.get().getClassField(name);
+			var mfield:ClassField = Common.currentClass.statics.get().getClassField(name);
 			
-			currentTem = tem;
+			//currentTem = tem;
 			
 			fieldKind(mfield);
 			
@@ -78,13 +80,12 @@ class Validator {
 	}
 	
 	private static function fieldKind(field:ClassField) {
-		
+		trace('kind');
 		switch (field.kind) {
 			case FVar(_, _):
 				variable(field);
 			case FMethod(_):
 				method(field);
-			default:
 		}
 		
 	}
@@ -115,7 +116,7 @@ class Validator {
 		}
 		
 		if (!canGet && !canSet) {
-			Context.error(currentTem.name + '.' + field.name + ' can not be set or read.', Context.currentPos());
+			Context.error(Common.currentClass.name + '.' + field.name + ' can not be set or read.', Context.currentPos());
 		}
 		
 		var first = currentElement.firstChild();
@@ -126,10 +127,10 @@ class Validator {
 			
 			switch (stype) {
 				case 'Dynamic':
-					Context.warning(currentTem.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
+					Context.warning(Common.currentClass.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
 				case 'String':
 					if ( first.isComment() || first.isElement() ) {
-						Context.error(currentTem.name + '.' + field.name + ' type of [String] has to be of type DOMNode to accept ' + first.toString(), Context.currentPos());
+						Context.error(Common.currentClass.name + '.' + field.name + ' type of [String] has to be of type DOMNode to accept ' + first.toString(), Context.currentPos());
 					}
 				default:
 			}
@@ -140,9 +141,9 @@ class Validator {
 			
 			if (['String', 'DOMNode', 'Dynamic'].indexOf(sub) == -1) {
 				if (sub == 'Dynamic') {
-					Context.warning(currentTem.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
+					Context.warning(Common.currentClass.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
 				}
-				Context.error(currentTem.name + '.' + field.name + ' type of [Array<' + sub + '>] has to be of type DOMNode, String or Dynamic.', Context.currentPos());
+				Context.error(Common.currentClass.name + '.' + field.name + ' type of [Array<' + sub + '>] has to be of type DOMNode, String or Dynamic.', Context.currentPos());
 			}
 			
 		}
@@ -156,7 +157,7 @@ class Validator {
 				
 				switch (kind) {
 					case MethInline, MethMacro, MethDynamic:
-						Context.error(currentTem.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because inline, dynamic or macro methods are not currently supported.', Context.currentPos());
+						Context.error(Common.currentClass.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because inline, dynamic or macro methods are not currently supported.', Context.currentPos());
 					default:
 				}
 				
