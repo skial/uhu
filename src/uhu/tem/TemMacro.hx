@@ -43,8 +43,8 @@ class TemMacro {
 			}
 			
 			if (Context.defined('debug')) {
-				trace('static count : ' + Common.currentStatics.length);
-				trace('instance count : ' + Common.currentFields.length);
+				/*trace('static count : ' + Common.currentStatics.length);
+				trace('instance count : ' + Common.currentFields.length);*/
 			}
 			
 			Common.currentClass = cls;

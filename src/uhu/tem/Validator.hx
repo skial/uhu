@@ -83,7 +83,7 @@ class Validator {
 	}
 	
 	private static function fieldKind(field:Field) {
-		trace('kind');
+		
 		switch (field.kind) {
 			case FVar(_, _) | FProp(_, _, _, _):
 				variable(field);
@@ -117,9 +117,9 @@ class Validator {
 				}*/	
 				
 			case FVar(_, _):
-				
+				canGet = canSet = true;
 			case FFun(_):
-				
+				canGet = canSet = true;
 			case FProp(getter, setter, type, expr):
 				canGet = canSet = true;
 			default:

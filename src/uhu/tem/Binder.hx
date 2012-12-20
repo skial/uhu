@@ -26,7 +26,7 @@ class Binder {
 	private static var currentElement:Xml = null;
 	private static var currentTem:TemClass = null;
 	
-	public static function parse(xml:Xml) {
+	/*public static function parse(xml:Xml) {
 		
 		for (x in xml) {
 			try {
@@ -52,7 +52,7 @@ class Binder {
 				var name:String = pack.pop();
 				
 				var tem:TemClass = Common.classes.get(pack.pop());
-				var mfield:ClassField = tem.cls.fields.get().getClassField(name);
+				var mfield = tem.cls.fields.get().getClassField(name);
 				
 				currentTem = tem;
 				
@@ -164,6 +164,6 @@ class Binder {
 	
 	private static function createSetter(field:ClassField, hasSetter:Bool = false) {
 		
-	}
+	}*/
 	
 }

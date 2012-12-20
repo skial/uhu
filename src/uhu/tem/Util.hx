@@ -15,13 +15,10 @@ using uhu.macro.Jumla;
 
 class Util {
 	
-	private static var last_field:Dynamic = null;
-	
 	// rename to hasField?
-	public static function hasClassField(fields:Array<{name:String}>, name:String):Bool {
+	public static function hasClassField(fields:Array<Field>, name:String):Bool {
 		return fields.exists( function(f) {
 			if (f.name == name) {
-				last_field = f;
 				return true;
 			}
 			return false;
@@ -29,11 +26,10 @@ class Util {
 	}
 	
 	// rename to getField?
-	public static function getClassField<T>(fields:Array<T>, name:String):Null<T> {
-		if (last_field != null && last_field.name == name) return last_field;
+	public static function getClassField(fields:Array<Field>, name:String):Null<Field> {
 		
-		if ( Util.hasClassField(cast fields, name) ) {
-			return last_field;
+		for (f in fields) {
+			if (f.name == name) return f;
 		}
 		
 		return null;

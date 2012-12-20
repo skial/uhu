@@ -26,135 +26,47 @@ using de.polygonal.core.fmt.ASCII;
 
 class Scope {
 	
-	private static var classElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
-	private static var foundClasses:Array<String> = new Array<String>();
-	
-	private static var idElements:Hash<Array<Xml>> = new Hash<Array<Xml>>();
-	private static var foundIds:Array<String> = new Array<String>();
-	
-	private static var haxeClasses:Hash<ClassType> = new Hash<ClassType>();
-	
-	private static function matchCSS(css:String, element:Xml, id:Bool) {
-		var resolved = null;
-		var found = id ? foundIds : foundClasses;
-		var elements = id ? idElements : classElements;
-		
-		if ( Common.ignoreClass.indexOf(css) != -1 ) {
-			return;
-		}
-		
-		// Find the matching Haxe class. Will be `null` more often than not.
-		//resolved = Common.classes.get(css);
-		resolved = Common.currentClass;
-		
-		if (resolved != null) {
-			
-			css = resolved.name;
-			
-			found.push(css);
-			
-			// Set the Haxe class to resolve to the css class if not already done.
-			if (!haxeClasses.exists(css)) {
-				haxeClasses.set(css, resolved);
-			}
-			// Set or add to the array of elements that have this class name.
-			if (!elements.exists(css)) {
-				elements.set(css, [element]);
-			} else {
-				elements.get(css).push(element);
-			}
-			
-		}
-	}
-	
 	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
-		if (Common.ignoreClass.indexOf(css) != -1) {
-			return;
+		//if (Common.ignoreClass.indexOf(css) != -1) return;
+		
+		var fields = isStatic ? Common.currentStatics : Common.currentFields;
+		var field = fields.getClassField(css);
+		
+		if (field != null) {
+			/*trace(Common.currentClass.name);
+			trace(field.name);*/
+			element.addBinding(Common.currentClass.name + '.' + field.name, isStatic);
+			
 		}
-		
-		// Find the matching field from last matched class, backwards until found or none match.
-		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
-		//var classes = findParents(element, isStatic ? 'id' : 'class' );
-		var tem:ClassType;
-		var fields:Array<Field>;
-		var path:String;
-		var attribute:String = isStatic ? Common.x_static : Common.x_instance;
-		var field:Field;
-		var values:Array<String>;
-		
-		//classes.reverse();
-		
-		//for (c in classes) {
-			
-			//if (!haxeClasses.exists(c)) continue;
-			
-			//tem = haxeClasses.get(c);
-			tem = Common.currentClass;
-			
-			//fields = isStatic ? tem.statics.get() : tem.fields.get();
-			fields = isStatic ? Common.currentStatics : Common.currentFields;
-			
-			field = fields.getClassField(css);
-			
-			//if (field == null) continue;
-			if (field == null) return;
-			
-			// Added x-binding[-static] with full path to field.
-			// Allows easy access for other parts of Tem
-			element.addBinding(tem.name + '.' + field.name, isStatic);
-			
-		//}
 		
 	}
 	
-	private static function findParents(element:Xml, type:String) {
-		// TODO Change type to enum??
-		var result:Array<String> = [];
-		var attribute:String;
+	private static function findIds(x:Xml):Array<String> {
+		var results = [x.attr('id').split(' ')[0].trim()];
 		
-		// TODO Not sure if pulling all possibly valid class names on current element is needed. Problem point.
-		if ( type == 'class' && element.attr(type) != '' ) {
+		for (a in x.ancestors()) {
 			
-			attribute = element.attr(type);
-			
-			for (attr in attribute.split(' ')) {
-				
-				if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attr) ) {
-					result.push( Common.classes.get(attr).name );
-				}
-				
+			if (a.attr('id') != '') {
+				results.push(a.attr('id').split(' ')[0].trim());
 			}
 			
 		}
 		
-		for (p in element.ancestors()) {
+		return results;
+	}
+	
+	private static function findClasses(x:Xml):Array<String> {
+		var results = x.attr('class').split(' ');
+		
+		for (a in x.ancestors()) {
 			
-			if (p.attr(type) != '') {
-				attribute = p.attr(type);
-				if ( type == 'id' ) {
-					
-					attribute = attribute.split(' ')[0];
-					
-					if ( attribute.split(' ')[0].charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attribute.split(' ')[0]) ) {
-						result.push( Common.classes.get(attribute.split(' ')[0]).name );
-					}
-					
-				} else if ( type == 'class' ) {
-					
-					for (attr in attribute.split(' ')) {
-						
-						if ( attr.charCodeAt(0).isUpperCaseAlphabetic() && Common.classes.exists(attr) ) {
-							result.push( Common.classes.get(attr).name );
-						}
-						
-					}
-					
-				}
+			if (a.attr('class') != '') {
+				results = results.concat(a.attr('class').split(' '));
 			}
 			
 		}
 		
-		return result;
+		return results;
 	}
 	
 	private static function isValidClass(name:String):Bool {
@@ -169,76 +81,43 @@ class Scope {
 	}
 	
 	private static function processXML(x:Xml) {
-		var names:Array<String>;
-		var matched:Bool = false;
 		
-		if (x.attr('class') != '') {
-			
-			names = x.attr('class').split(' ');
-			
-			for (name in names) {
-				
-				// css selector name must match current Class being processed.
-				//if ( name != Common.currentClass.name ) continue;
-				if ( !isValidClass(name) ) continue;
-				
-				// If the first letter is uppercase then its assumed to be
-				// a possible Haxe class, otherwise a possible field.
-				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
-					
-					matched = true;
-					matchCSS(name, x, false);
-					
-				}
-				
-			}
-			
+		if (findIds(x).indexOf(Common.currentClass.name) != -1) {
+			matchAttributes(x, true);
 		}
 		
-		if (x.attr('id') != '') {
-			
-			names = x.attr('id').split(' ');
-			
-			// If the first letter is uppercase then its assumed to be
-				// a possible Haxe class, otherwise a possible field.
-			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
-				
-				matched = true;
-				matchCSS(names[0], x, true);
-				
-			}
-			
+		if (findClasses(x).indexOf(Common.currentClass.name) != -1) {
+			matchAttributes(x, false);
 		}
-		
-		var attr:String;
-		
-		// Some html makes Haxe's xml parser cry
-		try {
-			if (matched) {
-				for (a in x.attributes()) {
-					
-					if (Common.ignoreField.indexOf(a) == -1) {
-						
-						attr = a.trim();
-						if (attr.startsWith('data-')) {
-							attr = attr.substr(5);
-						}
-						
-						// First check static classes
-						matchField(attr, x, true);
-						// Then check instances
-						matchField(attr, x, false);
-						
-					}
-					
-				}
-			}
-		} catch (e:Dynamic) {}
 		
 		for (c in x.children()) {
 			processXML(c);
 		}
 		
+	}
+	
+	private static function matchAttributes(x:Xml, isStatic:Bool) {
+		// Some html makes Haxe's xml parser cry
+		//try {
+			
+			var attr:String;
+			var fields = isStatic ? Common.currentStatics : Common.currentFields;
+			
+			if (fields.length == 0) return;
+			
+			for (a in x.attributes()) {
+				
+				attr = a;
+				
+				if (Common.ignoreField.indexOf(attr) != -1) continue;
+				
+				if (attr.startsWith('data-')) attr = attr.substr(5).trim();
+				
+				if (fields.getClassField(attr) != null) matchField(attr, x, isStatic);
+				
+			}
+			
+		//} catch (e:Dynamic) {}
 	}
 
 	public static function parse(xml:Xml) {
