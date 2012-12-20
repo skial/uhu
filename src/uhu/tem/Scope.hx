@@ -39,7 +39,7 @@ class Scope {
 		var found = id ? foundIds : foundClasses;
 		var elements = id ? idElements : classElements;
 		
-		if (Common.ignoreClass.indexOf(css) != -1) {
+		if ( Common.ignoreClass.indexOf(css) != -1 ) {
 			return;
 		}
 		
@@ -76,10 +76,10 @@ class Scope {
 		//var classes = isStatic ? foundIds.copy() : foundClasses.copy();
 		//var classes = findParents(element, isStatic ? 'id' : 'class' );
 		var tem:ClassType;
-		var fields:Array<ClassField>;
+		var fields:Array<Field>;
 		var path:String;
 		var attribute:String = isStatic ? Common.x_static : Common.x_instance;
-		var field:ClassField;
+		var field:Field;
 		var values:Array<String>;
 		
 		//classes.reverse();
@@ -91,7 +91,8 @@ class Scope {
 			//tem = haxeClasses.get(c);
 			tem = Common.currentClass;
 			
-			fields = isStatic ? tem.statics.get() : tem.fields.get();
+			//fields = isStatic ? tem.statics.get() : tem.fields.get();
+			fields = isStatic ? Common.currentStatics : Common.currentFields;
 			
 			field = fields.getClassField(css);
 			
@@ -156,8 +157,20 @@ class Scope {
 		return result;
 	}
 	
+	private static function isValidClass(name:String):Bool {
+		name = name.trim();
+		var r = ( name == Common.currentClass.name && name.charCodeAt(0).isUpperCaseAlphabetic() && Common.ignoreClass.indexOf(name) == -1 );
+		/*trace(name);
+		trace(Common.currentClass.name == name);
+		trace(name.charCodeAt(0).isUpperCaseAlphabetic());
+		trace(Common.ignoreClass.indexOf(name) == -1);
+		trace(r);*/
+		return r;
+	}
+	
 	private static function processXML(x:Xml) {
 		var names:Array<String>;
+		var matched:Bool = false;
 		
 		if (x.attr('class') != '') {
 			
@@ -165,10 +178,17 @@ class Scope {
 			
 			for (name in names) {
 				
+				// css selector name must match current Class being processed.
+				//if ( name != Common.currentClass.name ) continue;
+				if ( !isValidClass(name) ) continue;
+				
 				// If the first letter is uppercase then its assumed to be
 				// a possible Haxe class, otherwise a possible field.
 				if ( name.charCodeAt(0).isUpperCaseAlphabetic() ) {
+					
+					matched = true;
 					matchCSS(name, x, false);
+					
 				}
 				
 			}
@@ -182,7 +202,10 @@ class Scope {
 			// If the first letter is uppercase then its assumed to be
 				// a possible Haxe class, otherwise a possible field.
 			if ( names[0].charCodeAt(0).isUpperCaseAlphabetic() ) {
+				
+				matched = true;
 				matchCSS(names[0], x, true);
+				
 			}
 			
 		}
@@ -191,22 +214,24 @@ class Scope {
 		
 		// Some html makes Haxe's xml parser cry
 		try {
-			for (a in x.attributes()) {
-				
-				if (Common.ignoreField.indexOf(a) == -1) {
+			if (matched) {
+				for (a in x.attributes()) {
 					
-					attr = a.trim();
-					if (attr.startsWith('data-')) {
-						attr = attr.substr(5);
+					if (Common.ignoreField.indexOf(a) == -1) {
+						
+						attr = a.trim();
+						if (attr.startsWith('data-')) {
+							attr = attr.substr(5);
+						}
+						
+						// First check static classes
+						matchField(attr, x, true);
+						// Then check instances
+						matchField(attr, x, false);
+						
 					}
 					
-					// First check static classes
-					matchField(attr, x, true);
-					// Then check instances
-					matchField(attr, x, false);
-					
 				}
-				
 			}
 		} catch (e:Dynamic) {}
 		

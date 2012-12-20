@@ -4,6 +4,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.Context;
 import haxe.macro.Compiler;
+import sys.io.File;
 
 import sys.FileSystem;
 
@@ -23,15 +24,28 @@ using Lambda;
 class TemMacro {
 
 	@:macro public static function modify():Array<Field> {
-		trace('modify');
+		
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
-		for (f in fields) {
-			trace(f.name);
-		}
-		
 		if ( Common.index != null /*&& (Context.defined('debug') || Context.defined('js'))*/ ) {
+			
+			Common.currentFields = [];
+			Common.currentStatics = [];
+			
+			// pick out all the static fields
+			for (f in fields) {
+				if (f.access.indexOf(AStatic) != -1) {
+					Common.currentStatics.push(f);
+				} else {
+					Common.currentFields.push(f);
+				}
+			}
+			
+			if (Context.defined('debug')) {
+				trace('static count : ' + Common.currentStatics.length);
+				trace('instance count : ' + Common.currentFields.length);
+			}
 			
 			Common.currentClass = cls;
 			
@@ -40,6 +54,7 @@ class TemMacro {
 			xml = Scope.parse(xml);
 			xml = Validator.parse(xml);
 			
+			File.saveContent(Compiler.getOutput() + '.html', xml.toString());
 		}
 		
 		return fields;

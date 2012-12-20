@@ -1,6 +1,7 @@
 package uhu.tem;
 import Type in StdType;
 import haxe.macro.Type;
+import haxe.macro.Expr;
 /**
  * ...
  * @author Skial Bainn
@@ -25,6 +26,8 @@ class Common {
 	
 	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	public static var currentClass:ClassType;
+	public static var currentFields:Array<Field>;
+	public static var currentStatics:Array<Field>;
 	
 	public static var partials:Array<TemTemplate> = [];
 	public static var index:TemTemplate = null;

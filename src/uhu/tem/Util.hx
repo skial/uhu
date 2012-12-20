@@ -1,6 +1,7 @@
 package uhu.tem;
 
 import haxe.macro.Type;
+import haxe.macro.Expr;
 
 using Detox;
 using Lambda;
@@ -14,10 +15,10 @@ using uhu.macro.Jumla;
 
 class Util {
 	
-	private static var last_field:ClassField = null;
+	private static var last_field:Dynamic = null;
 	
 	// rename to hasField?
-	public static function hasClassField(fields:Array<ClassField>, name:String):Bool {
+	public static function hasClassField(fields:Array<{name:String}>, name:String):Bool {
 		return fields.exists( function(f) {
 			if (f.name == name) {
 				last_field = f;
@@ -28,10 +29,10 @@ class Util {
 	}
 	
 	// rename to getField?
-	public static function getClassField(fields:Array<ClassField>, name:String):Null<ClassField> {
+	public static function getClassField<T>(fields:Array<T>, name:String):Null<T> {
 		if (last_field != null && last_field.name == name) return last_field;
 		
-		if ( Util.hasClassField(fields, name) ) {
+		if ( Util.hasClassField(cast fields, name) ) {
 			return last_field;
 		}
 		

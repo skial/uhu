@@ -3,6 +3,7 @@ package uhu.tem;
 import dtx.XMLWrapper;
 import haxe.macro.Context;
 import haxe.macro.Type;
+import haxe.macro.Expr;
 import uhu.tem.Common;
 
 using uhu.tem.Util;
@@ -46,7 +47,8 @@ class Validator {
 				
 				//var tem:TemClass = Common.classes.get(pack.pop());
 				//var mfield:ClassField = tem.cls.fields.get().getClassField(name);
-				var mfield:ClassField = Common.currentClass.fields.get().getClassField(name);
+				//var mfield:ClassField = Common.currentClass.fields.get().getClassField(name);
+				var mfield = Common.currentFields.getClassField(name);
 				
 				//currentTem = tem;
 				
@@ -66,7 +68,8 @@ class Validator {
 			
 			//var tem:TemClass = Common.classes.get(pack.pop());
 			//var mfield:ClassField = tem.cls.statics.get().getClassField(name);
-			var mfield:ClassField = Common.currentClass.statics.get().getClassField(name);
+			//var mfield:ClassField = Common.currentClass.statics.get().getClassField(name);
+			var mfield = Common.currentStatics.getClassField(name);
 			
 			//currentTem = tem;
 			
@@ -79,26 +82,27 @@ class Validator {
 		}
 	}
 	
-	private static function fieldKind(field:ClassField) {
+	private static function fieldKind(field:Field) {
 		trace('kind');
 		switch (field.kind) {
-			case FVar(_, _):
+			case FVar(_, _) | FProp(_, _, _, _):
 				variable(field);
-			case FMethod(_):
+			case FFun(_):
 				method(field);
+			default:
 		}
 		
 	}
 	
-	private static function variable(field:ClassField) {
+	private static function variable(field:Field) {
 		var canSet:Bool = false;
 		var canGet:Bool = false;
 		
 		// AccInline work around?
 		switch(field.kind) {
-			case FVar(read, write):
+			//case FVar(read, write):
 				
-				switch(read) {
+				/*switch(read) {
 					case AccNo, AccNever, AccInline, AccResolve, AccRequire(_):
 						canGet = false;
 					default:
@@ -110,8 +114,14 @@ class Validator {
 						canSet = false;
 					default:
 						canSet = true;
-				}
+				}*/	
 				
+			case FVar(_, _):
+				
+			case FFun(_):
+				
+			case FProp(getter, setter, type, expr):
+				canGet = canSet = true;
 			default:
 		}
 		
@@ -120,8 +130,8 @@ class Validator {
 		}
 		
 		var first = currentElement.firstChild();
-		var mtype = field.type;
-		var stype = field.type.getFieldType();
+		//var mtype = field.type;
+		/*var stype = field.type.getFieldType();
 		
 		if (!stype.startsWith('Array')) {
 			
@@ -146,20 +156,20 @@ class Validator {
 				Context.error(Common.currentClass.name + '.' + field.name + ' type of [Array<' + sub + '>] has to be of type DOMNode, String or Dynamic.', Context.currentPos());
 			}
 			
-		}
+		}*/
 		
 	}
 	
-	private static function method(field:ClassField) {
+	private static function method(field:Field) {
 		
 		switch (field.kind) {
-			case FMethod(kind):
+			case FFun(kind):
 				
-				switch (kind) {
+				/*switch (kind) {
 					case MethInline, MethMacro, MethDynamic:
 						Context.error(Common.currentClass.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because inline, dynamic or macro methods are not currently supported.', Context.currentPos());
 					default:
-				}
+				}*/
 				
 			default:
 		}
