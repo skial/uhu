@@ -4,6 +4,7 @@ import dtx.XMLWrapper;
 import haxe.macro.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
+import uhu.macro.jumla.typedefs.TComplexString;
 import uhu.tem.Common;
 
 using uhu.macro.Jumla;
@@ -89,19 +90,39 @@ class Validator {
 			default: null;
 		}
 		
+		var complex_str:TComplexString = null;
+		
 		if (pair != null) {
-			
-			if (pair.type != null) {
-				
-				trace(pair.type);
-				trace(pair.type.toString());
-				
+			complex_str = if (pair.type != null) {
+				pair.type.itsType();
+			} else if (pair.expr != null) {
+				pair.expr.itsType();
 			}
+		}
+		
+		trace(complex_str);
+		
+		if (complex_str != null) {
 			
-			if (pair.expr != null) {
-				
-				
-				
+			switch (complex_str.name) {
+				case 'String' | 'Dynamic':
+					
+					trace(currentElement);
+					
+					for (c in currentElement.children(false)) {
+						trace(c.isElement());
+					}
+					
+					
+				case 'Float' | 'Int':
+					
+				case 'Bool':
+					
+				case 'Array' | 'List':
+					
+				case 'DOMNode' | 'Dom' | 'Xml':
+					
+				case _:
 			}
 			
 		}

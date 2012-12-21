@@ -84,7 +84,7 @@ class MyClass1 extends Tem {
 	}
 	
 	public function fields() { }
-	public static var myField(default,default) = 0;
+	public static var myField(default,default):String = '';
 	
 }
 
