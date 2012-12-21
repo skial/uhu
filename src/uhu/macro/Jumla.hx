@@ -5,15 +5,20 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 
+typedef JumlaComplexType = uhu.macro.jumla.ComplexTypeTool;
+typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
+
 /**
  * ...
  * @author Skial Bainn
  */
-
+ 
 /**
  * Swahili for macro, I think
  */
 class Jumla {
+	
+	// Random
 	
 	public static function getClass(name:String):Null<{cls:ClassType, params:Array<Type>}> {
 		switch (Context.getType(name)) {
@@ -25,11 +30,11 @@ class Jumla {
 	}
 	
 	// Compat code for tink_macros
-	@:extern public static inline function getID(type:haxe.macro.Type, ?reduce:Bool = false) {
+	@:extern public static inline function getID(type:Type, ?reduce:Bool = false) {
 		return getName(type);
 	}
 	
-	public static function getName(type:haxe.macro.Type):String {
+	public static function getName(type:Type):String {
 		switch (type) {
 			case TInst(t, _):
 				return t.toString();

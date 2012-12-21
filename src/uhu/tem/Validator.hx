@@ -6,6 +6,7 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import uhu.tem.Common;
 
+using uhu.macro.Jumla;
 using uhu.tem.Util;
 using Detox;
 using Lambda;
@@ -19,7 +20,6 @@ using StringTools;
 class Validator {
 	
 	private static var currentElement:Xml = null;
-	//private static var currentTem:TemClass = null;
 
 	public static function parse(xml:Xml) {
 		
@@ -44,13 +44,7 @@ class Validator {
 				
 				var pack:Array<String> = field.split('.');
 				var name:String = pack.pop();
-				
-				//var tem:TemClass = Common.classes.get(pack.pop());
-				//var mfield:ClassField = tem.cls.fields.get().getClassField(name);
-				//var mfield:ClassField = Common.currentClass.fields.get().getClassField(name);
 				var mfield = Common.currentFields.getClassField(name);
-				
-				//currentTem = tem;
 				
 				fieldKind(mfield);
 				
@@ -65,13 +59,7 @@ class Validator {
 			
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
-			
-			//var tem:TemClass = Common.classes.get(pack.pop());
-			//var mfield:ClassField = tem.cls.statics.get().getClassField(name);
-			//var mfield:ClassField = Common.currentClass.statics.get().getClassField(name);
 			var mfield = Common.currentStatics.getClassField(name);
-			
-			//currentTem = tem;
 			
 			fieldKind(mfield);
 			
@@ -89,74 +77,34 @@ class Validator {
 				variable(field);
 			case FFun(_):
 				method(field);
-			default:
 		}
 		
 	}
 	
 	private static function variable(field:Field) {
-		var canSet:Bool = false;
-		var canGet:Bool = false;
 		
-		// AccInline work around?
-		switch(field.kind) {
-			//case FVar(read, write):
-				
-				/*switch(read) {
-					case AccNo, AccNever, AccInline, AccResolve, AccRequire(_):
-						canGet = false;
-					default:
-						canGet = true;
-				}
-				
-				switch (write) {
-					case AccNo, AccNever, AccInline, AccResolve, AccRequire(_):
-						canSet = false;
-					default:
-						canSet = true;
-				}*/	
-				
-			case FVar(_, _):
-				canGet = canSet = true;
-			case FFun(_):
-				canGet = canSet = true;
-			case FProp(getter, setter, type, expr):
-				canGet = canSet = true;
-			default:
+		var pair = switch(field.kind) {
+			case FVar(t, e): { type:t, expr:e };
+			case FProp(_, _, t, e): { type:t, expr:e };
+			default: null;
 		}
 		
-		if (!canGet && !canSet) {
-			Context.error(Common.currentClass.name + '.' + field.name + ' can not be set or read.', Context.currentPos());
+		if (pair != null) {
+			
+			if (pair.type != null) {
+				
+				trace(pair.type);
+				trace(pair.type.toString());
+				
+			}
+			
+			if (pair.expr != null) {
+				
+				
+				
+			}
+			
 		}
-		
-		var first = currentElement.firstChild();
-		//var mtype = field.type;
-		/*var stype = field.type.getFieldType();
-		
-		if (!stype.startsWith('Array')) {
-			
-			switch (stype) {
-				case 'Dynamic':
-					Context.warning(Common.currentClass.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
-				case 'String':
-					if ( first.isComment() || first.isElement() ) {
-						Context.error(Common.currentClass.name + '.' + field.name + ' type of [String] has to be of type DOMNode to accept ' + first.toString(), Context.currentPos());
-					}
-				default:
-			}
-			
-		} else {
-			
-			var sub = stype.split('::').pop();
-			
-			if (['String', 'DOMNode', 'Dynamic'].indexOf(sub) == -1) {
-				if (sub == 'Dynamic') {
-					Context.warning(Common.currentClass.name + '.' + field.name + ' type of [Dynamic] will be treated as type [String].', Context.currentPos());
-				}
-				Context.error(Common.currentClass.name + '.' + field.name + ' type of [Array<' + sub + '>] has to be of type DOMNode, String or Dynamic.', Context.currentPos());
-			}
-			
-		}*/
 		
 	}
 	
@@ -164,13 +112,6 @@ class Validator {
 		
 		switch (field.kind) {
 			case FFun(kind):
-				
-				/*switch (kind) {
-					case MethInline, MethMacro, MethDynamic:
-						Context.error(Common.currentClass.name + '.' + field.name + ' will not be used to bind with the element ' + currentElement.toString() + ' because inline, dynamic or macro methods are not currently supported.', Context.currentPos());
-					default:
-				}*/
-				
 			default:
 		}
 		
