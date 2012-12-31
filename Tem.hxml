@@ -5,5 +5,6 @@
 -lib polygonal-core
 -neko bin/vezati/vezati.n
 -D haxe3
+-D debug
 -main Tem
 --macro Tem.setIndex('templates/vezati/basic.vezati.html')

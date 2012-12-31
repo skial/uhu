@@ -14,11 +14,24 @@ class ComplexString {
 		
 		result += c.name;
 		
-		for (p in c.params) {
+		if (c.params.length != 0) {
+
+			result += '<';
+			for (p in c.params) {
+				if (c.params[0] != p) {
+					result += ',';
+				}
+				result += toString(p);
+			}
+			result += '>';
+			
+		}
+
+		/*for (p in c.params) {
 			result += '<';
 			result += toString(p);
 			result += '>';
-		}
+		}*/
 		
 		return result;
 	}

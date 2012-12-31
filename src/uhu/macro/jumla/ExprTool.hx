@@ -2,6 +2,7 @@ package uhu.macro.jumla;
 
 import haxe.macro.Expr;
 import uhu.macro.jumla.typedefs.TComplexString;
+import uhu.macro.jumla.TypeParamTool;
 
 /**
  * ...
@@ -20,8 +21,24 @@ class ExprTool {
 		switch (e.expr) {
 			case EConst(c):
 				result = ConstantTool.itsType(c);
+			case EBlock(_):
+				result = { name:'Dynamic', params:[] };
+			case EArrayDecl(values):
+				result = { name:'Array', params:[] };
+				for (v in values) {
+					result.params.push( itsType(v) );
+				}
+			case ENew(type, params):
+				result = { name:type.name, params:[] };
+				for (p in type.params) {
+					result.params.push( TypeParamTool.itsType(p) );
+				}
+			case EObjectDecl(_):
+				result = { name:'Typedef', params:[] };
 			case _:
 				// TODO handle other types
+				trace('ExprTool - UNKNOWN');
+				trace(e.expr);
 		}
 		
 		return result;

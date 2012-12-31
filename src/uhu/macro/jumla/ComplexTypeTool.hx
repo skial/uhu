@@ -32,7 +32,7 @@ class ComplexTypeTool {
 				for (type_param in p.params) {
 					
 					switch (type_param) {
-						case TPType(t): result.params.push(itsType(t));
+						case TPType(t): result.params.push( itsType(t) );
 						case _:
 					}
 					
@@ -43,6 +43,8 @@ class ComplexTypeTool {
 				return result;
 			case _:
 				// TODO handle all other enums
+				trace('ComplexTypeTool - UNKNOWN');
+				trace(c);
 		}
 		
 		return result;

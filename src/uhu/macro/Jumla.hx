@@ -9,6 +9,7 @@ typedef JumlaExpr = uhu.macro.jumla.ExprTool;
 typedef JumlaConstant = uhu.macro.jumla.ConstantTool;
 typedef JumlaComplexType = uhu.macro.jumla.ComplexTypeTool;
 typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
+typedef JumlaTypeParam = uhu.macro.jumla.TypeParamTool;
 
 /**
  * ...
@@ -21,8 +22,12 @@ typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
 class Jumla {
 	
 	// Random
+
+	@:extern public static inline function toExpr(value:Dynamic, ?pos:Position) {
+		return Context.makeExpr(value, pos);
+	}
 	
-	public static function getClass(name:String):Null<{cls:ClassType, params:Array<Type>}> {
+	/*public static function getClass(name:String):Null<{cls:ClassType, params:Array<Type>}> {
 		switch (Context.getType(name)) {
 			case TInst(c, p):
 				return { cls:c.get(), params:p };
@@ -88,11 +93,7 @@ class Jumla {
 		}
 		
 		return result;
-	}
-	
-	@:extern public static inline function toExpr(value:Dynamic, ?pos:Position) {
-		return Context.makeExpr(value, pos);
-	}
+	}/*
 	
 	/**
 	 * This method just tries and finds a Constant enum.

@@ -100,17 +100,19 @@ class Validator {
 			}
 		}
 		
-		trace(complex_str);
+		//trace(complex_str);
 		
 		if (complex_str != null) {
 			
 			switch (complex_str.name) {
 				case 'String' | 'Dynamic':
 					
-					trace(currentElement);
+					// Get all child elements, thats dom nodes, text nodes and comments.
+					var children = currentElement.children(false);
 					
-					for (c in currentElement.children(false)) {
+					for (c in children) {
 						trace(c.isElement());
+						trace(c.isTextNode());
 					}
 					
 					
