@@ -28,7 +28,7 @@ class ExprTool {
 				for (v in values) {
 					result.params.push( itsType(v) );
 				}
-			case ENew(type, params):
+			case ENew(type, _):
 				result = { name:type.name, params:[] };
 				for (p in type.params) {
 					result.params.push( TypeParamTool.itsType(p) );

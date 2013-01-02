@@ -18,16 +18,16 @@ class ConstantTool {
 		var result:TComplexString = null;
 		
 		switch (c) {
-			case CInt(v):
+			case CInt:
 				result = { name:'Int', params:[] };
-			case CFloat(f):
+			case CFloat:
 				result = { name:'Float', params:[] };
-			case CString(s):
+			case CString:
 				result = { name:'String', params:[] };
 			case CIdent(s):
 				trace('ident');
 				trace(s);
-			case CRegexp(r, opt):
+			case CRegexp:
 				result = { name:'EReg', params:[] };
 		}
 		
