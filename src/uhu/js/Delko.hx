@@ -967,7 +967,7 @@ class Delko  {
 				/**
 				 * Havnt done this yet...
 				 */
-				case TLazy(_f):
+				case TLazy(_):
 					result = "TLazy";
 				default:
 					result = characters.empty;
@@ -1029,7 +1029,7 @@ class Delko  {
 		}
 		
 		switch (field.kind) {
-			case FMethod(k):
+			case FMethod(_):
 				
 				switch (field.type) {
 					
@@ -1108,7 +1108,7 @@ class Delko  {
 		
 		if (_class.constructor != null) {
 			switch (_class.constructor.get().type) {
-				case TFun(_args, _return):
+				case TFun(_args, _):
 					for (_arg in _args) {
 						javaDoc.push(characters.google._param + characters.space + characters.curly.open + printType(_arg.t, _arg.opt) + characters.curly.close + characters.space + _arg.name);
 					}
