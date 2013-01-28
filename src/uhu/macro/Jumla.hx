@@ -22,11 +22,11 @@ typedef JumlaTypeParam = uhu.macro.jumla.TypeParamTool;
 class Jumla {
 	
 	// Random
-
+	#if macro
 	@:extern public static inline function toExpr(value:Dynamic, ?pos:Position) {
 		return Context.makeExpr(value, pos);
 	}
-	
+	#end
 	/*public static function getClass(name:String):Null<{cls:ClassType, params:Array<Type>}> {
 		switch (Context.getType(name)) {
 			case TInst(c, p):

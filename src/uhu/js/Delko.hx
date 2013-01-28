@@ -7,7 +7,7 @@ import haxe.macro.Context;
 import haxe.macro.JSGenApi;
 import haxe.macro.Compiler;
 import haxe.macro.ExampleJSGenerator;
-import neko.FileSystem;
+import sys.FileSystem;
 import uhu.macro.Jumla;
 
 import massive.neko.io.FileSys;
@@ -16,19 +16,19 @@ import massive.neko.util.PathUtil;
 import sys.io.File;
 import sys.io.FileOutput;
 
-import tink.macro.tools.ExprTools;
+/*import tink.macro.tools.ExprTools;
 import tink.macro.tools.MacroTools;
 import tink.macro.tools.Printer;
 import tink.macro.tools.TypeTools;
 import tink.core.types.Outcome;
-import tink.core.types.Option;
+import tink.core.types.Option;*/
 
 using uhu.macro.Jumla;
 using Lambda;
 using StringTools;
-using tink.macro.tools.MacroTools;
+/*using tink.macro.tools.MacroTools;
 using tink.core.types.Outcome;
-using tink.core.types.Option;
+using tink.core.types.Option;*/
 
 /**
  * ...
@@ -38,41 +38,41 @@ using tink.core.types.Option;
 class Delko  {
 	
 	public static var characters = {
-		dot:'.',
-		carriage:'\r',
-		newline:'\n',
-		tab:'\t',
+		dot:".",
+		carriage:"\r",
+		newline:"\n",
+		tab:"\t",
 		curly: {
-			open:'{',
-			close:'}'
+			open:"{",
+			close:"}"
 		},
 		square: {
-			open:'[',
-			close:']'
+			open:"[",
+			close:"]"
 		},
 		parentheses: {
-			open:'(',
-			close:')'
+			open:"(",
+			close:")"
 		},
-		variable:'var',
-		colon:':',
-		comma:',',
+		variable:"var",
+		colon:":",
+		comma:",",
 		google: {
-			_typedef:'@typedef',
-			_param:'@param',
-			_const:'@const',
-			_implements:'@implements',
-			_interface:'@interface',
-			_return:'@return'
+			_typedef:"@typedef",
+			_param:"@param",
+			_const:"@const",
+			_implements:"@implements",
+			_interface:"@interface",
+			_return:"@return"
 		},
-		space:' ',
-		empty:'',
-		greater:'>',
-		lesser:'<',
-		equals:'=',
-		asterisk:'*',
-		question_mark:'?',
-		semicolon:';',
+		space:" ",
+		empty:"",
+		greater:">",
+		lesser:"<",
+		equals:"=",
+		asterisk:"*",
+		question_mark:"?",
+		semicolon:";",
 	}
 
 	var api : JSGenApi;
@@ -101,8 +101,8 @@ class Delko  {
 		/**
 		 * Add the first string buffer
 		 */
-		bufA.push( { n:'DelkoEntry', b:buf } );
-		//bufA.set('UhuEntry', buf);
+		bufA.push( { n:"DelkoEntry", b:buf } );
+		//bufA.set("UhuEntry", buf);
 		inits = new List();
 		statics = new List();
 		packages = new Hash();
@@ -111,14 +111,14 @@ class Delko  {
 		addFeature = new Hash<Bool>();
 		
 		types = new Hash<String>();
-		types.set('Dynamic', 'Object');
-		types.set('Int', 'number');
-		types.set('Float', 'number');
-		types.set('Bool', 'boolean');
-		types.set('String', 'string');
-		types.set('null', characters.asterisk);
-		types.set('Null', characters.question_mark);
-		types.set('Void', characters.empty);
+		types.set("Dynamic", "Object");
+		types.set("Int", "number");
+		types.set("Float", "number");
+		types.set("Bool", "boolean");
+		types.set("String", "string");
+		types.set("null", characters.asterisk);
+		types.set("Null", characters.question_mark);
+		types.set("Void", characters.empty);
 		
 		for ( x in ["prototype", "__proto__", "constructor"] ) {
 			forbidden.set(x, true);
@@ -129,15 +129,23 @@ class Delko  {
 
 	function getType( t : Type ) {
 		return switch(t) {
-			case TInst(c, _): getPath(c.get());
-			case TEnum(e, _): getPath(e.get());
-			default: throw "assert";
+			case TInst(c, _): 
+				getPath(c.get());
+				
+			case TEnum(e, _): 
+				getPath(e.get());
+				
+			case TAbstract(t, _):
+				getPath(t.get());
+				
+			case _:
+				throw "assert";
 		};
 	}
 	
 	function createFile(c:BaseType):Void {
 		var path = getPath(c);
-		if (path.lastIndexOf('#') != -1) return;
+		if (path.lastIndexOf("#") != -1) return;
 		for (b in bufA) {
 			if (b.n == path) return;
 		}
@@ -152,7 +160,7 @@ class Delko  {
 	}
 
 	function field(p) {
-		return api.isKeyword(p) ? characters.square.open + '"' + p + '"' + characters.square.close : characters.dot + p;
+		return api.isKeyword(p) ? characters.square.open + "'" + p + "'" + characters.square.close : characters.dot + p;
 	}
 	
 	function genPackage( p : Array<String> ) {
@@ -165,14 +173,14 @@ class Delko  {
 			if( packages.exists(full) ) continue;
 			packages.set(full, true);
 			
-			addJavaDoc(['@type {Object}']);
+			addJavaDoc(["@type {Object}"]);
 			
 			if( prev == null )
-				print(characters.variable + characters.space + x + ' = ' + characters.curly.open + characters.curly.close);
+				print(characters.variable + characters.space + x + " = " + characters.curly.open + characters.curly.close);
 			else {
 				var p = prev + field(x);
-				//fprint('$p = {}');
-				print(p + ' = ' + characters.curly.open + characters.curly.close);
+				//fprint("$p = {}");
+				print(p + " = " + characters.curly.open + characters.curly.close);
 			}
 			
 			newline();
@@ -182,7 +190,7 @@ class Delko  {
 	
 	public function getPath( t : BaseType ) {
 		var name = t.name;
-		if (name.indexOf('#') != -1 ) name = 'Static' + name.substr(1);
+		if (name.indexOf("#") != -1 ) name = "Static" + name.substr(1);
 		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
 	}
 
@@ -199,7 +207,8 @@ class Delko  {
 		addFieldAnnotation(f);
 		checkFieldName(c, f);
 		
-		fprint("${f.name}:");
+		//fprint("${f.name}:");
+		print('${f.name}:');
 		
 		if( e == null )
 			print("null", false);
@@ -222,10 +231,12 @@ class Delko  {
 			 * If the class has the neta tag @:exportProperties, then all fields
 			 * become Class["field"] = {}.
 			 */
-			if (c.meta.has(':export') || c.meta.has(':exportProperties') || f.meta.has(':export') || f.meta.has(':exportProperties')) {
-				fprint('$p["${f.name}"] = null');
+			if (c.meta.has(":export") || c.meta.has(":exportProperties") || f.meta.has(":export") || f.meta.has(":exportProperties")) {
+				//fprint('$p["${f.name}"] = null');
+				print('$p["${f.name}"] = null');
 			} else {
-				fprint("$p$field = null");
+				//fprint('$p$field = null');
+				print('$p$field = null');
 			}
 			
 			newline(true);
@@ -237,10 +248,12 @@ class Delko  {
 				 * If the class has the neta tag @:exportProperties, then all fields
 				 * become Class["field"] = {}.
 				 */
-				if (c.meta.has(':export') || c.meta.has(':exportProperties') ||f.meta.has(':export') || f.meta.has(':exportProperties')) {
-					fprint('$p["${f.name}"] = ');
+				if (c.meta.has(":export") || c.meta.has(":exportProperties") ||f.meta.has(":export") || f.meta.has(":exportProperties")) {
+					//fprint('$p["${f.name}"] = ');
+					print('$p["${f.name}"] = ');
 				} else {
-					fprint("$p$field = ");
+					//fprint("$p$field = ");
+					print('$p$field = ');
 				}
 				
 				genExpr(e, false);
@@ -261,15 +274,17 @@ class Delko  {
 	 */
 	function genExpose(t: { name:String, meta:MetaAccess } ) {
 		
-		if (t.meta.has(':expose')) {
-			fprint('$$hxExpose(${t.name}, ');
+		if (t.meta.has(":expose")) {
+			//fprint("$$hxExpose(${t.name}, ");
+			print('$$hxExpose(${t.name}, ');
 			
 			for (m in t.meta.get()) {
-				if (m.name == ':expose') {
+				if (m.name == ":expose") {
 					if (m.params.length != 0) {
 						print(m.params[0].toString(), false);
 					} else {
-						fprint('${t.name}', false);
+						//fprint("${t.name}", false);
+						print('${t.name}', false);
 					}
 				}
 			}
@@ -299,7 +314,8 @@ class Delko  {
 		
 		print(c.pack.length == 0 ? characters.variable + characters.space : characters.empty);
 		
-		fprint('$p = ', false);
+		//fprint("$p = ", false);
+		print('$p = ', false);
 		
 		if ( c.constructor != null ) {
 			genExpr(c.constructor.get().expr(), false);
@@ -311,7 +327,8 @@ class Delko  {
 		
 		genExpose( { name:p, meta:c.meta } );
 		
-		fprint("$$hxClasses['$p'] = $p");
+		//fprint('$$hxClasses["$p"] = $p');
+		print('$$hxClasses["$p"] = $p');
 		
 		newline(true, 1);
 		
@@ -322,33 +339,39 @@ class Delko  {
 		
 		var name = getPath(c).split(characters.dot).map(api.quoteString).join(characters.comma);
 		
-		addJavaDoc(['@type {Array.<string>}']);
-		fprint("$p.__name__ = [$name]");
+		addJavaDoc(["@type {Array.<string>}"]);
+		//fprint("$p.__name__ = [$name]");
+		print('$p.__name__ = [$name]');
 		newline(true);
 		
 		if( c.interfaces.length > 0 ) {
 			var me = this;
 			var inter = c.interfaces.map(function(i) return me.getPath(i.t.get())).join(characters.comma);
 			
-			fprint("$p.__interfaces__ = [$inter]");
+			//fprint("$p.__interfaces__ = [$inter]");
+			print('$p.__interfaces__ = [$inter]');
 			newline(true);
 		}
 		
 		if( c.superClass != null ) {
 			var psup = getPath(c.superClass.t.get());
 			
-			fprint("$p.__super__ = $psup");
+			//fprint("$p.__super__ = $psup");
+			print('$p.__super__ = $psup');
 			newline(true);
 			
-			fprint('$p.prototype = $$extend($psup.prototype, { ');
+			//fprint("$p.prototype = $$extend($psup.prototype, { ");
+			print('$p.prototype = $$extend($psup.prototype, { ');
 		} else {
-			fprint('$p.prototype = { ');
+			//fprint("$p.prototype = { ");
+			print('$p.prototype = { ');
 		}
 		
 		tabs++;
 		newline();
 		
-		fprint('__class__:$p');
+		//fprint("__class__:$p");
+		print('__class__:$p');
 		
 		var i:Int = 0;
 		
@@ -392,11 +415,13 @@ class Delko  {
 		newline(false, 1);
 		genPackage(e.pack);
 		
-		addJavaDoc(['@type {{__ename__:Array.<string>, __constructs__:Array.<string>}}']);
-		print(e.pack.length == 0 ? 'var ' : '');
-		fprint("$p = { __ename__ : [$names], __constructs__ : [$constructs] }", false);
+		addJavaDoc(["@type {{__ename__:Array.<string>, __constructs__:Array.<string>}}"]);
+		print(e.pack.length == 0 ? "var " : "");
+		//fprint("$p = { __ename__ : [$names], __constructs__ : [$constructs] }", false);
+		print('$p = { __ename__ : [$names], __constructs__ : [$constructs] }', false);
 		newline();
-		fprint("$$hxClasses['$p'] = $p");
+		//fprint('$$hxClasses["$p"] = $p');
+		print('$$hxClasses["$p"] = $p');
 		newline(true);
 		
 		for( c in e.constructs.keys() ) {
@@ -405,29 +430,35 @@ class Delko  {
 			
 			switch( c.type ) {
 				case TFun(args, _):
-					fprint("$p$f = ");
+					//fprint('$p$f = ');
+					print('$p$f = ');
 					var sargs = args.map(function(a) return a.name).join(characters.comma);
-					fprint('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
+					//fprint('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
+					print('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
 					newline();
 				default:
-					addJavaDoc(['@type {Array.<(string|number)>}']);
-					fprint("$p$f = ");
+					addJavaDoc(["@type {Array.<(string|number)>}"]);
+					//fprint('$p$f = ');
+					print('$p$f = ');
 					print(characters.square.open + api.quoteString(c.name) + characters.comma + c.index + characters.square.close, false);
 					newline(true);
 					
-					addJavaDoc([characters.google._return + ' {string}']);
-					fprint("$p$f.toString = $$estr");
+					addJavaDoc([characters.google._return + " {string}"]);
+					//fprint('$p$f.toString = $$estr');
+					print('$p$f.toString = $$estr');
 					newline(true);
 					
-					addJavaDoc(['@type {' + p + '}']);
-					fprint("$p$f.__enum__ = $p");
+					addJavaDoc(["@type {" + p + "}"]);
+					//fprint("$p$f.__enum__ = $p");
+					print('$p$f.__enum__ = $p');
 					newline(true);
 			}
 			
 		}
 		
 		if( meta != null ) {
-			fprint("$p.__meta__ = ");
+			//fprint("$p.__meta__ = ");
+			print('$p.__meta__ = ');
 			genExpr(meta);
 			newline();
 		}
@@ -442,9 +473,9 @@ class Delko  {
 		
 		for (f in c.fields.get()) {
 			
-			if (f.meta.has(':runtime') && f.name == 'iterator') {
-				addFeature.set('$iterator', true);
-				addFeature.set('$bind', true);
+			if (f.meta.has(":runtime") && f.name == "iterator") {
+				addFeature.set("$iterator", true);
+				addFeature.set("$bind", true);
 			}
 			
 		}
@@ -458,10 +489,12 @@ class Delko  {
 		 * If the class has the neta tag @:exportProperties, then all fields
 		 * become Class["field"] = {}.
 		 */
-		if (c.meta.has(':export') || c.meta.has(':exportProperties') || cf.meta.has(':export') || cf.meta.has(':exportProperties')) {
-			fprint('$p["${cf.name}"] = ');
+		if (c.meta.has(":export") || c.meta.has(":exportProperties") || cf.meta.has(":export") || cf.meta.has(":exportProperties")) {
+			//fprint('$p["${cf.name}"] = ');
+			print('$p["${cf.name}"] = ');
 		} else {
-			fprint("$p$f = ");
+			//fprint("$p$f = ");
+			print('$p$f = ');
 		}
 		
 		genExpr(cf.expr(), false);
@@ -474,11 +507,15 @@ class Delko  {
 				var c = c.get();
 				if( c.init != null )
 					inits.add(c.init);
-				if ( !c.isExtern ) genClass(c); else genExtern(c);
+				if ( !c.isExtern ) {
+					genClass(c);
+				} else {
+					genExtern(c);
+				}
 			case TEnum(r, _):
 				var e = r.get();
 				if( !e.isExtern ) genEnum(e);
-			default:
+			case _:
 		}
 	}
 
@@ -486,8 +523,8 @@ class Delko  {
 		
 		var entryBuffer:StringBuf = buf;
 		
-		if (Context.defined('js_modern')) {
-			print(' "use strict";');
+		if (Context.defined("js_modern")) {
+			print(" 'use strict';");
 		}
 		
 		newline();
@@ -495,36 +532,63 @@ class Delko  {
 		tabs++;
 		newline();
 		
-		addJavaDoc(['@type {*}']);
-		print(characters.variable + ' $_ = {}');
+		addJavaDoc(["@type {*}"]);
+		print(characters.variable + " $_ = {}");
 		newline(true, 1);
 		
-		addJavaDoc(['@type {Object.<string, *>}']);
-		print(characters.variable + ' $hxClasses = {}');
+		addJavaDoc(["@type {Object.<string, *>}"]);
+		print(characters.variable + " $hxClasses = {}");
 		newline(true, 1);
 		
-		addJavaDoc([characters.google._return + ' {string}']);
-		printParts(['function $estr() {', '\treturn js.Boot.__string_rec(this, "");', '}']);
+		addJavaDoc([characters.google._return + " {string}"]);
+		printParts( [
+			"function $estr() {",
+			"\treturn js.Boot.__string_rec(this, '');",
+			"}"]
+		);
 		
 		newline();
 		
-		addJavaDoc(['@param {Object} from', '@param {Object.<string, Object>} fields']);
-		printParts(['function $extend(from, fields) {', '\t/** @constructor */', '\tfunction inherit() {};', '\tinherit.prototype = from;', 
-		'\tvar proto = new inherit();', '\tfor (var name in fields) proto[name] = fields[name];', '\treturn proto;', '}']);
+		addJavaDoc(["@param {Object} from", "@param {Object.<string, Object>} fields"]);
+		printParts(
+			[
+			"function $extend(from, fields) {",
+				"\t/** @constructor */",
+				"\tfunction inherit() {};",
+				"\tinherit.prototype = from;", 
+				"\tvar proto = new inherit();",
+				"\tfor (var name in fields) proto[name] = fields[name];",
+				"\treturn proto;",
+			"}"
+			]
+		);
 		
 		newline();
 		
-		addJavaDoc(['@param {Object} src', '@param {string} path']);
-		printParts(['function $hxExpose(src, path) {', '\t/** @type {Window} */', '\tvar o = typeof window != \"undefined\" ? window : exports;', 
-		'\t/** @type {Array.<string>} */', '\tvar parts = path.split(".");', '\tfor (var ii = 0; ii < parts.length-1; ++ii) {', 
-		'\t\tvar p = parts[ii];', '\t\tif(typeof o[p] == "undefined") o[p] = {};', '\t\to = o[p];', '\t}', '\to[parts[parts.length-1]] = src;', '}']);
+		addJavaDoc(["@param {Object} src", "@param {string} path"]);
+		printParts(
+			[
+			"function $hxExpose(src, path) {",
+				"\t/** @type {Window} */", 
+				"\tvar o = typeof window != \"undefined\" ? window : exports;", 
+				"\t/** @type {Array.<string>} */", 
+				"\tvar parts = path.split('.');", 
+				"\tfor (var ii = 0; ii < parts.length-1; ++ii) {", 
+					"\t\tvar p = parts[ii];",
+					"\t\tif(typeof o[p] == 'undefined') o[p] = {};",
+					"\t\to = o[p];",
+				"\t}",
+				"\to[parts[parts.length-1]] = src;",
+			"}"
+			]
+		);
 		
 		for( t in api.types ) {
 			genType(t);
 		}
 		
 		newline();
-		addJavaDoc(['@type {*}']);
+		addJavaDoc(["@type {*}"]);
 		print("js.Boot.__res = {}");
 		//newline();
 		//print("js.Boot.__init()");
@@ -537,7 +601,7 @@ class Delko  {
 			var string = api.generateStatement(e);
 			string = string.replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
 			print(string);
-			newline(string.trim().endsWith('}') ? false : true);
+			newline(string.trim().endsWith("}") ? false : true);
 		}
 		
 		/**
@@ -560,23 +624,23 @@ class Delko  {
 		newline();
 		
 		buf = entryBuffer;
-		if (addFeature.exists('$bind')) {
-			print('var $_');
+		if (addFeature.exists("$bind")) {
+			print("var $_");
 			newline(true);
 			print("function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; }");
 			newline();
 		}
 		
-		if (addFeature.exists('$iterator')) {
+		if (addFeature.exists("$iterator")) {
 			print("function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }");
 			newline();
 		}
 		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
-		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + 'fragments'), null, true);
+		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + "fragments"), null, true);
 		var file = null;
-		var out = '';
+		var out = "";
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
@@ -584,9 +648,9 @@ class Delko  {
 		 */
 		for (f in bufA) {
 			out = f.b.toString();
-			out = out.replace('.abstract', '.delkoabstract');
-			out = out.replace('"abstract"', '"delkoabstract"');
-			file = neko.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + '.js'), true);
+			out = out.replace(".abstract", ".delkoabstract");
+			out = out.replace("'abstract'", "'delkoabstract'");
+			file = sys.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + ".js"), true);
 			file.writeString(out);
 			file.close();
 		}
@@ -597,13 +661,13 @@ class Delko  {
 		 * 
 		 * Im so thoughtful :D
 		 */
-		for (op in ['WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']) {
-			file = neko.io.File.write(dir.parent.nativePath + sep + Std.format('closure_compiler_${op.toLowerCase()}.bat'), true);
-			file.writeString(Std.format('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);${if(Context.defined("debug")){"//@ sourceMappingURL=" + dir.fileName + ".map";}}" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --source_map_format=V3 --compilation_level ${op} --js_output_file ${dir.fileName} '));
+		for (op in ["WHITESPACE_ONLY", "SIMPLE_OPTIMIZATIONS", "ADVANCED_OPTIMIZATIONS"]) {
+			file = sys.io.File.write(dir.parent.nativePath + sep + 'closure_compiler_${op.toLowerCase()}.bat', true);
+			file.writeString('java -jar compiler.jar --output_wrapper "(function(context) {%%output%%})(window);${if(Context.defined("debug")){"//@ sourceMappingURL=" + dir.fileName + ".map";}}" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --source_map_format=V3 --compilation_level ${op} --js_output_file ${dir.fileName} ');
 			
 			//for (f in bufA.keys()) {
 			for (f in bufA) {
-				file.writeString('--js .' + sep + 'fragments' + sep + f.n + '.js ');
+				file.writeString("--js ." + sep + "fragments" + sep + f.n + ".js ");
 			}
 			
 			file.close();
@@ -618,17 +682,17 @@ class Delko  {
 	
 	public var tabs:Int;
 	
-	public inline function genExpr(e, ?tab:Bool = true) {
+	public function genExpr(e, ?tab:Bool = true) {
 		var _str:String = api.generateValue(e).replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
 		print(_str, tab);
 	}
 	
-	@:macro	public static function fprint(e:Expr , ?tab:Bool = true) {
+	/*@:macro	public static function fprint(e:Expr , ?tab:Bool = true) {
 		var pos = haxe.macro.Context.currentPos();
 		var ret = haxe.macro.Format.format(e);
 		var boo = Context.parse(Std.string(tab), pos);
 		return { expr : ECall({ expr : EConst(CIdent("print")), pos : pos },[ret, boo]), pos : pos };
-	}
+	}*/
 	
 	public function print(str:String, ?tab:Bool = true) {
 		buf.add((tab ? repeat(characters.tab, tabs) : characters.empty) + str);
@@ -663,26 +727,28 @@ class Delko  {
 	public function addJavaDoc(comments:Array<String>):Void {
 		var i:Int = 0;
 		if (comments.length > 0) {
-			print('/**');
+			print("/**");
 			if (comments.length != 1) newline();
 			for (comment in comments) {
 				if (comments.indexOf(comment) == i) {
 					if (comments.length != 1) {
-						fprint('* $comment');
+						//fprint("* $comment");
+						print('* $comment');
 						newline();
 					} else {
-						fprint(' $comment ', false);
+						//fprint(" $comment ", false);
+						print(' $comment ', false);
 					}
 				}
 				i++;
 			}
-			print('*/', comments.length == 1 ? false : true);
+			print("*/", comments.length == 1 ? false : true);
 			newline();
 		}
 	}
 	
 	public function printAccess(field:{isPublic:Bool}):String {
-		return field.isPublic ? characters.empty : '@private';
+		return field.isPublic ? characters.empty : "@private";
 	}
 	
 	/**
@@ -791,7 +857,7 @@ class Delko  {
 					/*
 					 * Only if xirsys_stdjs is being used
 					 */
-					if (Context.defined('xirsys_stdjs') && stdjs.match(result)) {
+					if (Context.defined("xirsys_stdjs") && stdjs.match(result)) {
 						var _array = result.split(characters.dot);
 						result = _array[_array.length-1];
 					}
@@ -818,7 +884,7 @@ class Delko  {
 				 */
 				case TFun(_a, _r):
 					var _return = buildRecordType(_r);
-					result = 'function' + characters.parentheses.open;
+					result = "function" + characters.parentheses.open;
 					for (arg in _a) {
 						if (arg != _a[0]) result += characters.comma;
 						result += buildRecordType(arg.t);
@@ -832,7 +898,7 @@ class Delko  {
 				 * a google closure compiler typedef and a truely anonymous sig.
 				 */
 				case TAnonymous(_a):
-					result = 'TAnonymous';
+					result = "TAnonymous";
 					
 					if (data != null) {
 						
@@ -868,7 +934,8 @@ class Delko  {
 							
 							(def.pack.length == 0 ? print(characters.variable + characters.space) : characters.empty);
 							
-							(def.pack.length == 0 ?	fprint('$result', false) : print(result));
+							//(def.pack.length == 0 ?	fprint("$result", false) : print(result));
+							(def.pack.length == 0 ?	print('$result', false) : print(result));
 							newline(true);
 							
 							
@@ -901,7 +968,7 @@ class Delko  {
 				 * Havnt done this yet...
 				 */
 				case TLazy(_f):
-					result = 'TLazy';
+					result = "TLazy";
 				default:
 					result = characters.empty;
 			}
@@ -924,7 +991,7 @@ class Delko  {
 		
 	}
 	
-	public function addFieldAnnotation(field:ClassField, ?self:String = '|'):Void {
+	public function addFieldAnnotation(field:ClassField, ?self:String = "|"):Void {
 		
 		var javaDocs:Array<String> = new Array<String>();
 		var fieldAccess:String = printAccess(field);
@@ -934,9 +1001,9 @@ class Delko  {
 		
 		var annotated:Hash<Array<String>> = new Hash<Array<String>>();
 		
-		if (field.meta.has(':annotate')) {
+		if (field.meta.has(":annotate")) {
 			for (m in field.meta.get()) {
-				if (m.name == ':annotate') {
+				if (m.name == ":annotate") {
 					for (p in m.params) {
 						switch(p.expr) {
 							case EFunction(_, f):
@@ -948,10 +1015,10 @@ class Delko  {
 									}
 								}
 								if (f.ret != null) {
-									if (!annotated.exists('return')) {
-										annotated.set( 'return', [f.ret.toString()] );
+									if (!annotated.exists("return")) {
+										annotated.set( "return", [f.ret.toString()] );
 									} else {
-										annotated.get('return').push( f.ret.toString() );
+										annotated.get("return").push( f.ret.toString() );
 									}
 								}
 							default:
@@ -968,34 +1035,34 @@ class Delko  {
 					
 					case TFun(_args, _return):
 						for (_arg in _args) {
-							if (printType(_arg.t) == '*' && annotated.count() != 0) {
-								type = '{' + annotated.get(_arg.name).join('|') + '}';
+							if (printType(_arg.t) == "*" && annotated.count() != 0) {
+								type = "{" + annotated.get(_arg.name).join("|") + "}";
 							} else {
 								type = printType(_arg.t, _arg.opt);
 							}
-							if (type == self) type = 'Object';
+							if (type == self) type = "Object";
 							javaDocs.push (characters.google._param + characters.space + characters.curly.open + type + characters.curly.close + characters.space + _arg.name);
 						}
 						
 						if (printType(_return) != characters.empty) {
-							if (printType(_return) == '*' && annotated.count() != 0) {
-								type = '{' + annotated.get('return').join('|') + '}';
+							if (printType(_return) == "*" && annotated.count() != 0) {
+								type = "{" + annotated.get("return").join("|") + "}";
 							} else {
 								type = printType(_return);
 							}
-							if (type == self) type = 'Object';
+							if (type == self) type = "Object";
 							javaDocs.push(characters.google._return + characters.space + characters.curly.open + type + characters.curly.close);
 						}
 						
-					default:
+					case _:
 				}
 				
 			case FVar(_read, _write):
 				
 				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(characters.google._const);
-				javaDocs.push('@type ' + characters.curly.open + characters.question_mark + printType(field.type) + characters.curly.close);
+				javaDocs.push("@type " + characters.curly.open + characters.question_mark + printType(field.type) + characters.curly.close);
 				
-			default:
+			//case _:
 		}
 		
 		addJavaDoc(javaDocs);
@@ -1012,17 +1079,17 @@ class Delko  {
 		 * fields from classes with constructors, which cause reflection issues.
 		 * 
 		 * Marking every class, static or not with @const allows successful minification,
-		 * but outputs a boat load more warnings, mainly about the dangerous use of 'this'.
+		 * but outputs a boat load more warnings, mainly about the dangerous use of "this".
 		 * 
 		 * Code will be kept commented out.
 		 */
-		/*if (!_class.isInterface && _class.constructor != null) javaDoc.push('@const');//javaDoc.push('@constructor');
+		/*if (!_class.isInterface && _class.constructor != null) javaDoc.push("@const");//javaDoc.push("@constructor");
 		
 		if (_class.constructor == null && _class.interfaces.length == 0) {
-			javaDoc.push('@const');
+			javaDoc.push("@const");
 		} else {
-			//javaDoc.push('@constructor');
-			javaDoc.push('@const');
+			//javaDoc.push("@constructor");
+			javaDoc.push("@const");
 		}*/
 		javaDoc.push(characters.google._const);
 		
@@ -1030,7 +1097,7 @@ class Delko  {
 		
 		if (_class.superClass != null) {
 			superClass = _class.superClass.t.get();
-			javaDoc.push('@extends ' + (superClass.pack.length > 0 ? superClass.pack.join(characters.dot) + characters.dot : characters.empty) + superClass.name);
+			javaDoc.push("@extends " + (superClass.pack.length > 0 ? superClass.pack.join(characters.dot) + characters.dot : characters.empty) + superClass.name);
 		}
 		
 		if (_class.interfaces.length != 0) {

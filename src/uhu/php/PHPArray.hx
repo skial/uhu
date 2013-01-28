@@ -7,6 +7,7 @@ import php.NativeArray;
  * @author Skial Bainn
  */
  
+@:arrayAccess
 abstract PHPArray(Array<T>)<T> {
 	
 	#if !display
@@ -18,9 +19,9 @@ abstract PHPArray(Array<T>)<T> {
 		return untyped Lib.toPhpArray(array);
 	}*/
 	
-	@:to public inline function toArray() {
+	/*@:to public inline function toArray() {
 		return untyped this;
-	}
+	}*/
 	#end
 	
 	/**
