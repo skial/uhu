@@ -10,6 +10,8 @@ import uhu.StdTypes;
 	
 	#if php
 	typedef Date = uhu.php.PHPDate;
+	#else
+	typedef Date = StdDate;
 	#end
 	
 #else

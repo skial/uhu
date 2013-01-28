@@ -10,6 +10,8 @@ import uhu.StdTypes;
 	
 	#if php
 	typedef Hash<T> = uhu.php.PHPHash<T>;
+	#else
+	typedef Hash<T> = StdHash<T>;
 	#end
 	
 #else

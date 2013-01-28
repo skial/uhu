@@ -197,7 +197,7 @@ abstract PHPArray(Array<T>)<T> {
 		use Std.string() to get a String representation that is consistent
 		across platforms.
 	**/
-	public inline function toString():String untyped {
+	@:to public inline function toString():String untyped {
 		return '[' + __call__('implode', ',', this) + ']';
 	}
 
