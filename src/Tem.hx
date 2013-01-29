@@ -17,7 +17,7 @@ import uhu.tem.Validator;
 import uhu.macro.Du;
 import uhu.macro.Jumla;
 import thx.html.Html;
-using uhu.Library;
+//using uhu.Library;
 #end
 
 using StringTools;
@@ -55,12 +55,11 @@ class Tem {
 	/**
 	 * Call this method by adding ``--macro Tem.setIndex("path/to/my/file.html")`` to your ``.hxml`` file.
 	 */
-	macro public static function setIndex(path:String) {
-		var input = File.getContent( FileSystem.fullPath(Context.resolvePath(path)) );
+	public static macro function setIndex(path:String) {
+		var input = File.getContent( FileSystem.fullPath( Context.resolvePath(path) ) );
 		Common.index = { xml:Html.toXml( input ), path:path };
 		return macro null;
 	}
-	//17:10
 	
 }
 

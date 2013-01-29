@@ -1,9 +1,11 @@
 package uhu.tem;
 
 import haxe.macro.Context;
-import uhu.tem.Common;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+
+import uhu.tem.Common;
+import uhu.tem.t.TemClass;
 
 using uhu.tem.Util;
 using Detox;

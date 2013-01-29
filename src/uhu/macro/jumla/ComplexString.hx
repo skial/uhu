@@ -1,6 +1,6 @@
 package uhu.macro.jumla;
 
-import uhu.macro.jumla.typedefs.TComplexString;
+import uhu.macro.jumla.t.TComplexString;
 
 /**
  * ...

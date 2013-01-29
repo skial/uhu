@@ -3,6 +3,9 @@ package uhu.tem;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
+import uhu.tem.t.TemClass;
+import uhu.tem.t.TemTemplate;
+
 using Detox;
 using Lambda;
 using StringTools;
@@ -16,7 +19,7 @@ using uhu.macro.Jumla;
 class Util {
 	
 	// rename to hasField?
-	public static function hasClassField(fields:Array<Field>, name:String):Bool {
+	public static function hasClassField(fields:Array<TField>, name:String):Bool {
 		return fields.exists( function(f) {
 			if (f.name == name) {
 				return true;
@@ -26,7 +29,7 @@ class Util {
 	}
 	
 	// rename to getField?
-	public static function getClassField(fields:Array<Field>, name:String):Null<Field> {
+	public static function getClassField(fields:Array<TField>, name:String):Null<TField> {
 		
 		for (f in fields) {
 			if (f.name == name) return f;

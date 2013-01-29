@@ -2,7 +2,7 @@ package uhu.macro.jumla;
 
 import haxe.macro.Expr;
 import uhu.macro.jumla.ComplexString;
-import uhu.macro.jumla.typedefs.TComplexString;
+import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.ExprTool;
 import uhu.macro.jumla.ComplexTypeTool;
 

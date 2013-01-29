@@ -4,8 +4,11 @@ import dtx.XMLWrapper;
 import haxe.macro.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
-import uhu.macro.jumla.typedefs.TComplexString;
+
+import uhu.macro.jumla.t.TComplexString;
 import uhu.tem.Common;
+import uhu.tem.t.TemClass;
+import uhu.tem.t.TemTemplate;
 
 using uhu.macro.Jumla;
 using uhu.tem.Util;
@@ -71,7 +74,7 @@ class Validator {
 		}
 	}
 	
-	private static function fieldKind(field:Field) {
+	private static function fieldKind(field:TField) {
 		
 		switch (field.kind) {
 			case FVar(_, _) | FProp(_, _, _, _):
@@ -82,7 +85,7 @@ class Validator {
 		
 	}
 	
-	private static function variable(field:Field) {
+	private static function variable(field:TField) {
 		
 		var pair = switch(field.kind) {
 			case FVar(t, e): { type:t, expr:e };
@@ -108,11 +111,12 @@ class Validator {
 				case 'String' | 'Dynamic':
 					
 					// Get all child elements, thats dom nodes, text nodes and comments.
-					var children = currentElement.children(false);
+					var children:DOMCollection = currentElement.children(false);
 					
 					for (c in children) {
 						trace(c.isElement());
 						trace(c.isTextNode());
+						trace(c.isComment());
 					}
 					
 					
@@ -131,7 +135,7 @@ class Validator {
 		
 	}
 	
-	private static function method(field:Field) {
+	private static function method(field:TField) {
 		
 		switch (field.kind) {
 			case FFun(_):

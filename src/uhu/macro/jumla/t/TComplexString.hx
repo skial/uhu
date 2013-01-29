@@ -1,4 +1,4 @@
-package uhu.macro.jumla.typedefs;
+package uhu.macro.jumla.t;
 
 /**
  * ...

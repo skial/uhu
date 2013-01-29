@@ -1,7 +1,8 @@
 package uhu.macro.jumla;
 
 import haxe.macro.Expr;
-import uhu.macro.jumla.typedefs.TComplexString;
+import uhu.macro.jumla.t.TComplexString;
+import uhu.macro.jumla.t.TField;
 import uhu.macro.jumla.TypeParamTool;
 
 /**
@@ -39,6 +40,32 @@ class ExprTool {
 				// TODO handle other types
 				trace('ExprTool - UNKNOWN');
 				trace(e.expr);
+		}
+		
+		return result;
+	}
+	
+	public static function toTField(field:Field):TField {
+		var result = {
+			name:'',
+			pos:null,
+			access:[],
+			kind:null,
+		}
+		
+		result.name = field.name;
+		result.pos = field.pos;
+		result.access = field.access;
+		result.kind = field.kind;
+		
+		return result;
+	}
+	
+	public static function toTFields(fields:Array<Field>):Array<TField> {
+		var result = [];
+		
+		for (field in fields) {
+			result.push( ExprTool.toTField( field ) );
 		}
 		
 		return result;

@@ -1,7 +1,7 @@
 package uhu.macro.jumla;
 
 import haxe.macro.Expr;
-import uhu.macro.jumla.typedefs.TComplexString;
+import uhu.macro.jumla.t.TComplexString;
 
 /**
  * ...

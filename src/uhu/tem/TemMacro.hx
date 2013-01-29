@@ -23,8 +23,7 @@ using Lambda;
  
 class TemMacro {
 
-	@:macro public static function modify():Array<Field> {
-		
+	public static macro function modify():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		

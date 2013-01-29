@@ -5,6 +5,9 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 
+typedef TField = uhu.macro.jumla.t.TField;
+typedef TComplexString = uhu.macro.jumla.t.TComplexString;
+
 typedef JumlaExpr = uhu.macro.jumla.ExprTool;
 typedef JumlaConstant = uhu.macro.jumla.ConstantTool;
 typedef JumlaComplexType = uhu.macro.jumla.ComplexTypeTool;

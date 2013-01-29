@@ -15,7 +15,7 @@ import uhu.tem.Common;
 using Detox;
 using Lambda;
 using StringTools;
-using uhu.Library;
+//using uhu.Library;
 using uhu.tem.Util;
 using de.polygonal.core.fmt.ASCII;
 
@@ -26,7 +26,7 @@ using de.polygonal.core.fmt.ASCII;
 
 class Scope {
 	
-	private static function matchField(css:String, element:Xml, isStatic:Bool = false) {
+	public static function matchField(css:String, element:Xml, isStatic:Bool = false) {
 		//if (Common.ignoreClass.indexOf(css) != -1) return;
 		
 		var fields = isStatic ? Common.currentStatics : Common.currentFields;
@@ -41,7 +41,7 @@ class Scope {
 		
 	}
 	
-	private static function findIds(x:Xml):Array<String> {
+	public static function findIds(x:Xml):Array<String> {
 		var results = [x.attr('id').split(' ')[0].trim()];
 		
 		for (a in x.ancestors()) {
@@ -55,7 +55,7 @@ class Scope {
 		return results;
 	}
 	
-	private static function findClasses(x:Xml):Array<String> {
+	public static function findClasses(x:Xml):Array<String> {
 		var results = x.attr('class').split(' ');
 		
 		for (a in x.ancestors()) {
@@ -69,7 +69,7 @@ class Scope {
 		return results;
 	}
 	
-	private static function isValidClass(name:String):Bool {
+	public static function isValidClass(name:String):Bool {
 		name = name.trim();
 		var r = ( name == Common.currentClass.name && name.charCodeAt(0).isUpperCaseAlphabetic() && Common.ignoreClass.indexOf(name) == -1 );
 		/*trace(name);
@@ -80,7 +80,7 @@ class Scope {
 		return r;
 	}
 	
-	private static function processXML(x:Xml) {
+	public static function processXML(x:Xml) {
 		
 		if (findIds(x).indexOf(Common.currentClass.name) != -1) {
 			matchAttributes(x, true);
@@ -96,7 +96,7 @@ class Scope {
 		
 	}
 	
-	private static function matchAttributes(x:Xml, isStatic:Bool) {
+	public static function matchAttributes(x:Xml, isStatic:Bool) {
 		// Some html makes Haxe's xml parser cry
 		//try {
 			

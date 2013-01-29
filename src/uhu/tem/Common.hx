@@ -1,7 +1,13 @@
 package uhu.tem;
+
 import Type in StdType;
 import haxe.macro.Type;
 import haxe.macro.Expr;
+import uhu.tem.t.TemClass;
+import uhu.tem.t.TemTemplate;
+
+import uhu.macro.Jumla;
+
 /**
  * ...
  * @author Skial Bainn
@@ -10,24 +16,13 @@ import haxe.macro.Expr;
 //typedef MFile = massive.neko.io.File;
 //typedef StdType = Type;
 //typedef MacroType = haxe.macro.Type;
- 
-typedef TemClass = {
-	var name:String;
-	var cls:ClassType;
-	var params:Array<Type>;
-}
-
-typedef TemTemplate = {
-	var path:String;
-	var xml:Xml;
-}
 
 class Common {
 	
 	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	public static var currentClass:ClassType;
-	public static var currentFields:Array<Field>;
-	public static var currentStatics:Array<Field>;
+	public static var currentFields:Array<TField>;
+	public static var currentStatics:Array<TField>;
 	
 	public static var partials:Array<TemTemplate> = [];
 	public static var index:TemTemplate = null;
