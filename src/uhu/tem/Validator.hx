@@ -134,7 +134,7 @@ class Validator {
 	private static function method(field:Field) {
 		
 		switch (field.kind) {
-			case FFun(kind):
+			case FFun(_):
 			default:
 		}
 		

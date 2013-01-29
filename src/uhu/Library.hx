@@ -32,7 +32,7 @@ typedef CSSStyleDeclaration = Dynamic;
 class Library {
 	
 	#if js
-	@:macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
+	macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
 		
 		if ( Context.defined('raf_included') ) {
@@ -43,7 +43,7 @@ class Library {
 		return macro untyped __js__('window.requestAnimationFrame')($handler, $element);
 	}
 	
-	@:macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):ExprOf<Void> {
+	macro public static function cancelAnimationFrame(window:ExprOf<WindowProxy>, id:ExprOf<Int>):ExprOf<Void> {
 		Compiler.define('raf');
 		
 		if ( Context.defined('raf_included') ) {
@@ -105,7 +105,7 @@ class Library {
 	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
 	 */
-	@:macro public static function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
+	macro public static function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
 		var p = Context.currentPos();
 		var f:String;
 		

@@ -55,7 +55,7 @@ class Tem {
 	/**
 	 * Call this method by adding ``--macro Tem.setIndex("path/to/my/file.html")`` to your ``.hxml`` file.
 	 */
-	@:macro public static function setIndex(path:String) {
+	macro public static function setIndex(path:String) {
 		var input = File.getContent( FileSystem.fullPath(Context.resolvePath(path)) );
 		Common.index = { xml:Html.toXml( input ), path:path };
 		return macro null;

@@ -10,6 +10,7 @@ typedef JumlaConstant = uhu.macro.jumla.ConstantTool;
 typedef JumlaComplexType = uhu.macro.jumla.ComplexTypeTool;
 typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
 typedef JumlaTypeParam = uhu.macro.jumla.TypeParamTool;
+typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
 
 /**
  * ...
@@ -34,33 +35,9 @@ class Jumla {
 			default:
 		}
 		return null;
-	}
+	}*/
 	
-	// Compat code for tink_macros
-	@:extern public static inline function getID(type:Type, ?reduce:Bool = false) {
-		return getName(type);
-	}
-	
-	public static function getName(type:Type):String {
-		switch (type) {
-			case TInst(t, _):
-				return t.toString();
-			case TEnum(t, _):
-				return t.toString();
-			case TType(t, _):
-				return t.toString();
-			#if haxe3
-			case TAbstract(t, _):
-				return t.toString();
-			#end
-			default:
-				
-		}
-		
-		return '';
-	}
-	
-	public static function fieldKind(field:ClassField):String {
+	/*public static function fieldKind(field:ClassField):String {
 		
 		var result = '';
 		

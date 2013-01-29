@@ -20,7 +20,7 @@ using StringTools;
 // Haitian Creole for compiler
 class Du {
 	
-	@:macro public static function include(classes:Array<String>) {
+	macro public static function include(classes:Array<String>) {
 		for (cls in classes) {
 			//Context.getModule(cls);
 			Compiler.include(cls);
@@ -28,7 +28,7 @@ class Du {
 		return macro null;
 	}
 
-	@:macro public static function patchTypes(file:String) {
+	macro public static function patchTypes(file:String) {
 		var file = sys.io.File.read(Context.resolvePath(file), true);
 		try {
 			while (true) {
