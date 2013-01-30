@@ -10,13 +10,9 @@ import haxe.Timer;
 
 class EFunctionTools {
 	
-	public static function toField(method:Function, name:String):Field {
-		if (name == null) {
-			name = 'Temp' + Date.now().getTime();
-		}
-		
+	public static function toField(method:Function):Field {
 		return {
-			name:name,
+			name:'',
 			doc:null,
 			access:[],
 			kind:FFun( method ),
