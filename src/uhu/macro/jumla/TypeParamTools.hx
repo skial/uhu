@@ -3,10 +3,10 @@ package uhu.macro.jumla;
 import haxe.macro.Expr;
 import uhu.macro.jumla.ComplexString;
 import uhu.macro.jumla.t.TComplexString;
-import uhu.macro.jumla.ExprTool;
-import uhu.macro.jumla.ComplexTypeTool;
+import uhu.macro.jumla.ExprTools;
+import uhu.macro.jumla.ComplexTypeTools;
 
-class TypeParamTool {
+class TypeParamTools {
 
 	@:extern public static inline function toString(t:TypeParam):String {
 		return ComplexString.toString( toType(t) );
@@ -17,9 +17,9 @@ class TypeParamTool {
 
 		switch (t) {
 			case TPType(c):
-				result = ComplexTypeTool.toType(c);
+				result = ComplexTypeTools.toType(c);
 			case TPExpr(e):
-				result = ExprTool.toType(e);
+				result = ExprTools.toType(e);
 		}
 
 		return result;

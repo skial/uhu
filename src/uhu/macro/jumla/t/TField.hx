@@ -1,5 +1,6 @@
 package uhu.macro.jumla.t;
 
+import haxe.macro.Type;
 import haxe.macro.Expr;
 
 /**

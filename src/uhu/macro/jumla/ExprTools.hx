@@ -3,14 +3,14 @@ package uhu.macro.jumla;
 import haxe.macro.Expr;
 import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.t.TField;
-import uhu.macro.jumla.TypeParamTool;
+import uhu.macro.jumla.TypeParamTools;
 
 /**
  * ...
  * @author Skial Bainn
  */
 
-class ExprTool {
+class ExprTools {
 	
 	@:extern public static inline function toString(e:Expr):String {
 		return ComplexString.toString( toType(e) );
@@ -21,7 +21,7 @@ class ExprTool {
 		
 		switch (e.expr) {
 			case EConst(c):
-				result = ConstantTool.toType(c);
+				result = ConstantTools.toType(c);
 			case EBlock(_):
 				result = { name:'Dynamic', params:[] };
 			case EArrayDecl(values):
@@ -32,7 +32,7 @@ class ExprTool {
 			case ENew(type, _):
 				result = { name:type.name, params:[] };
 				for (p in type.params) {
-					result.params.push( TypeParamTool.toType(p) );
+					result.params.push( TypeParamTools.toType(p) );
 				}
 			case EObjectDecl(_):
 				result = { name:'Typedef', params:[] };
@@ -65,7 +65,7 @@ class ExprTool {
 		var result = [];
 		
 		for (field in fields) {
-			result.push( ExprTool.toTField( field ) );
+			result.push( toTField( field ) );
 		}
 		
 		return result;

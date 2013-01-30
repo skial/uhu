@@ -8,7 +8,7 @@ import uhu.macro.jumla.t.TComplexString;
  * @author Skial Bainn
  */
  
-class ComplexTypeTool {
+class ComplexTypeTools {
 	
 	@:extern public static inline function toString(c:ComplexType):String {
 		return ComplexString.toString( toType(c) );

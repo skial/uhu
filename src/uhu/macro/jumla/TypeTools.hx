@@ -102,7 +102,7 @@ class TypeTools {
 		var result = [];
 		
 		for (field in fields) {
-			result.push( TypeTools.toTField( field, isStatic ) );
+			result.push( toTField( field, isStatic ) );
 		}
 		
 		return result;

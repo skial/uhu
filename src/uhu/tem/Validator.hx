@@ -87,6 +87,8 @@ class Validator {
 	
 	public static function variable(field:TField) {
 		
+		trace(field);
+		
 		var pair = switch(field.kind) {
 			case FVar(t, e): { type:t, expr:e };
 			case FProp(_, _, t, e): { type:t, expr:e };
@@ -96,14 +98,16 @@ class Validator {
 		var complex_str:TComplexString = null;
 		
 		if (pair != null) {
-			complex_str = if (pair.type != null) {
-				pair.type.toType();
+			
+			if (pair.type != null) {
+				complex_str = pair.type.toType();
 			} else if (pair.expr != null) {
-				pair.expr.toType();
+				complex_str = pair.expr.toType();
 			}
+			
 		}
 		
-		//trace(complex_str);
+		trace(complex_str);
 		
 		if (complex_str != null) {
 			
