@@ -9,17 +9,17 @@ import uhu.macro.jumla.ComplexTypeTool;
 class TypeParamTool {
 
 	@:extern public static inline function toString(t:TypeParam):String {
-		return ComplexString.toString( itsType(t) );
+		return ComplexString.toString( toType(t) );
 	}
 
-	public static function itsType(t:TypeParam):TComplexString {
+	public static function toType(t:TypeParam):TComplexString {
 		var result:TComplexString = null;
 
 		switch (t) {
 			case TPType(c):
-				result = ComplexTypeTool.itsType(c);
+				result = ComplexTypeTool.toType(c);
 			case TPExpr(e):
-				result = ExprTool.itsType(e);
+				result = ExprTool.toType(e);
 		}
 
 		return result;

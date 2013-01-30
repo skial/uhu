@@ -13,26 +13,26 @@ import uhu.macro.jumla.TypeParamTool;
 class ExprTool {
 	
 	@:extern public static inline function toString(e:Expr):String {
-		return ComplexString.toString( itsType(e) );
+		return ComplexString.toString( toType(e) );
 	}
 
-	public static function itsType(e:Expr):TComplexString {
+	public static function toType(e:Expr):TComplexString {
 		var result:TComplexString = null;
 		
 		switch (e.expr) {
 			case EConst(c):
-				result = ConstantTool.itsType(c);
+				result = ConstantTool.toType(c);
 			case EBlock(_):
 				result = { name:'Dynamic', params:[] };
 			case EArrayDecl(values):
 				result = { name:'Array', params:[] };
 				for (v in values) {
-					result.params.push( itsType(v) );
+					result.params.push( toType(v) );
 				}
 			case ENew(type, _):
 				result = { name:type.name, params:[] };
 				for (p in type.params) {
-					result.params.push( TypeParamTool.itsType(p) );
+					result.params.push( TypeParamTool.toType(p) );
 				}
 			case EObjectDecl(_):
 				result = { name:'Typedef', params:[] };

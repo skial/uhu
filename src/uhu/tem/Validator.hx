@@ -36,7 +36,7 @@ class Validator {
 		return xml;
 	}
 	
-	private static function processXML(xml:Xml) {
+	public static function processXML(xml:Xml) {
 		var fields:Array<String>;
 		
 		if ( xml.exists(Common.x_instance) ) {
@@ -74,7 +74,7 @@ class Validator {
 		}
 	}
 	
-	private static function fieldKind(field:TField) {
+	public static function fieldKind(field:TField) {
 		
 		switch (field.kind) {
 			case FVar(_, _) | FProp(_, _, _, _):
@@ -85,7 +85,7 @@ class Validator {
 		
 	}
 	
-	private static function variable(field:TField) {
+	public static function variable(field:TField) {
 		
 		var pair = switch(field.kind) {
 			case FVar(t, e): { type:t, expr:e };
@@ -97,9 +97,9 @@ class Validator {
 		
 		if (pair != null) {
 			complex_str = if (pair.type != null) {
-				pair.type.itsType();
+				pair.type.toType();
 			} else if (pair.expr != null) {
-				pair.expr.itsType();
+				pair.expr.toType();
 			}
 		}
 		
@@ -135,7 +135,7 @@ class Validator {
 		
 	}
 	
-	private static function method(field:TField) {
+	public static function method(field:TField) {
 		
 		switch (field.kind) {
 			case FFun(_):

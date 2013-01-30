@@ -11,10 +11,10 @@ import uhu.macro.jumla.t.TComplexString;
 class ComplexTypeTool {
 	
 	@:extern public static inline function toString(c:ComplexType):String {
-		return ComplexString.toString( itsType(c) );
+		return ComplexString.toString( toType(c) );
 	}
 
-	public static function itsType(c:ComplexType):TComplexString {
+	public static function toType(c:ComplexType):TComplexString {
 		
 		var result:TComplexString = null;
 		
@@ -32,7 +32,7 @@ class ComplexTypeTool {
 				for (type_param in p.params) {
 					
 					switch (type_param) {
-						case TPType(t): result.params.push( itsType(t) );
+						case TPType(t): result.params.push( toType(t) );
 						case _:
 					}
 					

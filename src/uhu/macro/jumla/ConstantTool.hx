@@ -11,10 +11,10 @@ import uhu.macro.jumla.t.TComplexString;
 class ConstantTool {
 	
 	@:extern public static inline function toString(c:Constant):String {
-		return ComplexString.toString( itsType(c) );
+		return ComplexString.toString( toType(c) );
 	}
 	
-	public static function itsType(c:Constant):TComplexString {
+	public static function toType(c:Constant):TComplexString {
 		var result:TComplexString = null;
 		
 		switch (c) {
