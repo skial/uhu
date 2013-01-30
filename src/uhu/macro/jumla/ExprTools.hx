@@ -39,6 +39,7 @@ class ExprTools {
 			case _:
 				// TODO handle other types
 				trace('ExprTool - UNKNOWN');
+				trace('ExprTool - Not Implemented');
 				trace(e.expr);
 		}
 		
