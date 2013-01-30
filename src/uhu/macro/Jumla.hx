@@ -9,6 +9,7 @@ typedef TField = uhu.macro.jumla.t.TField;
 typedef TComplexString = uhu.macro.jumla.t.TComplexString;
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaEVarTools = uhu.macro.jumla.EVarTools;
+typedef JumlaEFunctionTools = uhu.macro.jumla.EFunctionTools;
 typedef JumlaConstantTools = uhu.macro.jumla.ConstantTools;
 typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
