@@ -26,7 +26,7 @@ using de.polygonal.core.fmt.ASCII;
 
 class Scope {
 	
-	public static function matchField(css:String, element:Xml, isStatic:Bool = false) {
+	public static function matchField(css:String, element:Xml, isStatic:Bool = false):Bool {
 		//if (Common.ignoreClass.indexOf(css) != -1) return;
 		
 		var fields = isStatic ? Common.currentStatics : Common.currentFields;
@@ -36,9 +36,9 @@ class Scope {
 			/*trace(Common.currentClass.name);
 			trace(field.name);*/
 			element.addBinding(Common.currentClass.name + '.' + field.name, isStatic);
-			
+			return true;
 		}
-		
+		return false;
 	}
 	
 	public static function findIds(x:Xml):Array<String> {
@@ -56,7 +56,8 @@ class Scope {
 	}
 	
 	public static function findClasses(x:Xml):Array<String> {
-		var results = x.attr('class').split(' ');
+		var attr:String = x.attr('class');
+		var results:Array<String> = attr.indexOf(' ') != -1 ? attr.split(' ') : [attr];
 		
 		for (a in x.ancestors()) {
 			
@@ -72,11 +73,6 @@ class Scope {
 	public static function isValidClass(name:String):Bool {
 		name = name.trim();
 		var r = ( name == Common.currentClass.name && name.charCodeAt(0).isUpperCaseAlphabetic() && Common.ignoreClass.indexOf(name) == -1 );
-		/*trace(name);
-		trace(Common.currentClass.name == name);
-		trace(name.charCodeAt(0).isUpperCaseAlphabetic());
-		trace(Common.ignoreClass.indexOf(name) == -1);
-		trace(r);*/
 		return r;
 	}
 	
