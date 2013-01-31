@@ -13,6 +13,7 @@ import uhu.tem.t.TemTemplate;
 using uhu.macro.Jumla;
 using uhu.tem.Util;
 using Detox;
+using Iterators;
 using Lambda;
 using StringTools;
 
@@ -23,7 +24,7 @@ using StringTools;
 
 class Validator {
 	
-	private static var currentElement:Xml = null;
+	public static var currentElement:Xml = null;
 
 	public static function parse(xml:Xml) {
 		
@@ -87,7 +88,7 @@ class Validator {
 	
 	public static function variable(field:TField) {
 		
-		trace(field);
+		//trace(field);
 		
 		var pair = switch(field.kind) {
 			case FVar(t, e): { type:t, expr:e };
@@ -107,26 +108,76 @@ class Validator {
 			
 		}
 		
-		trace(complex_str);
+		//trace(complex_str);
 		
 		if (complex_str != null) {
+			
+			var children:DOMCollection;
+			var valid:DOMCollection;
 			
 			switch (complex_str.name) {
 				case 'String' | 'Dynamic':
 					
 					// Get all child elements, thats dom nodes, text nodes and comments.
-					var children:DOMCollection = currentElement.children(false);
+					children = currentElement.children(false);
 					
-					for (c in children) {
-						trace(c.isElement());
-						trace(c.isTextNode());
-						trace(c.isComment());
+					if (children.length == 0) {
+						throw 'The current element does not have any child nodes : $currentElement';
 					}
 					
 					
 				case 'Float' | 'Int':
 					
+					children = currentElement.children(false);
+					valid = new DOMCollection();
+					
+					if (children.length == 0) {
+						throw 'The current element does not have any child nodes : $currentElement';
+					}
+					
+					for (c in children) {
+						if (c.isTextNode()) {
+							valid.add(c);
+						}
+					}
+					
+					if (valid.length == 0) {
+						throw 'No text nodes exist.';
+					}
+					
+					var func = complex_str.name == 'Float' ? Std.parseFloat : Std.parseInt;
+					
+					try {
+						var value = func( valid.first().val() );
+					} catch (e:Dynamic) {
+						throw '${valid.first().val()} can not be cast to Float';
+					}
+					
 				case 'Bool':
+					
+					// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
+					
+					var match = null;
+					
+					for (a in currentElement.attributes()) {
+						
+						if (a == 'data-${field.name}' || a == field.name) {
+							match = a;
+							break;
+						}
+						
+					}
+					
+					if (match == null) {
+						throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. This probably is a bug. Please create a minimal reproducible example and submit it to http://www.github.com/skial/uhu/issues';
+					}
+					
+					var attr = currentElement.attr( match );
+					var spec = ( attr == '' || attr.toLowerCase() == match.toLowerCase() );
+					
+					if ( !spec ) {
+						throw 'Attribute "$match" matched with "${field.name}" of type "Bool" has a value of "$attr". Check http://stackoverflow.com/a/4140263 for valid HTML5 booleans.';
+					}
 					
 				case 'Array' | 'List':
 					
@@ -136,6 +187,8 @@ class Validator {
 			}
 			
 		}
+		
+		return true;
 		
 	}
 	
