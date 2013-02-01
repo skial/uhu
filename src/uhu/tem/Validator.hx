@@ -239,29 +239,6 @@ class Validator {
 			throw 'The current element does not have any child nodes : $currentElement';
 		}
 		
-		/*var func = null;
-		
-		switch (complex_str.params[0].name) {
-			case 'Dynamic' | 'String':
-				func = function(ele:Xml) {
-					
-					if (ele.isTextNode() || ele.isComment() || ele.isElement()) {
-						return true;
-					}
-					
-					return false;
-				}
-			case 'DOMNode' | 'Dom' | 'Xml':
-				func = function(ele:Xml) {
-					
-					if ( ele.isElement() ) {
-						return true;
-					}
-					
-					return false;
-				}
-		}*/
-		
 		var valid = new DOMCollection();
 		var originalElement = currentElement;
 		
@@ -269,22 +246,29 @@ class Validator {
 		
 		for (c in children) {
 			
-			/*if ( func(c) ) {
-				valid.add( c );
-			}*/
-			
 			currentElement = c;
 			
-			if ( checkType( complex_str, field ) ) {
-				valid.add( c );
-			}
+			checkType( complex_str, field );
+			
+			/*if ( checkType( complex_str, field ) ) {
+				
+				switch (complex_str.name) {
+					case 'Dynamic' | 'String':
+						valid.add( c.firstChild() );
+					case 'Float' | 'Int':
+						valid.add( c.firstChild() ); // should be parseInt/Float
+					case 'DOMNode' | 'Dom' | 'Xml':
+						valid.add( c );
+				}
+				
+			}*/
 			
 		}
 		
 		currentElement = originalElement;
 		
-		trace(field.name);
-		trace(valid);
+		/*trace(field.name);
+		trace(valid);*/
 		
 		return true;
 	}
