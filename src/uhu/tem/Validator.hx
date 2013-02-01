@@ -110,10 +110,23 @@ class Validator {
 		
 		//trace(complex_str);
 		
+		checkType( complex_str, field );
+		
+		return true;
+		
+	}
+	
+	public static function method(field:TField) {
+		
+		switch (field.kind) {
+			case FFun(_):
+			default:
+		}
+		
+	}
+	
+	public static function checkType(complex_str:TComplexString, field:TField):Bool {
 		if (complex_str != null) {
-			
-			var children:DOMCollection;
-			var valid:DOMCollection;
 			
 			switch (complex_str.name) {
 				case 'String' | 'Dynamic': 
@@ -140,16 +153,6 @@ class Validator {
 		}
 		
 		return true;
-		
-	}
-	
-	public static function method(field:TField) {
-		
-		switch (field.kind) {
-			case FFun(_):
-			default:
-		}
-		
 	}
 	
 	public static function checkString(complex_str:TComplexString, field:TField):Bool {
@@ -230,13 +233,13 @@ class Validator {
 				throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Available types are "Dynamic, String, DOMNode, Dom, Xml"';
 		}
 		
-		var children = currentElement.children(false);
+		var children = currentElement.children(true);
 		
 		if (children.length == 0) {
 			throw 'The current element does not have any child nodes : $currentElement';
 		}
 		
-		var func = null;
+		/*var func = null;
 		
 		switch (complex_str.params[0].name) {
 			case 'Dynamic' | 'String':
@@ -257,20 +260,31 @@ class Validator {
 					
 					return false;
 				}
-		}
+		}*/
 		
 		var valid = new DOMCollection();
+		var originalElement = currentElement;
+		
+		complex_str = complex_str.params[0];
 		
 		for (c in children) {
 			
-			if ( func(c) ) {
+			/*if ( func(c) ) {
+				valid.add( c );
+			}*/
+			
+			currentElement = c;
+			
+			if ( checkType( complex_str, field ) ) {
 				valid.add( c );
 			}
 			
 		}
 		
-		/*trace(field.name);
-		trace(valid);*/
+		currentElement = originalElement;
+		
+		trace(field.name);
+		trace(valid);
 		
 		return true;
 	}
