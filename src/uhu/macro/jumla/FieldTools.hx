@@ -23,14 +23,41 @@ class FieldTools {
 		return variable;
 	}
 	
-	public static function makeGetter(variable:Field):Field {
+	public static function createGetter(variable:Field):Field {
 		var result:Field = null;
 		
 		switch (variable.kind) {
-			case FProp( g, _, t, e ):
+			case FProp( g, _, t, _ ):
 				
 				result = {
 					name:g,
+					doc:null,
+					access:[],
+					kind:FFun( {
+						args:[],
+						ret:t,
+						expr:Context.makeExpr( 'return ${variable.name};', Context.currentPos() ),
+						params:[]
+					} ),
+					pos:Context.currentPos(),
+					meta:null
+				}
+				
+			case _:
+				throw '"${variable.name} field kind is not of type "FieldType::FProp". Use toFProp before calling this method.';
+		}
+		
+		return result;
+	}
+	
+	public static function createSetter(variable:Field):Field {
+		var result:Field = null;
+		
+		switch (variable.kind) {
+			case FProp( _, s, t, _ ):
+				
+				result = {
+					name:s,
 					doc:null,
 					access:[],
 					kind:FFun( {
