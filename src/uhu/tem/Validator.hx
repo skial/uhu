@@ -230,12 +230,16 @@ class Validator {
 						
 					}
 					
-					trace(field.name);
-					trace(valid);
+					/*trace(field.name);
+					trace(valid);*/
 					
 				case 'DOMNode' | 'Dom' | 'Xml':
 					
+					// hmm, dont think i need to check anything...
+					
 				case _:
+					
+					throw 'Type "${complex_str.name}" is currently not supported.';
 			}
 			
 		}
