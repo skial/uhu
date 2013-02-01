@@ -181,6 +181,58 @@ class Validator {
 					
 				case 'Array' | 'List':
 					
+					if (complex_str.params[0] == null) {
+						throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
+					}
+					
+					switch (complex_str.params[0].name) {
+						case 'Dynamic' | 'String' | 'DOMNode' | 'Dom' | 'Xml':
+						case _:
+							throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Available types are "Dynamic, String, DOMNode, Dom, Xml"';
+					}
+					
+					children = currentElement.children(false);
+					
+					if (children.length == 0) {
+						throw 'The current element does not have any child nodes : $currentElement';
+					}
+					
+					var func = null;
+					
+					switch (complex_str.params[0].name) {
+						case 'Dynamic' | 'String':
+							func = function(ele:Xml) {
+								
+								if (ele.isTextNode() || ele.isComment() || ele.isElement()) {
+									return true;
+								}
+								
+								return false;
+							}
+						case 'DOMNode' | 'Dom' | 'Xml':
+							func = function(ele:Xml) {
+								
+								if ( ele.isElement() ) {
+									return true;
+								}
+								
+								return false;
+							}
+					}
+					
+					valid = new DOMCollection();
+					
+					for (c in children) {
+						
+						if ( func(c) ) {
+							valid.add( c );
+						}
+						
+					}
+					
+					trace(field.name);
+					trace(valid);
+					
 				case 'DOMNode' | 'Dom' | 'Xml':
 					
 				case _:
