@@ -27,7 +27,7 @@ class FieldTools {
 		var result:Field = null;
 		
 		switch (variable.kind) {
-			case FProp( g, _, t, _ ):
+			case FProp( g, _, t, e ):
 				
 				result = {
 					name:g,
@@ -36,8 +36,7 @@ class FieldTools {
 					kind:FFun( {
 						args:[],
 						ret:t,
-						//expr:Context.makeExpr( 'return ${variable.name};', variable.pos ),
-						expr:macro return $(variable.name),
+						expr:macro return $i{variable.name},
 						params:[]
 					} ),
 					pos:variable.pos,
