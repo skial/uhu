@@ -228,9 +228,8 @@ class Validator {
 		}
 		
 		switch (complex_str.params[0].name) {
-			case 'Dynamic' | 'String' | 'DOMNode' | 'Dom' | 'Xml':
-			case _:
-				throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Available types are "Dynamic, String, DOMNode, Dom, Xml"';
+			case 'Hash', 'Class', 'Enum':
+				throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Check the supported types again.';
 		}
 		
 		var children = currentElement.children(true);
