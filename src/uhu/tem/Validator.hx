@@ -116,122 +116,17 @@ class Validator {
 			var valid:DOMCollection;
 			
 			switch (complex_str.name) {
-				case 'String' | 'Dynamic':
-					
-					// Get all child elements, thats dom nodes, text nodes and comments.
-					children = currentElement.children(false);
-					
-					if (children.length == 0) {
-						throw 'The current element does not have any child nodes : $currentElement';
-					}
-					
+				case 'String' | 'Dynamic': 
+					checkString( complex_str, field );
 					
 				case 'Float' | 'Int':
-					
-					children = currentElement.children(false);
-					valid = new DOMCollection();
-					
-					if (children.length == 0) {
-						throw 'The current element does not have any child nodes : $currentElement';
-					}
-					
-					for (c in children) {
-						if (c.isTextNode()) {
-							valid.add(c);
-						}
-					}
-					
-					if (valid.length == 0) {
-						throw 'No text nodes exist.';
-					}
-					
-					var func = complex_str.name == 'Float' ? Std.parseFloat : Std.parseInt;
-					
-					try {
-						var value = func( valid.first().val() );
-					} catch (e:Dynamic) {
-						throw '${valid.first().val()} can not be cast to Float';
-					}
+					checkNumber( complex_str, field );
 					
 				case 'Bool':
-					
-					// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
-					
-					var match = null;
-					
-					for (a in currentElement.attributes()) {
-						
-						if (a == 'data-${field.name}' || a == field.name) {
-							match = a;
-							break;
-						}
-						
-					}
-					
-					if (match == null) {
-						throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. This probably is a bug. Please create a minimal reproducible example and submit it to http://www.github.com/skial/uhu/issues';
-					}
-					
-					var attr = currentElement.attr( match );
-					var spec = ( attr == '' || attr.toLowerCase() == match.toLowerCase() );
-					
-					if ( !spec ) {
-						throw 'Attribute "$match" matched with "${field.name}" of type "Bool" has a value of "$attr". Check http://stackoverflow.com/a/4140263 for valid HTML5 booleans.';
-					}
+					checkBool( complex_str, field );
 					
 				case 'Array' | 'List':
-					
-					if (complex_str.params[0] == null) {
-						throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
-					}
-					
-					switch (complex_str.params[0].name) {
-						case 'Dynamic' | 'String' | 'DOMNode' | 'Dom' | 'Xml':
-						case _:
-							throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Available types are "Dynamic, String, DOMNode, Dom, Xml"';
-					}
-					
-					children = currentElement.children(false);
-					
-					if (children.length == 0) {
-						throw 'The current element does not have any child nodes : $currentElement';
-					}
-					
-					var func = null;
-					
-					switch (complex_str.params[0].name) {
-						case 'Dynamic' | 'String':
-							func = function(ele:Xml) {
-								
-								if (ele.isTextNode() || ele.isComment() || ele.isElement()) {
-									return true;
-								}
-								
-								return false;
-							}
-						case 'DOMNode' | 'Dom' | 'Xml':
-							func = function(ele:Xml) {
-								
-								if ( ele.isElement() ) {
-									return true;
-								}
-								
-								return false;
-							}
-					}
-					
-					valid = new DOMCollection();
-					
-					for (c in children) {
-						
-						if ( func(c) ) {
-							valid.add( c );
-						}
-						
-					}
-					
-					/*trace(field.name);
-					trace(valid);*/
+					checkArray( complex_str, field );
 					
 				case 'DOMNode' | 'Dom' | 'Xml':
 					
@@ -255,6 +150,129 @@ class Validator {
 			default:
 		}
 		
+	}
+	
+	public static function checkString(complex_str:TComplexString, field:TField):Bool {
+		// Get all child elements, thats dom nodes, text nodes and comments.
+		var children = currentElement.children(false);
+		
+		if (children.length == 0) {
+			throw 'The current element does not have any child nodes : $currentElement';
+		}
+		
+		return true;
+	}
+	
+	public static function checkNumber(complex_str:TComplexString, field:TField):Bool {
+		var children = currentElement.children(false);
+		var valid = new DOMCollection();
+		
+		if (children.length == 0) {
+			throw 'The current element does not have any child nodes : $currentElement';
+		}
+		
+		for (c in children) {
+			if (c.isTextNode()) {
+				valid.add(c);
+			}
+		}
+		
+		if (valid.length == 0) {
+			throw 'No text nodes exist.';
+		}
+		
+		var func = complex_str.name == 'Float' ? Std.parseFloat : Std.parseInt;
+		
+		try {
+			var value = func( valid.first().val() );
+		} catch (e:Dynamic) {
+			throw '${valid.first().val()} can not be cast to Float';
+		}
+		return true;
+	}
+	
+	public static function checkBool(complex_str:TComplexString, field:TField):Bool {
+		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
+		
+		var match = null;
+		
+		for (a in currentElement.attributes()) {
+			
+			if (a == 'data-${field.name}' || a == field.name) {
+				match = a;
+				break;
+			}
+			
+		}
+		
+		if (match == null) {
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. This probably is a bug. Please create a minimal reproducible example and submit it to http://www.github.com/skial/uhu/issues';
+		}
+		
+		var attr = currentElement.attr( match );
+		var spec = ( attr == '' || attr.toLowerCase() == match.toLowerCase() );
+		
+		if ( !spec ) {
+			throw 'Attribute "$match" matched with "${field.name}" of type "Bool" has a value of "$attr". Check http://stackoverflow.com/a/4140263 for valid HTML5 booleans.';
+		}
+		
+		return true;
+	}
+	
+	public static function checkArray(complex_str:TComplexString, field:TField):Bool {
+		if (complex_str.params[0] == null) {
+			throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
+		}
+		
+		switch (complex_str.params[0].name) {
+			case 'Dynamic' | 'String' | 'DOMNode' | 'Dom' | 'Xml':
+			case _:
+				throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Available types are "Dynamic, String, DOMNode, Dom, Xml"';
+		}
+		
+		var children = currentElement.children(false);
+		
+		if (children.length == 0) {
+			throw 'The current element does not have any child nodes : $currentElement';
+		}
+		
+		var func = null;
+		
+		switch (complex_str.params[0].name) {
+			case 'Dynamic' | 'String':
+				func = function(ele:Xml) {
+					
+					if (ele.isTextNode() || ele.isComment() || ele.isElement()) {
+						return true;
+					}
+					
+					return false;
+				}
+			case 'DOMNode' | 'Dom' | 'Xml':
+				func = function(ele:Xml) {
+					
+					if ( ele.isElement() ) {
+						return true;
+					}
+					
+					return false;
+				}
+		}
+		
+		var valid = new DOMCollection();
+		
+		for (c in children) {
+			
+			if ( func(c) ) {
+				valid.add( c );
+			}
+			
+		}
+		
+		/*trace(field.name);
+		trace(valid);*/
+		
+		return true;
 	}
 	
 }
