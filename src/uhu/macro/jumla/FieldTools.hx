@@ -32,14 +32,15 @@ class FieldTools {
 				result = {
 					name:g,
 					doc:null,
-					access:[],
+					access:variable.access,
 					kind:FFun( {
 						args:[],
 						ret:t,
-						expr:Context.makeExpr( 'return ${variable.name};', Context.currentPos() ),
+						//expr:Context.makeExpr( 'return ${variable.name};', variable.pos ),
+						expr:macro return $(variable.name),
 						params:[]
 					} ),
-					pos:Context.currentPos(),
+					pos:variable.pos,
 					meta:null
 				}
 				
@@ -59,7 +60,7 @@ class FieldTools {
 				result = {
 					name:s,
 					doc:null,
-					access:[],
+					access:variable.access,
 					kind:FFun( {
 						args:[ {
 							name:'val',
@@ -70,7 +71,7 @@ class FieldTools {
 						expr:macro return val,
 						params:[]
 					} ),
-					pos:Context.currentPos(),
+					pos:variable.pos,
 					meta:null
 				}
 				
