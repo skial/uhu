@@ -88,8 +88,6 @@ class Validator {
 	
 	public static function variable(field:TField) {
 		
-		//trace(field);
-		
 		var pair = switch(field.kind) {
 			case FVar(t, e): { type:t, expr:e };
 			case FProp(_, _, t, e): { type:t, expr:e };
@@ -107,8 +105,6 @@ class Validator {
 			}
 			
 		}
-		
-		//trace(complex_str);
 		
 		checkType( complex_str, field );
 		
@@ -249,25 +245,9 @@ class Validator {
 			
 			checkType( complex_str, field );
 			
-			/*if ( checkType( complex_str, field ) ) {
-				
-				switch (complex_str.name) {
-					case 'Dynamic' | 'String':
-						valid.add( c.firstChild() );
-					case 'Float' | 'Int':
-						valid.add( c.firstChild() ); // should be parseInt/Float
-					case 'DOMNode' | 'Dom' | 'Xml':
-						valid.add( c );
-				}
-				
-			}*/
-			
 		}
 		
 		currentElement = originalElement;
-		
-		/*trace(field.name);
-		trace(valid);*/
 		
 		return true;
 	}
