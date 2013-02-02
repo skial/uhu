@@ -27,7 +27,7 @@ class FieldTools {
 		var result:Field = null;
 		
 		switch (variable.kind) {
-			case FProp( g, _, t, e ):
+			case FProp( g, _, t, _ ):
 				
 				result = {
 					name:g,

@@ -88,22 +88,27 @@ class Validator {
 	
 	public static function variable(field:TField) {
 		
-		var pair = switch(field.kind) {
-			case FVar(t, e): { type:t, expr:e };
-			case FProp(_, _, t, e): { type:t, expr:e };
-			default: null;
+		var pair = null;
+		
+		switch(field.kind) {
+			case FVar(t, e): 
+				pair = { type:t, expr:e };
+			case FProp(_, _, t, e): 
+				pair = { type:t, expr:e };
+			case _:
+				pair = null;
 		}
+		
+		if (pair == null) return false;
 		
 		var complex_str:TComplexString = null;
 		
-		if (pair != null) {
-			
-			if (pair.type != null) {
-				complex_str = pair.type.toType();
-			} else if (pair.expr != null) {
-				complex_str = pair.expr.toType();
-			}
-			
+		if (pair.type != null) {
+			complex_str = pair.type.toType();
+		} else if (pair.expr != null) {
+			complex_str = pair.expr.toType();
+		} else {
+			return false;
 		}
 		
 		checkType( complex_str, field );
@@ -114,14 +119,23 @@ class Validator {
 	
 	public static function method(field:TField) {
 		
+		var func:Function = null;
+		
 		switch (field.kind) {
-			case FFun(_):
-			default:
+			case FFun( f ):
+				func = f;
+			case _:
+				
+		}
+		
+		if (func == null) {
+			throw '"${field.name}" is not a function.';
 		}
 		
 	}
 	
 	public static function checkType(complex_str:TComplexString, field:TField):Bool {
+		
 		if (complex_str != null) {
 			
 			switch (complex_str.name) {
@@ -152,6 +166,13 @@ class Validator {
 	}
 	
 	public static function checkString(complex_str:TComplexString, field:TField):Bool {
+		
+		var match = getAttribute(complex_str, field);
+		
+		if (match == null) {
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
+		}
+		
 		// Get all child elements, thats dom nodes, text nodes and comments.
 		var children = currentElement.children(false);
 		
@@ -163,6 +184,12 @@ class Validator {
 	}
 	
 	public static function checkNumber(complex_str:TComplexString, field:TField):Bool {
+		var match = getAttribute(complex_str, field);
+		
+		if (match == null) {
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
+		}
+		
 		var children = currentElement.children(false);
 		var valid = new DOMCollection();
 		
@@ -193,7 +220,7 @@ class Validator {
 	public static function checkBool(complex_str:TComplexString, field:TField):Bool {
 		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
 		
-		var match = null;
+		/*var match = null;
 		
 		for (a in currentElement.attributes()) {
 			
@@ -202,10 +229,12 @@ class Validator {
 				break;
 			}
 			
-		}
+		}*/
+		
+		var match = getAttribute(complex_str, field);
 		
 		if (match == null) {
-			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. This probably is a bug. Please create a minimal reproducible example and submit it to http://www.github.com/skial/uhu/issues';
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
 		var attr = currentElement.attr( match );
@@ -219,6 +248,12 @@ class Validator {
 	}
 	
 	public static function checkArray(complex_str:TComplexString, field:TField):Bool {
+		var match = getAttribute(complex_str, field);
+		
+		if (match == null) {
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
+		}
+		
 		if (complex_str.params[0] == null) {
 			throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
 		}
@@ -252,4 +287,19 @@ class Validator {
 		return true;
 	}
 	
+	
+	public static function getAttribute(complex_str:TComplexString, field:TField):String {
+		var match = null;
+		
+		for (a in currentElement.attributes()) {
+			
+			if (a == 'data-${field.name}' || a == field.name) {
+				match = a;
+				break;
+			}
+			
+		}
+		
+		return match;
+	}
 }
