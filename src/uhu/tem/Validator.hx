@@ -248,6 +248,9 @@ class Validator {
 	}
 	
 	public static function checkArray(complex_str:TComplexString, field:TField):Bool {
+		trace(complex_str);
+		trace(field);
+		trace(currentElement);
 		var match = getAttribute(complex_str, field);
 		
 		if (match == null) {
