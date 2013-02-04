@@ -77,8 +77,7 @@ class Delko  {
 
 	var api : JSGenApi;
 	var buf : StringBuf;
-	var bufA:Array<{n:String, b:StringBuf}>;
-	//var bufA:Hash<StringBuf>;
+	var bufA:Array<{name:String, buffer:StringBuf}>;
 	var inits : List<TypedExpr>;
 	var statics : List<{ c : ClassType, f : ClassField }>;
 	var packages : Hash<Bool>;
@@ -95,14 +94,13 @@ class Delko  {
 		/**
 		 * Create the array which will hold all the generated javascript
 		 */
-		bufA = new Array<{n:String, b:StringBuf}>();
-		//bufA = new Hash<StringBuf>();
+		bufA = new Array<{name:String, buffer:StringBuf}>();
 		
 		/**
 		 * Add the first string buffer
 		 */
-		bufA.push( { n:"DelkoEntry", b:buf } );
-		//bufA.set("UhuEntry", buf);
+		bufA.push( { name:"DelkoEntry", buffer:buf } );
+		
 		inits = new List();
 		statics = new List();
 		packages = new Hash();
@@ -120,7 +118,7 @@ class Delko  {
 		types.set("Null", characters.question_mark);
 		types.set("Void", characters.empty);
 		
-		for ( x in ["prototype", "__proto__", "constructor"] ) {
+		for (x in ["prototype", "__proto__", "constructor"]) {
 			forbidden.set(x, true);
 		}
 		
@@ -128,58 +126,70 @@ class Delko  {
 	}
 
 	function getType( t : Type ) {
+		
 		return switch(t) {
 			case TInst(c, _): 
+				
 				getPath(c.get());
 				
 			case TEnum(e, _): 
+				
 				getPath(e.get());
 				
 			case TAbstract(t, _):
+				
 				getPath(t.get());
 				
 			case _:
+				
 				throw "assert";
+				
 		};
+		
 	}
 	
 	function createFile(c:BaseType):Void {
 		var path = getPath(c);
 		if (path.lastIndexOf("#") != -1) return;
+		
 		for (b in bufA) {
-			if (b.n == path) return;
+			
+			if (b.name == path) return;
+			
 		}
-		//if (!bufA.exists(path)) {
-			buf = new StringBuf();
-			//bufA.push({n:getPath(c), b:buf});
-			bufA.push({n:path, b:buf});
-			//bufA.set(path, buf);
-		/*} else {
-			buf = bufA.get(path);
-		}*/
+		
+		buf = new StringBuf();
+		bufA.push( { name:path, buffer:buf } );
 	}
 
 	function field(p) {
 		return api.isKeyword(p) ? characters.square.open + "'" + p + "'" + characters.square.close : characters.dot + p;
 	}
 	
-	function genPackage( p : Array<String> ) {
+	function genPackage(p:Array<String>) {
 		var full = null;
 		
 		for( x in p ) {
 			var prev = full;
 			
-			if( full == null ) full = x else full += characters.dot + x;
-			if( packages.exists(full) ) continue;
+			if (full == null) {
+				full = x;
+			} else {
+				full += characters.dot + x;
+			}
+			
+			if (packages.exists(full)) {
+				continue;
+			}
+			
 			packages.set(full, true);
 			
 			addJavaDoc(["@type {Object}"]);
 			
-			if( prev == null )
+			if( prev == null ) {
 				print(characters.variable + characters.space + x + " = " + characters.curly.open + characters.curly.close);
-			else {
+			} else {
 				var p = prev + field(x);
-				//fprint("$p = {}");
 				print(p + " = " + characters.curly.open + characters.curly.close);
 			}
 			
@@ -188,7 +198,7 @@ class Delko  {
 		
 	}
 	
-	public function getPath( t : BaseType ) {
+	public function getPath(t:BaseType) {
 		var name = t.name;
 		if (name.indexOf("#") != -1 ) name = "Static" + name.substr(1);
 		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
@@ -647,10 +657,10 @@ class Delko  {
 		 * from tripping as Boot.hx sets it as Function.prototype["$bind"].
 		 */
 		for (f in bufA) {
-			out = f.b.toString();
+			out = f.buffer.toString();
 			out = out.replace(".abstract", ".delkoabstract");
 			out = out.replace("'abstract'", "'delkoabstract'");
-			file = sys.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.n + ".js"), true);
+			file = sys.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.name + ".js"), true);
 			file.writeString(out);
 			file.close();
 		}
@@ -665,9 +675,8 @@ class Delko  {
 			file = sys.io.File.write(dir.parent.nativePath + sep + 'closure_compiler_${op.toLowerCase()}.bat', true);
 			file.writeString('java -jar compiler.jar --output_wrapper "(function(context) { \\"use strict\\"; %%output%%})(window);${if(Context.defined("debug")){"//@ sourceMappingURL=" + dir.fileName + ".map";}}" ${if(Context.defined("debug")){"--formatting=pretty_print";}else{"";}} --create_source_map=./${dir.fileName}.map --source_map_format=V3 --compilation_level ${op} --js_output_file ${dir.fileName} ');
 			
-			//for (f in bufA.keys()) {
 			for (f in bufA) {
-				file.writeString("--js ." + sep + "fragments" + sep + f.n + ".js ");
+				file.writeString("--js ." + sep + "fragments" + sep + f.name + ".js ");
 			}
 			
 			file.close();
