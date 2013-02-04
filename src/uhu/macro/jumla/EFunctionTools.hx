@@ -16,11 +16,16 @@ class EFunctionTools {
 			doc:null,
 			access:[],
 			kind:FFun( method ),
-			pos: {
+			pos: 
+			#if !macro
+			{
 				file:'',
 				min:0,
 				max:0
 			}
+			#else
+			Context.currentPos()
+			#end
 		}
 	}
 	

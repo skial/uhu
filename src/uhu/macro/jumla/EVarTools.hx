@@ -42,11 +42,16 @@ class EVarTools {
 			doc:null,
 			access:[],
 			kind:FVar( variable.type, variable.expr ),
-			pos: {
+			pos: 
+			#if !macro 
+			{
 				file:'',
 				min:0,
 				max:0
 			}
+			#else
+			Context.currentPos()
+			#end
 		}
 	}
 	
