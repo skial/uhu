@@ -57,7 +57,7 @@ class Delko  {
 		/**
 		 * Create the array which will hold all the generated javascript
 		 */
-		bufA = new Array<{name:String, buffer:StringBuf}>();
+		bufA = new Array<{ name:String, buffer:StringBuf }>();
 		
 		/**
 		 * Add the first string buffer
@@ -172,8 +172,26 @@ class Delko  {
 	function genClassField(c : ClassType, p : String, f : ClassField) {
 		var field = field(f.name);
 		var e = f.expr();
+		var match = false;
 		
-		addFieldAnnotation(f);
+		if (c.superClass != null) {
+			
+			var sfields = c.superClass.t.get().fields.get();
+			
+			if (sfields.length != 0) {
+				
+				for (s in sfields) {
+					if (s.name == f.name) {
+						match = true;
+						break;
+					}
+				}
+				
+			}
+			
+		}
+		
+		addFieldAnnotation(f, match);
 		checkFieldName(c, f);
 		
 		print('${f.name}:');
@@ -568,12 +586,12 @@ class Delko  {
 		/**
 		 * Generate code for all __init__ methods
 		 */
-		for ( e in inits ) {
+		/*for ( e in inits ) {
 			var string = api.generateStatement(e);
 			string = string.replace('\n', '\n' + repeat('\t', tabs));
 			print(string);
 			newline(string.trim().endsWith("}") ? false : true);
-		}
+		}*/
 		
 		/**
 		 * Generate code for all static fields
@@ -597,6 +615,23 @@ class Delko  {
 		
 		tabs--;
 		newline();
+		
+		var initBuf = new StringBuf();
+		bufA.push( { name:'DelkoInits', buffer:initBuf } );
+		buf = initBuf;
+		
+		/**
+		 * Generate code for all __init__ methods
+		 */
+		for (e in inits) {
+			
+			addJavaDoc( [ '@this {?}' ] );
+			var string = api.generateStatement(e);
+			string = string.replace('\n', '\n' + repeat('\t', tabs));
+			print(string);
+			newline( (string.trim().endsWith("}") ? false : true), 1);
+			
+		}
 		
 		buf = entryBuffer;
 		if (addFeature.exists("$bind")) {
@@ -970,7 +1005,7 @@ class Delko  {
 				 */
 				case TLazy(_):
 					result = "TLazy";
-				default:
+				case _:
 					result = '';
 			}
 			_typeResultCache.set(name, result);
@@ -992,7 +1027,7 @@ class Delko  {
 		
 	}
 	
-	public function addFieldAnnotation(field:ClassField, ?self:String = "|"):Void {
+	public function addFieldAnnotation(field:ClassField, ?overrides:Bool = false, ?self:String = "|"):Void {
 		
 		var javaDocs:Array<String> = new Array<String>();
 		var fieldAccess:String = printAccess(field);
@@ -1022,7 +1057,7 @@ class Delko  {
 										annotated.get("return").push( f.ret.toString() );
 									}
 								}
-							default:
+							case _:
 						}
 					}
 				}
@@ -1031,6 +1066,10 @@ class Delko  {
 		
 		switch (field.kind) {
 			case FMethod(_):
+				
+				if (overrides) {
+					javaDocs.push( '@override' );
+				}
 				
 				switch (field.type) {
 					
@@ -1108,6 +1147,9 @@ class Delko  {
 		}
 		
 		if (_class.constructor != null) {
+			
+			javaDoc.push( '@this {' + getPath( _class ) + '}' );
+			
 			switch (_class.constructor.get().type) {
 				case TFun(_args, _):
 					for (_arg in _args) {
