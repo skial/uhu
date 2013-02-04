@@ -1068,7 +1068,7 @@ class Delko  {
 			case FMethod(_):
 				
 				if (overrides) {
-					javaDocs.push( '@override' );
+					javaDocs.push( '@inheritDoc' );
 				}
 				
 				switch (field.type) {
