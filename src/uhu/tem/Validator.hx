@@ -134,22 +134,22 @@ class Validator {
 		
 	}
 	
-	public static function checkType(complex_str:TComplexString, field:TField):Bool {
+	public static function checkType(complex_str:TComplexString, field:TField, ?inLoop:Bool = false):Bool {
 		
 		if (complex_str != null) {
 			
 			switch (complex_str.name) {
 				case 'String' | 'Dynamic': 
-					checkString( complex_str, field );
+					checkString( complex_str, field, inLoop );
 					
 				case 'Float' | 'Int':
-					checkNumber( complex_str, field );
+					checkNumber( complex_str, field, inLoop );
 					
 				case 'Bool':
-					checkBool( complex_str, field );
+					checkBool( complex_str, field, inLoop );
 					
 				case 'Array' | 'List':
-					checkArray( complex_str, field );
+					checkArray( complex_str, field, inLoop );
 					
 				case 'DOMNode' | 'Dom' | 'Xml':
 					
@@ -165,11 +165,11 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkString(complex_str:TComplexString, field:TField):Bool {
+	public static function checkString(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		
 		var match = getAttribute(complex_str, field);
 		
-		if (match == null) {
+		if (!inLoop && match == null) {
 			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
@@ -183,10 +183,10 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkNumber(complex_str:TComplexString, field:TField):Bool {
+	public static function checkNumber(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		var match = getAttribute(complex_str, field);
 		
-		if (match == null) {
+		if (!inLoop && match == null) {
 			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
@@ -217,23 +217,11 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkBool(complex_str:TComplexString, field:TField):Bool {
+	public static function checkBool(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
-		
-		/*var match = null;
-		
-		for (a in currentElement.attributes()) {
-			
-			if (a == 'data-${field.name}' || a == field.name) {
-				match = a;
-				break;
-			}
-			
-		}*/
-		
 		var match = getAttribute(complex_str, field);
 		
-		if (match == null) {
+		if (!inLoop && match == null) {
 			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
@@ -247,13 +235,13 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkArray(complex_str:TComplexString, field:TField):Bool {
-		trace(complex_str);
+	public static function checkArray(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+		/*trace(complex_str);
 		trace(field);
-		trace(currentElement);
+		trace(currentElement);*/
 		var match = getAttribute(complex_str, field);
 		
-		if (match == null) {
+		if (!inLoop && match == null) {
 			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
@@ -281,7 +269,7 @@ class Validator {
 			
 			currentElement = c;
 			
-			checkType( complex_str, field );
+			checkType( complex_str, field, true );
 			
 		}
 		
