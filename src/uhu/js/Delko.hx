@@ -92,19 +92,15 @@ class Delko  {
 		
 		return switch(t) {
 			case TInst(c, _): 
-				
 				getPath(c.get());
 				
 			case TEnum(e, _): 
-				
 				getPath(e.get());
 				
 			case TAbstract(t, _):
-				
 				getPath(t.get());
 				
 			case _:
-				
 				throw "assert";
 				
 		};
@@ -126,7 +122,6 @@ class Delko  {
 	}
 
 	function field(p) {
-		//return api.isKeyword(p) ? '[' + "'" + p + "'" + ']' : '.' + p;
 		return api.isKeyword(p) ? '[\'$p\']' : '.$p';
 	}
 	
@@ -151,11 +146,9 @@ class Delko  {
 			addJavaDoc(["@type {Object}"]);
 			
 			if( prev == null ) {
-				//print('var' + ' ' + x + " = " + '{' + '}');
 				print('var $x = {}');
 			} else {
 				var p = prev + field(x);
-				//print(p + " = " + '{' + '}');
 				print('$p = {}');
 			}
 			
@@ -172,7 +165,6 @@ class Delko  {
 	
 	function checkFieldName(c : ClassType, f : ClassField) {
 		if ( forbidden.exists(f.name) ) {
-			//Context.error("The field " + f.name + " is not allowed in JS", c.pos);
 			Context.error('The field ${f.name} is not allowed in JS', c.pos);
 		}
 	}
@@ -270,7 +262,7 @@ class Delko  {
 		
 	}
 
-	function genClass( c : ClassType ) {
+	function genClass(c:ClassType) {
 		var p = getPath(c);
 		
 		createFile(c);
@@ -285,14 +277,12 @@ class Delko  {
 		 */
 		addClassAnnotation(c);
 		
-		//print(c.pack.length == 0 ? 'var' + ' ' : '');
 		print(c.pack.length == 0 ? 'var ' : '');
 		print('$p = ', false);
 		
 		if (c.constructor != null) {
 			genExpr(c.constructor.get().expr(), false);
 		} else {
-			//print("function" + '(' + ')' + ' ' + '{' + '}', false);
 			print('function() {}', false);
 		}
 		
@@ -368,7 +358,6 @@ class Delko  {
 		
 		if (c.superClass != null) {
 			newline();
-			//print('}' + ')');
 			print('})');
 			newline(true);
 		} else {
@@ -430,10 +419,12 @@ class Delko  {
 			
 		}
 		
-		if(meta != null) {
+		if (meta != null) {
+			
 			print('$p.__meta__ = ');
 			genExpr(meta);
 			newline();
+			
 		}
 		
 	}
@@ -513,12 +504,10 @@ class Delko  {
 		newline();
 		
 		addJavaDoc(["@type {*}"]);
-		//print('var' + " $_ = {}");
 		print('var $$_ = {}');
 		newline(true, 1);
 		
 		addJavaDoc(["@type {Object.<string, *>}"]);
-		//print('var' + " $hxClasses = {}");
 		print('var $$hxClasses = {}');
 		newline(true, 1);
 		
@@ -784,12 +773,10 @@ class Delko  {
 						
 						if (_p.length != 0) {
 							
-							//result += '.' + '<';
 							result += '.<';
 							
 							for (param in _p) {
 								
-								//if (param != _p[0]) result += ',' + '';
 								if (param != _p[0]) result += ',';
 								result += buildRecordType(param);
 								
@@ -864,11 +851,9 @@ class Delko  {
 					
 					if (_p.length != 0) {
 						
-						//result += '.' + '<';
 						result += '.<';
 						
 						for (param in _p) {
-							//if (param != _p[0]) result += ',' + ' ';
 							if (param != _p[0]) result += ', ';
 							result += buildRecordType(param);
 						}
@@ -889,7 +874,6 @@ class Delko  {
 				 */
 				case TFun(_a, _r):
 					var _return = buildRecordType(_r);
-					//result = "function" + '(';
 					result = 'function(';
 					
 					for (arg in _a) {
@@ -926,7 +910,6 @@ class Delko  {
 						
 						if (!typedefs.exists(result) && anon.fields.length != 0) {
 							var javaDoc = new Array<String>();
-							//var output = characters.google._typedef + ' ' + '{' + '{';
 							var output = characters.google._typedef + ' {{';
 							var prevBuf = buf;
 							var prevTab = tabs;
@@ -939,22 +922,18 @@ class Delko  {
 							genPackage(def.pack);
 							
 							for (f in anon.fields) {
-								//if (f != anon.fields[0]) output += ',' + ' ';
 								if (f != anon.fields[0]) output += ', ';
 								output += f.name + ':' + buildRecordType(f.type);
 							}
 							
-							//output += '}' + '}';
 							output += '}}';
 							
 							javaDoc.push(output);
 							
 							addJavaDoc(javaDoc);
 							
-							//(def.pack.length == 0 ? print('var' + ' ') : '');
 							(def.pack.length == 0 ? print('var ') : '');
 							
-							//(def.pack.length == 0 ?	fprint("$result", false) : print(result));
 							(def.pack.length == 0 ?	print('$result', false) : print(result));
 							newline(true);
 							
@@ -969,7 +948,6 @@ class Delko  {
 						result = '{';
 						
 						for (f in anon.fields) {
-							//if (f != anon.fields[0]) result += ',' + ' ';
 							if (f != anon.fields[0]) result += ', ';
 							result += f.name + ':' + buildRecordType(f.type);
 						}
@@ -1064,7 +1042,6 @@ class Delko  {
 								type = printType(_arg.t, _arg.opt);
 							}
 							if (type == self) type = "Object";
-							//javaDocs.push (characters.google._param + ' ' + '{' + type + '}' + ' ' + _arg.name);
 							javaDocs.push(characters.google._param + ' {$type} ${_arg.name}');
 						}
 						
@@ -1075,7 +1052,6 @@ class Delko  {
 								type = printType(_return);
 							}
 							if (type == self) type = "Object";
-							//javaDocs.push(characters.google._return + ' ' + '{' + type + '}');
 							javaDocs.push(characters.google._return + ' {$type}');
 						}
 						
@@ -1085,7 +1061,6 @@ class Delko  {
 			case FVar(_read, _write):
 				
 				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(characters.google._const);
-				//javaDocs.push("@type " + '{' + '?' + printType(field.type) + '}');
 				javaDocs.push('@type {' + '?' + printType(field.type) + '}');
 				
 			//case _:
