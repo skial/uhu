@@ -204,48 +204,45 @@ class Delko  {
 		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
 	}
 	
-	function checkFieldName( c : ClassType, f : ClassField ) {
+	function checkFieldName(c : ClassType, f : ClassField) {
 		if ( forbidden.exists(f.name) ) {
 			Context.error("The field " + f.name + " is not allowed in JS", c.pos);
 		}
 	}
 	
-	function genClassField( c : ClassType, p : String, f : ClassField ) {
+	function genClassField(c : ClassType, p : String, f : ClassField) {
 		var field = field(f.name);
 		var e = f.expr();
 		
 		addFieldAnnotation(f);
 		checkFieldName(c, f);
 		
-		//fprint("${f.name}:");
 		print('${f.name}:');
 		
-		if( e == null )
+		if (e == null) {
 			print("null", false);
-		else {
+		} else {
 			genExpr(e, false);
 		}
 		
 	}
 
-	function genStaticField( c : ClassType, p : String, f : ClassField ) {
+	function genStaticField(c : ClassType, p : String, f : ClassField) {
 		var field = field(f.name);
 		var e = f.expr();
 		
 		addFieldAnnotation(f);
 		checkFieldName(c, f);
 		
-		if ( e == null ) {
+		if (e == null) {
 			
 			/**
 			 * If the class has the neta tag @:exportProperties, then all fields
 			 * become Class["field"] = {}.
 			 */
 			if (c.meta.has(":export") || c.meta.has(":exportProperties") || f.meta.has(":export") || f.meta.has(":exportProperties")) {
-				//fprint('$p["${f.name}"] = null');
 				print('$p["${f.name}"] = null');
 			} else {
-				//fprint('$p$field = null');
 				print('$p$field = null');
 			}
 			
@@ -259,10 +256,8 @@ class Delko  {
 				 * become Class["field"] = {}.
 				 */
 				if (c.meta.has(":export") || c.meta.has(":exportProperties") ||f.meta.has(":export") || f.meta.has(":exportProperties")) {
-					//fprint('$p["${f.name}"] = ');
 					print('$p["${f.name}"] = ');
 				} else {
-					//fprint("$p$field = ");
 					print('$p$field = ');
 				}
 				
@@ -285,18 +280,20 @@ class Delko  {
 	function genExpose(t: { name:String, meta:MetaAccess } ) {
 		
 		if (t.meta.has(":expose")) {
-			//fprint("$$hxExpose(${t.name}, ");
 			print('$$hxExpose(${t.name}, ');
 			
-			for (m in t.meta.get()) {
-				if (m.name == ":expose") {
-					if (m.params.length != 0) {
-						print(m.params[0].toString(), false);
+			for (meta in t.meta.get()) {
+				
+				if (meta.name == ":expose") {
+					
+					if (meta.params.length != 0) {
+						print(meta.params[0].toString(), false);
 					} else {
-						//fprint("${t.name}", false);
 						print('${t.name}', false);
 					}
+					
 				}
+				
 			}
 			
 			print(characters.parentheses.close, false);
@@ -308,10 +305,9 @@ class Delko  {
 
 	function genClass( c : ClassType ) {
 		var p = getPath(c);
-		//trace(c.meta.get());
+		
 		createFile(c);
 		
-		//tabs++;
 		newline();
 		
 		genPackage(c.pack);
@@ -323,11 +319,9 @@ class Delko  {
 		addClassAnnotation(c);
 		
 		print(c.pack.length == 0 ? characters.variable + characters.space : characters.empty);
-		
-		//fprint("$p = ", false);
 		print('$p = ', false);
 		
-		if ( c.constructor != null ) {
+		if (c.constructor != null) {
 			genExpr(c.constructor.get().expr(), false);
 		} else {
 			print("function" + characters.parentheses.open + characters.parentheses.close + characters.space + characters.curly.open + characters.curly.close, false);
@@ -337,55 +331,52 @@ class Delko  {
 		
 		genExpose( { name:p, meta:c.meta } );
 		
-		//fprint('$$hxClasses["$p"] = $p');
 		print('$$hxClasses["$p"] = $p');
 		
 		newline(true, 1);
 		
-		for ( f in c.statics.get() ) {
-			
+		for (f in c.statics.get()) {
 			genStaticField(c, p, f);
 		}
 		
 		var name = getPath(c).split(characters.dot).map(api.quoteString).join(characters.comma);
 		
 		addJavaDoc(["@type {Array.<string>}"]);
-		//fprint("$p.__name__ = [$name]");
 		print('$p.__name__ = [$name]');
 		newline(true);
 		
 		if( c.interfaces.length > 0 ) {
 			var me = this;
-			var inter = c.interfaces.map(function(i) return me.getPath(i.t.get())).join(characters.comma);
+			var inter = c.interfaces.map(
+				function(i) { 
+					return me.getPath( i.t.get() );
+				}
+			).join(characters.comma);
 			
-			//fprint("$p.__interfaces__ = [$inter]");
 			print('$p.__interfaces__ = [$inter]');
 			newline(true);
 		}
 		
-		if( c.superClass != null ) {
+		if(c.superClass != null) {
 			var psup = getPath(c.superClass.t.get());
 			
-			//fprint("$p.__super__ = $psup");
 			print('$p.__super__ = $psup');
 			newline(true);
 			
-			//fprint("$p.prototype = $$extend($psup.prototype, { ");
 			print('$p.prototype = $$extend($psup.prototype, { ');
 		} else {
-			//fprint("$p.prototype = { ");
 			print('$p.prototype = { ');
 		}
 		
 		tabs++;
 		newline();
 		
-		//fprint("__class__:$p");
 		print('__class__:$p');
 		
 		var i:Int = 0;
 		
-		for ( f in c.fields.get() ) {
+		for (f in c.fields.get()) {
+			
 			switch( f.kind ) {
 				case FVar(r, _):
 					if( r == AccResolve ) continue;
@@ -427,10 +418,10 @@ class Delko  {
 		
 		addJavaDoc(["@type {{__ename__:Array.<string>, __constructs__:Array.<string>}}"]);
 		print(e.pack.length == 0 ? "var " : "");
-		//fprint("$p = { __ename__ : [$names], __constructs__ : [$constructs] }", false);
 		print('$p = { __ename__ : [$names], __constructs__ : [$constructs] }', false);
+		
 		newline();
-		//fprint('$$hxClasses["$p"] = $p');
+		
 		print('$$hxClasses["$p"] = $p');
 		newline(true);
 		
@@ -440,34 +431,32 @@ class Delko  {
 			
 			switch( c.type ) {
 				case TFun(args, _):
-					//fprint('$p$f = ');
+					
 					print('$p$f = ');
 					var sargs = args.map(function(a) return a.name).join(characters.comma);
-					//fprint('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
 					print('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
 					newline();
-				default:
+					
+				case _:
+					
 					addJavaDoc(["@type {Array.<(string|number)>}"]);
-					//fprint('$p$f = ');
 					print('$p$f = ');
 					print(characters.square.open + api.quoteString(c.name) + characters.comma + c.index + characters.square.close, false);
 					newline(true);
 					
 					addJavaDoc([characters.google._return + " {string}"]);
-					//fprint('$p$f.toString = $$estr');
 					print('$p$f.toString = $$estr');
 					newline(true);
 					
 					addJavaDoc(["@type {" + p + "}"]);
-					//fprint("$p$f.__enum__ = $p");
 					print('$p$f.__enum__ = $p');
 					newline(true);
+					
 			}
 			
 		}
 		
-		if( meta != null ) {
-			//fprint("$p.__meta__ = ");
+		if(meta != null) {
 			print('$p.__meta__ = ');
 			genExpr(meta);
 			newline();
