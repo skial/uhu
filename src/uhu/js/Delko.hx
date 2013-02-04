@@ -510,7 +510,6 @@ class Delko  {
 		
 		newline();
 		
-		tabs++;
 		newline();
 		
 		addJavaDoc(["@type {*}"]);
