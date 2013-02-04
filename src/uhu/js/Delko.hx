@@ -193,13 +193,13 @@ class Delko  {
 		if (name.indexOf("#") != -1 ) name = "Static" + name.substr(1);
 		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
 	}
-
+	
 	function checkFieldName( c : ClassType, f : ClassField ) {
 		if ( forbidden.exists(f.name) ) {
 			Context.error("The field " + f.name + " is not allowed in JS", c.pos);
 		}
 	}
-
+	
 	function genClassField( c : ClassType, p : String, f : ClassField ) {
 		var field = field(f.name);
 		var e = f.expr();
