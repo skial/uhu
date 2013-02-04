@@ -16,19 +16,9 @@ import massive.neko.util.PathUtil;
 import sys.io.File;
 import sys.io.FileOutput;
 
-/*import tink.macro.tools.ExprTools;
-import tink.macro.tools.MacroTools;
-import tink.macro.tools.Printer;
-import tink.macro.tools.TypeTools;
-import tink.core.types.Outcome;
-import tink.core.types.Option;*/
-
 using uhu.macro.Jumla;
 using Lambda;
 using StringTools;
-/*using tink.macro.tools.MacroTools;
-using tink.core.types.Outcome;
-using tink.core.types.Option;*/
 
 /**
  * ...
@@ -38,25 +28,6 @@ using tink.core.types.Option;*/
 class Delko  {
 	
 	public static var characters = {
-		dot:".",
-		carriage:"\r",
-		newline:"\n",
-		tab:"\t",
-		curly: {
-			open:"{",
-			close:"}"
-		},
-		square: {
-			open:"[",
-			close:"]"
-		},
-		parentheses: {
-			open:"(",
-			close:")"
-		},
-		variable:"var",
-		colon:":",
-		comma:",",
 		google: {
 			_typedef:"@typedef",
 			_param:"@param",
@@ -65,14 +36,6 @@ class Delko  {
 			_interface:"@interface",
 			_return:"@return"
 		},
-		space:" ",
-		empty:"",
-		greater:">",
-		lesser:"<",
-		equals:"=",
-		asterisk:"*",
-		question_mark:"?",
-		semicolon:";",
 	}
 
 	var api : JSGenApi;
@@ -114,9 +77,9 @@ class Delko  {
 		types.set("Float", "number");
 		types.set("Bool", "boolean");
 		types.set("String", "string");
-		types.set("null", characters.asterisk);
-		types.set("Null", characters.question_mark);
-		types.set("Void", characters.empty);
+		types.set("null", '*');
+		types.set("Null", '?');
+		types.set("Void", '');
 		
 		for (x in ["prototype", "__proto__", "constructor"]) {
 			forbidden.set(x, true);
@@ -163,7 +126,8 @@ class Delko  {
 	}
 
 	function field(p) {
-		return api.isKeyword(p) ? characters.square.open + "'" + p + "'" + characters.square.close : characters.dot + p;
+		//return api.isKeyword(p) ? '[' + "'" + p + "'" + ']' : '.' + p;
+		return api.isKeyword(p) ? '[\'$p\']' : '.$p';
 	}
 	
 	function genPackage(p:Array<String>) {
@@ -175,7 +139,7 @@ class Delko  {
 			if (full == null) {
 				full = x;
 			} else {
-				full += characters.dot + x;
+				full += '.$x';
 			}
 			
 			if (packages.exists(full)) {
@@ -187,10 +151,12 @@ class Delko  {
 			addJavaDoc(["@type {Object}"]);
 			
 			if( prev == null ) {
-				print(characters.variable + characters.space + x + " = " + characters.curly.open + characters.curly.close);
+				//print('var' + ' ' + x + " = " + '{' + '}');
+				print('var $x = {}');
 			} else {
 				var p = prev + field(x);
-				print(p + " = " + characters.curly.open + characters.curly.close);
+				//print(p + " = " + '{' + '}');
+				print('$p = {}');
 			}
 			
 			newline();
@@ -201,12 +167,13 @@ class Delko  {
 	public function getPath(t:BaseType) {
 		var name = t.name;
 		if (name.indexOf("#") != -1 ) name = "Static" + name.substr(1);
-		return (t.pack.length == 0) ? name : t.pack.join(characters.dot) + characters.dot + name;
+		return (t.pack.length == 0) ? name : t.pack.join('.') + '.$name';
 	}
 	
 	function checkFieldName(c : ClassType, f : ClassField) {
 		if ( forbidden.exists(f.name) ) {
-			Context.error("The field " + f.name + " is not allowed in JS", c.pos);
+			//Context.error("The field " + f.name + " is not allowed in JS", c.pos);
+			Context.error('The field ${f.name} is not allowed in JS', c.pos);
 		}
 	}
 	
@@ -296,7 +263,7 @@ class Delko  {
 				
 			}
 			
-			print(characters.parentheses.close, false);
+			print(')', false);
 			
 			newline(true);
 		}
@@ -318,13 +285,15 @@ class Delko  {
 		 */
 		addClassAnnotation(c);
 		
-		print(c.pack.length == 0 ? characters.variable + characters.space : characters.empty);
+		//print(c.pack.length == 0 ? 'var' + ' ' : '');
+		print(c.pack.length == 0 ? 'var ' : '');
 		print('$p = ', false);
 		
 		if (c.constructor != null) {
 			genExpr(c.constructor.get().expr(), false);
 		} else {
-			print("function" + characters.parentheses.open + characters.parentheses.close + characters.space + characters.curly.open + characters.curly.close, false);
+			//print("function" + '(' + ')' + ' ' + '{' + '}', false);
+			print('function() {}', false);
 		}
 		
 		newline();
@@ -339,7 +308,7 @@ class Delko  {
 			genStaticField(c, p, f);
 		}
 		
-		var name = getPath(c).split(characters.dot).map(api.quoteString).join(characters.comma);
+		var name = getPath(c).split('.').map(api.quoteString).join(',');
 		
 		addJavaDoc(["@type {Array.<string>}"]);
 		print('$p.__name__ = [$name]');
@@ -351,7 +320,7 @@ class Delko  {
 				function(i) { 
 					return me.getPath( i.t.get() );
 				}
-			).join(characters.comma);
+			).join(',');
 			
 			print('$p.__interfaces__ = [$inter]');
 			newline(true);
@@ -365,7 +334,7 @@ class Delko  {
 			
 			print('$p.prototype = $$extend($psup.prototype, { ');
 		} else {
-			print('$p.prototype = { ');
+			print('$p.prototype = {');
 		}
 		
 		tabs++;
@@ -379,11 +348,15 @@ class Delko  {
 			
 			switch( f.kind ) {
 				case FVar(r, _):
-					if( r == AccResolve ) continue;
-				default:
+					
+					if (r == AccResolve) {
+						continue;
+					}
+					
+				case _:
 			}
 			
-			print(characters.comma, false);
+			print(',', false);
 			newline(false, 1);
 			
 			genClassField(c, p, f);
@@ -395,20 +368,21 @@ class Delko  {
 		
 		if (c.superClass != null) {
 			newline();
-			print(characters.curly.close + characters.parentheses.close);
+			//print('}' + ')');
+			print('})');
 			newline(true);
 		} else {
 			newline();
-			print(characters.curly.close);
+			print('}');
 			newline();
 		}
 		
 	}
 
-	function genEnum( e : EnumType ) {
+	function genEnum(e : EnumType) {
 		var p = getPath(e);
-		var names = p.split(characters.dot).map(api.quoteString).join(characters.comma);
-		var constructs = e.names.map(api.quoteString).join(characters.comma);
+		var names = p.split('.').map(api.quoteString).join(',');
+		var constructs = e.names.map(api.quoteString).join(',');
 		var meta = api.buildMetaData(e);
 		
 		createFile(e);
@@ -433,7 +407,7 @@ class Delko  {
 				case TFun(args, _):
 					
 					print('$p$f = ');
-					var sargs = args.map(function(a) return a.name).join(characters.comma);
+					var sargs = args.map(function(a) return a.name).join(',');
 					print('function($sargs) { var $$x = ["${c.name}",${c.index},$sargs]; $$x.__enum__ = $p; $$x.toString = $$estr; return $$x; }', false);
 					newline();
 					
@@ -441,7 +415,7 @@ class Delko  {
 					
 					addJavaDoc(["@type {Array.<(string|number)>}"]);
 					print('$p$f = ');
-					print(characters.square.open + api.quoteString(c.name) + characters.comma + c.index + characters.square.close, false);
+					print('[' + api.quoteString(c.name) + ',' + c.index + ']', false);
 					newline(true);
 					
 					addJavaDoc([characters.google._return + " {string}"]);
@@ -489,10 +463,8 @@ class Delko  {
 		 * become Class["field"] = {}.
 		 */
 		if (c.meta.has(":export") || c.meta.has(":exportProperties") || cf.meta.has(":export") || cf.meta.has(":exportProperties")) {
-			//fprint('$p["${cf.name}"] = ');
 			print('$p["${cf.name}"] = ');
 		} else {
-			//fprint("$p$f = ");
 			print('$p$f = ');
 		}
 		
@@ -501,8 +473,11 @@ class Delko  {
 	}
 
 	function genType( t : Type ) {
-		switch( t ) {
+		
+		switch(t) {
+			
 			case TInst(c, _):
+				
 				var c = c.get();
 				if( c.init != null )
 					inits.add(c.init);
@@ -511,11 +486,18 @@ class Delko  {
 				} else {
 					genExtern(c);
 				}
+				
 			case TEnum(r, _):
+				
 				var e = r.get();
-				if( !e.isExtern ) genEnum(e);
+				
+				if (!e.isExtern) {
+					genEnum(e);
+				}
+				
 			case _:
 		}
+		
 	}
 
 	public function generate() {
@@ -532,11 +514,13 @@ class Delko  {
 		newline();
 		
 		addJavaDoc(["@type {*}"]);
-		print(characters.variable + " $_ = {}");
+		//print('var' + " $_ = {}");
+		print('var $$_ = {}');
 		newline(true, 1);
 		
 		addJavaDoc(["@type {Object.<string, *>}"]);
-		print(characters.variable + " $hxClasses = {}");
+		//print('var' + " $hxClasses = {}");
+		print('var $$hxClasses = {}');
 		newline(true, 1);
 		
 		addJavaDoc([characters.google._return + " {string}"]);
@@ -582,15 +566,15 @@ class Delko  {
 			]
 		);
 		
-		for( t in api.types ) {
+		for(t in api.types) {
 			genType(t);
 		}
 		
 		newline();
+		
 		addJavaDoc(["@type {*}"]);
 		print("js.Boot.__res = {}");
-		//newline();
-		//print("js.Boot.__init()");
+		
 		newline(true);
 		
 		/**
@@ -598,7 +582,7 @@ class Delko  {
 		 */
 		for ( e in inits ) {
 			var string = api.generateStatement(e);
-			string = string.replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
+			string = string.replace('\n', '\n' + repeat('\t', tabs));
 			print(string);
 			newline(string.trim().endsWith("}") ? false : true);
 		}
@@ -606,17 +590,21 @@ class Delko  {
 		/**
 		 * Generate code for all static fields
 		 */
-		for( s in statics ) {
+		for (s in statics) {
+			
 			genStaticValue(s.c,s.f);
 			newline();
+			
 		}
 		
 		/**
 		 * Generate code for the entry point
 		 */
-		if( api.main != null ) {
+		if (api.main != null) {
+			
 			genExpr(api.main);
 			newline();
+			
 		}
 		
 		tabs--;
@@ -640,6 +628,7 @@ class Delko  {
 		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + "fragments"), null, true);
 		var file = null;
 		var out = "";
+		
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
 		 * Replace all occurances of .$bind with ["$bind"]. Prevents google closure compiler
@@ -677,31 +666,23 @@ class Delko  {
 	 * DELKO METHODS AND VARIABLES
 	 * -------------------------
 	 */ 
-	
 	public var tabs:Int;
 	
 	public function genExpr(e, ?tab:Bool = true) {
-		var _str:String = api.generateValue(e).replace(characters.newline, characters.newline + repeat(characters.tab, tabs));
+		var _str:String = api.generateValue(e).replace('\n', '\n' + repeat('\t', tabs));
 		print(_str, tab);
 	}
 	
-	/*@:macro	public static function fprint(e:Expr , ?tab:Bool = true) {
-		var pos = haxe.macro.Context.currentPos();
-		var ret = haxe.macro.Format.format(e);
-		var boo = Context.parse(Std.string(tab), pos);
-		return { expr : ECall({ expr : EConst(CIdent("print")), pos : pos },[ret, boo]), pos : pos };
-	}*/
-	
 	public function print(str:String, ?tab:Bool = true) {
-		buf.add((tab ? repeat(characters.tab, tabs) : characters.empty) + str);
+		buf.add((tab ? repeat('\t', tabs) : '') + str);
 	}
 	
 	public function newline(?semicolon:Bool = false, ?extra:Int = 0) {
-		buf.add((semicolon ? characters.semicolon : characters.empty) + characters.newline + repeat(characters.newline, extra));
+		buf.add((semicolon ? ';' : '') + '\n' + repeat('\n', extra));
 	}
 	
 	public function repeat(s : String, times : Int)	{
-		var result = characters.empty;
+		var result = '';
 		
 		for (i in 0...times) {
 			result += s;
@@ -724,29 +705,39 @@ class Delko  {
 	 */
 	public function addJavaDoc(comments:Array<String>):Void {
 		var i:Int = 0;
+		
 		if (comments.length > 0) {
 			print("/**");
-			if (comments.length != 1) newline();
+			if (comments.length != 1) {
+				newline();
+			}
+			
 			for (comment in comments) {
+				
 				if (comments.indexOf(comment) == i) {
 					if (comments.length != 1) {
-						//fprint("* $comment");
+						
 						print('* $comment');
 						newline();
+						
 					} else {
-						//fprint(" $comment ", false);
+						
 						print(' $comment ', false);
+						
 					}
 				}
+				
 				i++;
+				
 			}
+			
 			print("*/", comments.length == 1 ? false : true);
 			newline();
 		}
 	}
 	
 	public function printAccess(field:{isPublic:Bool}):String {
-		return field.isPublic ? characters.empty : "@private";
+		return field.isPublic ? '' : "@private";
 	}
 	
 	/**
@@ -772,13 +763,15 @@ class Delko  {
 				 * If not null, then send back through buildRecordType and return
 				 */
 				case TMono(_t):
+					
 					var mono = _t.get();
+					
 					if (mono != null) {
 						result = buildRecordType(mono);
 					} else {
 						result = checkType(Std.string(mono));
 					}
-				
+					
 				/**
 				 * Build value. If it has params, then output jsdoc style type application
 				 * e.g Array.<string> or Object.<string, number>
@@ -789,19 +782,29 @@ class Delko  {
 					if (!_typePartCache.exists(enm.name)) {
 						
 						result = checkType(getPath(enm));
+						
 						if (_p.length != 0) {
-							result += characters.dot + characters.lesser;
+							
+							//result += '.' + '<';
+							result += '.<';
+							
 							for (param in _p) {
-								if (param != _p[0]) result += characters.comma + characters.empty;
+								
+								//if (param != _p[0]) result += ',' + '';
+								if (param != _p[0]) result += ',';
 								result += buildRecordType(param);
+								
 							}
-							result += characters.greater;
+							
+							result += '>';
 						}
 						
 						_typePartCache.set(enm.name, result);
 						
 					} else {
+						
 						result = _typePartCache.get(enm.name);
+						
 					}
 				
 				/**
@@ -839,34 +842,39 @@ class Delko  {
 						 * Class names in most cases start with Uppercase
 						 * character. Poor mans check...
 						 */
-						var _array = result.split(characters.dot);
+						var _array = result.split('.');
 						var _fchar = _array[_array.length - 2].substr(0, 1);
 						
 						if (_fchar == _fchar.toUpperCase()) {
-							result = _array.splice(0, _array.length - 1).join(characters.dot);
+							result = _array.splice(0, _array.length - 1).join('.');
 						}
 						
 					}
 					
 					result = checkType(result);
 					
-					if (result == characters.question_mark) result += characters.asterisk;
+					if (result == '?') result += '*';
 					
 					/*
 					 * Only if xirsys_stdjs is being used
 					 */
 					if (Context.defined("xirsys_stdjs") && stdjs.match(result)) {
-						var _array = result.split(characters.dot);
+						var _array = result.split('.');
 						result = _array[_array.length-1];
 					}
 					
 					if (_p.length != 0) {
-						result += characters.dot + characters.lesser;
+						
+						//result += '.' + '<';
+						result += '.<';
+						
 						for (param in _p) {
-							if (param != _p[0]) result += characters.comma + characters.space;
+							//if (param != _p[0]) result += ',' + ' ';
+							if (param != _p[0]) result += ', ';
 							result += buildRecordType(param);
 						}
-						result += characters.greater;
+						
+						result += '>';
 					}
 					
 					_typePartCache.set(cls.name, result);
@@ -882,14 +890,25 @@ class Delko  {
 				 */
 				case TFun(_a, _r):
 					var _return = buildRecordType(_r);
-					result = "function" + characters.parentheses.open;
+					//result = "function" + '(';
+					result = 'function(';
+					
 					for (arg in _a) {
-						if (arg != _a[0]) result += characters.comma;
+						
+						if (arg != _a[0]) {
+							result += ',';
+						}
+						
 						result += buildRecordType(arg.t);
-						if (arg.opt) result += characters.equals;
+						
+						if (arg.opt) {
+							result += '=';
+						}
+						
 					}
-					result += characters.parentheses.close;
-					if (_return != characters.empty) result += characters.colon + _return;
+					
+					result += ')';
+					if (_return != '') result += ':' + _return;
 				
 				/**
 				 * Usually builds typedefs, which is why TAnonymous builds two different outputs,
@@ -908,7 +927,8 @@ class Delko  {
 						
 						if (!typedefs.exists(result) && anon.fields.length != 0) {
 							var javaDoc = new Array<String>();
-							var output = characters.google._typedef + characters.space + characters.curly.open + characters.curly.open;
+							//var output = characters.google._typedef + ' ' + '{' + '{';
+							var output = characters.google._typedef + ' {{';
 							var prevBuf = buf;
 							var prevTab = tabs;
 							
@@ -920,17 +940,20 @@ class Delko  {
 							genPackage(def.pack);
 							
 							for (f in anon.fields) {
-								if (f != anon.fields[0]) output += characters.comma + characters.space;
-								output += f.name + characters.colon + buildRecordType(f.type);
+								//if (f != anon.fields[0]) output += ',' + ' ';
+								if (f != anon.fields[0]) output += ', ';
+								output += f.name + ':' + buildRecordType(f.type);
 							}
 							
-							output += characters.curly.close + characters.curly.close;
+							//output += '}' + '}';
+							output += '}}';
 							
 							javaDoc.push(output);
 							
 							addJavaDoc(javaDoc);
 							
-							(def.pack.length == 0 ? print(characters.variable + characters.space) : characters.empty);
+							//(def.pack.length == 0 ? print('var' + ' ') : '');
+							(def.pack.length == 0 ? print('var ') : '');
 							
 							//(def.pack.length == 0 ?	fprint("$result", false) : print(result));
 							(def.pack.length == 0 ?	print('$result', false) : print(result));
@@ -944,12 +967,15 @@ class Delko  {
 						
 					} else {
 						var anon:AnonType = _a.get();
-						result = characters.curly.open;
+						result = '{';
+						
 						for (f in anon.fields) {
-							if (f != anon.fields[0]) result += characters.comma + characters.space;
-							result += f.name + characters.colon + buildRecordType(f.type);
+							//if (f != anon.fields[0]) result += ',' + ' ';
+							if (f != anon.fields[0]) result += ', ';
+							result += f.name + ':' + buildRecordType(f.type);
 						}
-						result += characters.curly.close;
+						
+						result += '}';
 					}
 				
 				/**
@@ -968,7 +994,7 @@ class Delko  {
 				case TLazy(_):
 					result = "TLazy";
 				default:
-					result = characters.empty;
+					result = '';
 			}
 			_typeResultCache.set(name, result);
 		}
@@ -983,7 +1009,7 @@ class Delko  {
 	public function printType(type:Type, ?optional:Bool = false):String {
 		var _type = buildRecordType(type);
 		
-		if (optional) _type += characters.equals;
+		if (optional) _type += '=';
 		
 		return _type;
 		
@@ -995,7 +1021,7 @@ class Delko  {
 		var fieldAccess:String = printAccess(field);
 		var type:String;
 		
-		if (fieldAccess != characters.empty) javaDocs.push(printAccess(field));
+		if (fieldAccess != '') javaDocs.push(printAccess(field));
 		
 		var annotated:Hash<Array<String>> = new Hash<Array<String>>();
 		
@@ -1039,17 +1065,19 @@ class Delko  {
 								type = printType(_arg.t, _arg.opt);
 							}
 							if (type == self) type = "Object";
-							javaDocs.push (characters.google._param + characters.space + characters.curly.open + type + characters.curly.close + characters.space + _arg.name);
+							//javaDocs.push (characters.google._param + ' ' + '{' + type + '}' + ' ' + _arg.name);
+							javaDocs.push(characters.google._param + ' {$type} ${_arg.name}');
 						}
 						
-						if (printType(_return) != characters.empty) {
+						if (printType(_return) != '') {
 							if (printType(_return) == "*" && annotated.count() != 0) {
 								type = "{" + annotated.get("return").join("|") + "}";
 							} else {
 								type = printType(_return);
 							}
 							if (type == self) type = "Object";
-							javaDocs.push(characters.google._return + characters.space + characters.curly.open + type + characters.curly.close);
+							//javaDocs.push(characters.google._return + ' ' + '{' + type + '}');
+							javaDocs.push(characters.google._return + ' {$type}');
 						}
 						
 					case _:
@@ -1058,7 +1086,8 @@ class Delko  {
 			case FVar(_read, _write):
 				
 				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(characters.google._const);
-				javaDocs.push("@type " + characters.curly.open + characters.question_mark + printType(field.type) + characters.curly.close);
+				//javaDocs.push("@type " + '{' + '?' + printType(field.type) + '}');
+				javaDocs.push('@type {' + '?' + printType(field.type) + '}');
 				
 			//case _:
 		}
@@ -1095,12 +1124,12 @@ class Delko  {
 		
 		if (_class.superClass != null) {
 			superClass = _class.superClass.t.get();
-			javaDoc.push("@extends " + (superClass.pack.length > 0 ? superClass.pack.join(characters.dot) + characters.dot : characters.empty) + superClass.name);
+			javaDoc.push("@extends " + (superClass.pack.length > 0 ? superClass.pack.join('.') + '.' : '') + superClass.name);
 		}
 		
 		if (_class.interfaces.length != 0) {
 			for (inter in _class.interfaces) {
-				javaDoc.push(characters.google._implements + characters.space + characters.curly.open + inter.t.get().module + characters.curly.close);
+				javaDoc.push(characters.google._implements + ' ' + '{' + inter.t.get().module + '}');
 			}
 		}
 		
@@ -1108,7 +1137,7 @@ class Delko  {
 			switch (_class.constructor.get().type) {
 				case TFun(_args, _):
 					for (_arg in _args) {
-						javaDoc.push(characters.google._param + characters.space + characters.curly.open + printType(_arg.t, _arg.opt) + characters.curly.close + characters.space + _arg.name);
+						javaDoc.push(characters.google._param + ' ' + '{' + printType(_arg.t, _arg.opt) + '}' + ' ' + _arg.name);
 					}
 				default:
 			}
