@@ -38,14 +38,14 @@ class Delko  {
 		},
 	}
 
-	var api : JSGenApi;
-	var buf : StringBuf;
-	var bufA:Array<{name:String, buffer:StringBuf}>;
-	var inits : List<TypedExpr>;
-	var statics : List<{ c : ClassType, f : ClassField }>;
-	var packages : Hash<Bool>;
-	var typedefs : Hash<Bool>;
-	var forbidden : Hash<Bool>;
+	var api:JSGenApi;
+	var buf:StringBuf;
+	var bufA:Array<{ name:String, buffer:StringBuf }>;
+	var inits:List<TypedExpr>;
+	var statics:List<{ c : ClassType, f : ClassField }>;
+	var packages:Hash<Bool>;
+	var typedefs:Hash<Bool>;
+	var forbidden:Hash<Bool>;
 	var types:Hash<String>;
 	var addFeature:Hash<Bool>;
 
@@ -88,7 +88,7 @@ class Delko  {
 		api.setTypeAccessor(getType);
 	}
 
-	function getType( t : Type ) {
+	function getType(t:Type) {
 		
 		return switch(t) {
 			case TInst(c, _): 
@@ -368,7 +368,7 @@ class Delko  {
 		
 	}
 
-	function genEnum(e : EnumType) {
+	function genEnum(e:EnumType) {
 		var p = getPath(e);
 		var names = p.split('.').map(api.quoteString).join(',');
 		var constructs = e.names.map(api.quoteString).join(',');
