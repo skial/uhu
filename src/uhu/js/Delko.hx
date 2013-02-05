@@ -51,6 +51,9 @@ class Delko  {
 	var forbidden:Hash<Bool>;
 	var types:Hash<String>;
 	var addFeature:Hash<Bool>;
+	
+	public var hasExpose:Bool = false;
+	public var doesExtend:Bool = false;
 
 	public function new(api) {
 		this.api = api;
@@ -277,6 +280,8 @@ class Delko  {
 				
 				case ':expose':
 					genExpose( b );
+				case ':defineFeature':
+					
 				case _:
 				
 			}
@@ -284,8 +289,6 @@ class Delko  {
 		}
 		
 	}
-	
-	public var hasExpose:Bool = false;
 	
 	/**
 	 * Generates $hxExpose call if `:expose` is found
@@ -352,8 +355,48 @@ class Delko  {
 		
 	}
 
+	public function genExtends() {
+		if (!doesExtend) {
+			
+			var previousFragment = fragment;
+			var currentFragment = null;
+			
+			for (fragment in bufA) {
+				if (fragment.name == 'DelkoEntry') {
+					currentFragment = fragment;
+					break;
+				}
+			}
+			
+			fragment = currentFragment;
+			
+			addJavaDoc(["@param {Object} from", "@param {Object.<string, Object>} fields"]);
+			printParts(
+				[
+				"function $extend(from, fields) {",
+					"\t/** @constructor */",
+					"\tfunction inherit() {};",
+					"\tinherit.prototype = from;", 
+					"\tvar proto = new inherit();",
+					"\tfor (var name in fields) proto[name] = fields[name];",
+					"\treturn proto;",
+				"}"
+				]
+			);
+			
+			newline();
+			
+			doesExtend = true;
+			
+		}
+	}
+	
 	function genClass(c:ClassType) {
 		var p = getPath(c);
+		
+		if (c.superClass != null)  {
+			genExtends();
+		}
 		
 		createFile(c);
 		newline();
@@ -605,22 +648,6 @@ class Delko  {
 			"function $estr() {",
 			"\treturn js.Boot.__string_rec(this, '');",
 			"}"]
-		);
-		
-		newline();
-		
-		addJavaDoc(["@param {Object} from", "@param {Object.<string, Object>} fields"]);
-		printParts(
-			[
-			"function $extend(from, fields) {",
-				"\t/** @constructor */",
-				"\tfunction inherit() {};",
-				"\tinherit.prototype = from;", 
-				"\tvar proto = new inherit();",
-				"\tfor (var name in fields) proto[name] = fields[name];",
-				"\treturn proto;",
-			"}"
-			]
 		);
 		
 		newline();
