@@ -54,6 +54,15 @@ class Delko  {
 	
 	public var hasExpose:Bool = false;
 	public var doesExtend:Bool = false;
+	public var hasEnum:Bool = false;
+	public var has__class__:Bool = false;
+	public var has__className__:Bool = false;
+	public var has__enumName__:Bool = false;
+	public var has__superClass__:Bool = false;
+	public var has__properties__:Bool = false;
+	public var has__interfaces__:Bool = false;
+	public var has__enum__:Bool = false;
+	public var has__hxClasses__:Bool = false;
 
 	public function new(api) {
 		this.api = api;
@@ -290,6 +299,36 @@ class Delko  {
 		
 	}
 	
+	public function checkSpecials(c:ClassType, f:ClassField) {
+		var name = getPath( c ) + '.' + f.name;
+		
+		switch (name) {
+			case 'Type.getClass' | 'Boot.getClass':
+				has__class__ = true;
+				
+			case 'Type.getEnum' | 'Type.enumEq':
+				has__enum__ = true;
+				
+			case 'Type.getSuperClass':
+				has__superClass__ = true;
+				
+			case 'Type.getClassName' | 'Boot.isClass':
+				has__className__ = true;
+				
+			case 'Type.getEnumName' | 'Boot.isEnum':
+				has__enumName__ = true;
+				
+			case 'Type.resolveClass' | 'Type.resolveEnum':
+				has__hxClasses__ = true;
+				
+			case 'Reflect.getProperty' | 'Reflect.setProperty':
+				has__properties__ = true;
+				
+			case _:
+				
+		}
+	}
+	
 	/**
 	 * Generates $hxExpose call if `:expose` is found
 	 */
@@ -501,6 +540,8 @@ class Delko  {
 	}
 
 	function genEnum(e:EnumType) {
+		hasEnum = true;
+		
 		var p = getPath(e);
 		var names = p.split('.').map(api.quoteString).join(',');
 		var constructs = e.names.map(api.quoteString).join(',');
@@ -639,16 +680,42 @@ class Delko  {
 		print('var $$_ = {}');
 		newline(true, 1);
 		
-		addJavaDoc(["@type {Object.<string, *>}"]);
+		/*addJavaDoc(["@type {Object.<string, *>}"]);
 		print('var $$hxClasses = {}');
-		newline(true, 1);
+		newline(true, 1);*/
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__hxClasses__) {
+				
+				out += "@type {Object.<string, *>}\n";
+				out += "var $hxClasses = {}\n";
+				
+			}
+			
+			return out;
+		} );
 		
-		addJavaDoc([characters.google._return + " {string}"]);
+		/*addJavaDoc([characters.google._return + " {string}"]);
 		printParts( [
 			"function $estr() {",
 			"\treturn js.Boot.__string_rec(this, '');",
 			"}"]
-		);
+		);*/
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (hasEnum) {
+				
+				out += characters.google._return + ' {string}\n';
+				out += "function $estr() {\n";
+				out += "\treturn js.Boot.__string_rec(this, '');\n";
+				out += "}\n";
+				
+			}
+			
+			return out;
+		} );
 		
 		newline();
 		
