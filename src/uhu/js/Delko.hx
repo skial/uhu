@@ -460,10 +460,20 @@ class Delko  {
 		newline();
 		
 		//genExpose( { name:p, meta:c.meta } );
+		//print('$$hxClasses["$p"] = $p');
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__hxClasses__) {
+				
+				out += '$$hxClasses["$p"] = $p;\n';
+				
+			}
+			
+			return out;
+		} );
 		
-		print('$$hxClasses["$p"] = $p');
-		
-		newline(true, 1);
+		//newline(true, 1);
 		
 		for (f in c.statics.get()) {
 			genStaticField(c, p, f);
@@ -471,9 +481,21 @@ class Delko  {
 		
 		var name = getPath(c).split('.').map(api.quoteString).join(',');
 		
-		addJavaDoc(["@type {Array.<string>}"]);
+		/*addJavaDoc(["@type {Array.<string>}"]);
 		print('$p.__name__ = [$name]');
-		newline(true);
+		newline(true);*/
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__className__) {
+				
+				out += "@type {Array.<string>}\n";
+				out += '$p.__name__ = [$name];\n';
+				
+			}
+			
+			return out;
+		} );
 		
 		if( c.interfaces.length > 0 ) {
 			var me = this;
