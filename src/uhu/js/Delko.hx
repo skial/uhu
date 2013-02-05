@@ -168,6 +168,9 @@ class Delko  {
 	
 	public function getPath(t:BaseType) {
 		var name = t.name;
+		
+		checkMeta( t );
+		
 		if (name.indexOf("#") != -1 ) name = "Static" + name.substr(1);
 		return (t.pack.length == 0) ? name : t.pack.join('.') + '.$name';
 	}
@@ -179,6 +182,9 @@ class Delko  {
 	}
 	
 	function genClassField(c : ClassType, p : String, f : ClassField) {
+		
+		checkMeta( f );
+		
 		var field = field(f.name);
 		var e = f.expr();
 		var match = false;
@@ -214,6 +220,9 @@ class Delko  {
 	}
 
 	function genStaticField(c : ClassType, p : String, f : ClassField) {
+		
+		checkMeta( f );
+		
 		var field = field(f.name);
 		var e = f.expr();
 		
@@ -254,16 +263,70 @@ class Delko  {
 				genStaticValue(c, f);
 		}
 		
-		genExpose( { name:p + field, meta:f.meta } );
+		//genExpose( { name:p + field, meta:f.meta } );
 		
 		newline();
 		
 	}
 	
+	public function checkMeta(b:{ name:String, meta:MetaAccess }) {
+		
+		for (meta in b.meta.get()) {
+			
+			switch (meta.name) {
+				
+				case ':expose':
+					genExpose( b );
+				case _:
+				
+			}
+			
+		}
+		
+	}
+	
+	public var hasExpose:Bool = false;
+	
 	/**
-	 * Generates $hxExpose call
+	 * Generates $hxExpose call if `:expose` is found
 	 */
 	function genExpose(t: { name:String, meta:MetaAccess } ) {
+		
+		if (!hasExpose) {
+			
+			var previousFragment = fragment;
+			var currentFragment = null;
+			
+			for (fragment in bufA) {
+				if (fragment.name == 'DelkoEntry') {
+					currentFragment = fragment;
+					break;
+				}
+			}
+			
+			fragment = currentFragment;
+			
+			addJavaDoc(["@param {Object} src", "@param {string} path"]);
+			printParts(
+				[
+				"function $hxExpose(src, path) {",
+					"\t/** @type {Window} */", 
+					"\tvar o = typeof window != \"undefined\" ? window : exports;", 
+					"\t/** @type {Array.<string>} */", 
+					"\tvar parts = path.split('.');", 
+					"\tfor (var ii = 0; ii < parts.length-1; ++ii) {", 
+						"\t\tvar p = parts[ii];",
+						"\t\tif(typeof o[p] == 'undefined') o[p] = {};",
+						"\t\to = o[p];",
+					"\t}",
+					"\to[parts[parts.length-1]] = src;",
+				"}"
+				]
+			);
+			
+			hasExpose = true;
+			
+		}
 		
 		if (t.meta.has(":expose")) {
 			print('$$hxExpose(${t.name}, ');
@@ -293,7 +356,6 @@ class Delko  {
 		var p = getPath(c);
 		
 		createFile(c);
-		
 		newline();
 		
 		genPackage(c.pack);
@@ -315,7 +377,7 @@ class Delko  {
 		
 		newline();
 		
-		genExpose( { name:p, meta:c.meta } );
+		//genExpose( { name:p, meta:c.meta } );
 		
 		print('$$hxClasses["$p"] = $p');
 		
@@ -521,7 +583,7 @@ class Delko  {
 	public function generate() {
 		
 		//var entryBuffer:StringBuf = buf;
-		var entryBuffer:TBuffered = fragment;
+		var entryFragment = fragment;
 		
 		if (Context.defined("js_modern")) {
 			print(" 'use strict';");
@@ -562,24 +624,6 @@ class Delko  {
 		);
 		
 		newline();
-		
-		addJavaDoc(["@param {Object} src", "@param {string} path"]);
-		printParts(
-			[
-			"function $hxExpose(src, path) {",
-				"\t/** @type {Window} */", 
-				"\tvar o = typeof window != \"undefined\" ? window : exports;", 
-				"\t/** @type {Array.<string>} */", 
-				"\tvar parts = path.split('.');", 
-				"\tfor (var ii = 0; ii < parts.length-1; ++ii) {", 
-					"\t\tvar p = parts[ii];",
-					"\t\tif(typeof o[p] == 'undefined') o[p] = {};",
-					"\t\to = o[p];",
-				"\t}",
-				"\to[parts[parts.length-1]] = src;",
-			"}"
-			]
-		);
 		
 		for(t in api.types) {
 			genType(t);
@@ -626,11 +670,11 @@ class Delko  {
 		newline();
 		
 		//var initBuf = new StringBuf();
-		var initBuf:TBuffered = { name:'DelkoInits', parts:[] };
+		var initFragment:TBuffered = { name:'DelkoInits', parts:[] };
 		//bufA.push( { name:'DelkoInits', buffer:initBuf } );
-		bufA.push( initBuf );
+		bufA.push( initFragment );
 		//buf = initBuf;
-		fragment = initBuf;
+		fragment = initFragment;
 		
 		/**
 		 * Generate code for all __init__ methods
@@ -646,7 +690,8 @@ class Delko  {
 		}
 		
 		//buf = entryBuffer;
-		fragment = entryBuffer;
+		fragment = entryFragment;
+		
 		if (addFeature.exists("$bind")) {
 			print("var $_");
 			newline(true);
@@ -676,6 +721,7 @@ class Delko  {
 			for (p in f.parts) {
 				out += p();
 			}
+			
 			out = out.replace(".abstract", ".delkoabstract");
 			out = out.replace("'abstract'", "'delkoabstract'");
 			file = sys.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.name + ".js"), true);
