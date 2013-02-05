@@ -7,6 +7,7 @@ import haxe.macro.Context;
 import haxe.macro.JSGenApi;
 import haxe.macro.Compiler;
 import haxe.macro.ExampleJSGenerator;
+import uhu.js.delko.t.TBuffered;
 import sys.FileSystem;
 import uhu.macro.Jumla;
 
@@ -39,8 +40,10 @@ class Delko  {
 	}
 
 	var api:JSGenApi;
-	var buf:StringBuf;
-	var bufA:Array<{ name:String, buffer:StringBuf }>;
+	//var buf:StringBuf;
+	var fragment:TBuffered;
+	//var bufA:Array<{ name:String, buffer:StringBuf }>;
+	var bufA:Array<TBuffered>;
 	var inits:List<TypedExpr>;
 	var statics:List<{ c : ClassType, f : ClassField }>;
 	var packages:Hash<Bool>;
@@ -52,17 +55,21 @@ class Delko  {
 	public function new(api) {
 		this.api = api;
 		tabs = 0;
-		buf = new StringBuf();
+		
+		//buf = new StringBuf();
 		
 		/**
 		 * Create the array which will hold all the generated javascript
 		 */
-		bufA = new Array<{ name:String, buffer:StringBuf }>();
+		//bufA = new Array<{ name:String, buffer:StringBuf }>();
+		bufA = new Array<TBuffered>();
 		
 		/**
 		 * Add the first string buffer
 		 */
-		bufA.push( { name:"DelkoEntry", buffer:buf } );
+		//bufA.push( { name:"DelkoEntry", buffer:buf } );
+		fragment = { name:'DelkoEntry', parts:[] };
+		bufA.push( fragment );
 		
 		inits = new List();
 		statics = new List();
@@ -117,8 +124,10 @@ class Delko  {
 			
 		}
 		
-		buf = new StringBuf();
-		bufA.push( { name:path, buffer:buf } );
+		//buf = new StringBuf();
+		fragment = { name:path, parts:[] };
+		//bufA.push( { name:path, buffer:buf } );
+		bufA.push( fragment );
 	}
 
 	function field(p) {
@@ -511,14 +520,14 @@ class Delko  {
 
 	public function generate() {
 		
-		var entryBuffer:StringBuf = buf;
+		//var entryBuffer:StringBuf = buf;
+		var entryBuffer:TBuffered = fragment;
 		
 		if (Context.defined("js_modern")) {
 			print(" 'use strict';");
 		}
 		
 		newline();
-		
 		newline();
 		
 		addJavaDoc(["@type {*}"]);
@@ -616,9 +625,12 @@ class Delko  {
 		tabs--;
 		newline();
 		
-		var initBuf = new StringBuf();
-		bufA.push( { name:'DelkoInits', buffer:initBuf } );
-		buf = initBuf;
+		//var initBuf = new StringBuf();
+		var initBuf:TBuffered = { name:'DelkoInits', parts:[] };
+		//bufA.push( { name:'DelkoInits', buffer:initBuf } );
+		bufA.push( initBuf );
+		//buf = initBuf;
+		fragment = initBuf;
 		
 		/**
 		 * Generate code for all __init__ methods
@@ -633,7 +645,8 @@ class Delko  {
 			
 		}
 		
-		buf = entryBuffer;
+		//buf = entryBuffer;
+		fragment = entryBuffer;
 		if (addFeature.exists("$bind")) {
 			print("var $_");
 			newline(true);
@@ -650,7 +663,7 @@ class Delko  {
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
 		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + "fragments"), null, true);
 		var file = null;
-		var out = "";
+		//var out = '';
 		
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
@@ -658,7 +671,11 @@ class Delko  {
 		 * from tripping as Boot.hx sets it as Function.prototype["$bind"].
 		 */
 		for (f in bufA) {
-			out = f.buffer.toString();
+			var out = '';
+			//out = f.buffer.toString();
+			for (p in f.parts) {
+				out += p();
+			}
 			out = out.replace(".abstract", ".delkoabstract");
 			out = out.replace("'abstract'", "'delkoabstract'");
 			file = sys.io.File.write(PathUtil.cleanUpPath(uhu.nativePath + sep + f.name + ".js"), true);
@@ -697,11 +714,17 @@ class Delko  {
 	}
 	
 	public function print(str:String, ?tab:Bool = true) {
-		buf.add((tab ? repeat('\t', tabs) : '') + str);
+		//buf.add((tab ? repeat('\t', tabs) : '') + str);
+		fragment.parts.push( function() {
+			return (tab ? repeat('\t', tabs) : '') + str;
+		} );
 	}
 	
 	public function newline(?semicolon:Bool = false, ?extra:Int = 0) {
-		buf.add((semicolon ? ';' : '') + '\n' + repeat('\n', extra));
+		//buf.add((semicolon ? ';' : '') + '\n' + repeat('\n', extra));
+		fragment.parts.push( function() {
+			return (semicolon ? ';' : '') + '\n' + repeat('\n', extra);
+		} );
 	}
 	
 	public function repeat(s : String, times : Int)	{
@@ -946,7 +969,8 @@ class Delko  {
 						if (!typedefs.exists(result) && anon.fields.length != 0) {
 							var javaDoc = new Array<String>();
 							var output = characters.google._typedef + ' {{';
-							var prevBuf = buf;
+							//var prevBuf = buf;
+							var prevBuf = fragment;
 							var prevTab = tabs;
 							
 							typedefs.set(result, true);
@@ -974,7 +998,8 @@ class Delko  {
 							
 							
 							
-							buf = prevBuf;
+							//buf = prevBuf;
+							fragment = prevBuf;
 							tabs = prevTab;
 						}
 						
