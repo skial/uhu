@@ -299,10 +299,22 @@ class Delko  {
 		
 	}
 	
+	public var has__iterator__:Bool = false;
+	public var has__bind__:Bool = false;
+	
 	public function checkSpecials(c:ClassType, f:ClassField) {
-		var name = getPath( c ) + '.' + f.name;
 		
-		switch (name) {
+		switch (f.name) {
+			case 'iterator':
+				has__iterator__ = true;
+				has__bind__ = true;
+			case 'bind':
+				has__bind__ = true;
+			case _:
+				
+		}
+		
+		switch ( getPath( c ) + '.' + f.name ) {
 			case 'Type.getClass' | 'Boot.getClass':
 				has__class__ = true;
 				
@@ -623,22 +635,6 @@ class Delko  {
 		}
 		
 	}
-	
-	/**
-	 * This is a, hopefully temporary, fix to $iterator appearing in the
-	 * output. 
-	 */
-	public function genExtern(c:ClassType):Void {
-		
-		for (f in c.fields.get()) {
-			
-			if (f.meta.has(":runtime") && f.name == "iterator") {
-				addFeature.set("$iterator", true);
-				addFeature.set("$bind", true);
-			}
-			
-		}
-	}
 
 	function genStaticValue( c : ClassType, cf : ClassField ) {
 		var p = getPath(c);
@@ -665,12 +661,13 @@ class Delko  {
 			case TInst(c, _):
 				
 				var c = c.get();
-				if( c.init != null )
+				
+				if(c.init != null) {
 					inits.add(c.init);
-				if ( !c.isExtern ) {
+				}
+				
+				if (!c.isExtern) {
 					genClass(c);
-				} else {
-					genExtern(c);
 				}
 				
 			case TEnum(r, _):
@@ -697,10 +694,6 @@ class Delko  {
 		
 		newline();
 		newline();
-		
-		addJavaDoc(["@type {*}"]);
-		print('var $$_ = {}');
-		newline(true, 1);
 		
 		/*addJavaDoc(["@type {Object.<string, *>}"]);
 		print('var $$hxClasses = {}');
@@ -729,7 +722,7 @@ class Delko  {
 			
 			if (hasEnum) {
 				
-				out += characters.google._return + ' {string}\n';
+				out += '/** ${characters.google._return} {string} */\n';
 				out += "function $estr() {\n";
 				out += "\treturn js.Boot.__string_rec(this, '');\n";
 				out += "}\n";
@@ -740,6 +733,44 @@ class Delko  {
 		} );
 		
 		newline();
+		
+		/*addJavaDoc(["@type {*}"]);
+		print('var $$_ = {}');
+		newline(true, 1);*/
+		
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__bind__) {
+				out += '/** @type {*} */\n';
+				out += "var '$_ = {};\n";
+				// add google closure annotations
+				out += "function $bind(o,m) {\n";
+				out += "\tvar f = function(){\n";
+				out += "\t\treturn f.method.apply(f.scope, arguments);\n";
+				out += "\t};\n";
+				out += "\tf.scope = o;\n";
+				out += "\tf.method = m;\n";
+				out += "\treturn f;\n";
+				out += "}\n";
+			}
+			
+			return out;
+		} );
+		
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__iterator__) {
+				// add google closure annotations
+				out += "function $iterator(o) {\n";
+				out += "\tif(o instanceof Array) return function() { return HxOverrides.iter(o); };\n";
+				out += "\treturn typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator;\n";
+				out += "}\n";
+			}
+			
+			return out;
+		} );
 		
 		for(t in api.types) {
 			genType(t);
@@ -808,17 +839,17 @@ class Delko  {
 		//buf = entryBuffer;
 		fragment = entryFragment;
 		
-		if (addFeature.exists("$bind")) {
+		/*if (addFeature.exists("$bind")) {
 			print("var $_");
 			newline(true);
 			print("function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; }");
 			newline();
-		}
+		}*/
 		
-		if (addFeature.exists("$iterator")) {
+		/*if (addFeature.exists("$iterator")) {
 			print("function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }");
 			newline();
-		}
+		}*/
 		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
