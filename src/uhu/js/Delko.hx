@@ -289,8 +289,6 @@ class Delko  {
 				
 				case ':expose':
 					genExpose( b );
-				case ':defineFeature':
-					
 				case _:
 				
 			}
@@ -339,6 +337,7 @@ class Delko  {
 			case _:
 				
 		}
+		
 	}
 	
 	/**
@@ -509,7 +508,7 @@ class Delko  {
 			return out;
 		} );
 		
-		if( c.interfaces.length > 0 ) {
+		if(c.interfaces.length > 0) {
 			var me = this;
 			var inter = c.interfaces.map(
 				function(i) { 
@@ -517,25 +516,62 @@ class Delko  {
 				}
 			).join(',');
 			
-			print('$p.__interfaces__ = [$inter]');
-			newline(true);
+			/*print('$p.__interfaces__ = [$inter]');
+			newline(true);*/
+			fragment.parts.push( function() {
+				var out = '';
+				
+				if (has__interfaces__) {
+					
+					out += '$p.__interfaces__ = [$inter];\n';
+					
+				}
+				
+				return out;
+			} );
+			
 		}
 		
 		if(c.superClass != null) {
 			var psup = getPath(c.superClass.t.get());
 			
-			print('$p.__super__ = $psup');
+			/*print('$p.__super__ = $psup');
 			newline(true);
 			
-			print('$p.prototype = $$extend($psup.prototype, { ');
+			print('$p.prototype = $$extend($psup.prototype, { ');*/
+			fragment.parts.push( function() {
+				var out = '';
+				
+				if (has__superClass__) {
+					
+					out += '$p.__super__ = $psup;\n';
+					out += '$p.prototype = $$etend($psup.prototype, {\n';
+					
+				}
+				
+				return out;
+			} );
 		} else {
-			print('$p.prototype = {');
+			//print('$p.prototype = {');
+			fragment.parts.push( function() return '$p.prototype = {\n' );
 		}
 		
-		tabs++;
+		/*tabs++;
 		newline();
 		
-		print('__class__:$p');
+		print('__class__:$p');*/
+		fragment.parts.push( function() {
+			var out = '';
+			
+			if (has__class__) {
+				
+				tabs++;
+				out += '\t__class__:$p';
+				
+			}
+			
+			return out;
+		} );
 		
 		var i:Int = 0;
 		
