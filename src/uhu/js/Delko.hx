@@ -238,44 +238,7 @@ class Delko  {
 		var field = field(f.name);
 		var e = f.expr();
 		
-		//addFieldAnnotation(f);
-		
-		fragment.parts.push( function() {
-			var out = '';
-			
-			out += '/**\n';
-			
-			if (f.doc != null) {
-				out += ' ' + f.doc.trim() + '\n';
-			}
-			
-			if (!f.isPublic) {
-				out += ' * @private\n';
-			}
-			
-			switch (f.kind) {
-				case FVar(r, w):
-					
-					out += ' * @type {' + f.type.getName() + '}\n';
-					
-				case FMethod(k):
-					
-					switch ( Context.getTypedExpr( f.expr() ).expr ) {
-						case EFunction(n, m):
-							
-							for (a in m.args) {
-								out += ' * @param {' + a.type.getName() + '} 
-							}
-							
-						case _:
-							
-					}
-			}
-			
-			out += ' */\n';
-			
-			return out;
-		} );
+		addFieldAnnotation(f);
 		
 		checkFieldName(c, f);
 		
@@ -498,37 +461,7 @@ class Delko  {
 		/**
 		 * Adds class google closure compiler compatible annotations
 		 */
-		//addClassAnnotation(c);
-		
-		fragment.parts.push( function() {
-			var out = '';
-			
-			out += '/**\n';
-			
-			if (c.constructor != null && c.constructor.get().doc != null) {
-				out += ' * ${c.constructor.get().doc}\n';
-			}
-			
-			if (c.isInterface) {
-				out += ' * @interface\n';
-			} else {
-				out += ' * @constructor\n';
-			}
-			
-			if (c.superClass != null) {
-				out += ' * @extends {' + getPath( c.superClass.t.get() ) + '}\n';
-			}
-			
-			if (c.interfaces.length > 0) {
-				for (i in c.interfaces) {
-					out += ' * @implements {' + getPath( i.t.get() ) + '}\n';
-				}
-			}
-			
-			out += ' */\n';
-			
-			return out;
-		} );
+		addClassAnnotation(c);
 		
 		print(c.pack.length == 0 ? 'var ' : '');
 		print('$p = ', false);
@@ -1097,9 +1030,9 @@ class Delko  {
 		}
 	}
 	
-	public function printAccess(field:{isPublic:Bool}):String {
+	/*public function printAccess(field:{isPublic:Bool}):String {
 		return field.isPublic ? '' : "@private";
-	}
+	}*/
 	
 	/**
 	 * Checks the type for a google closure compiler
@@ -1369,7 +1302,7 @@ class Delko  {
 	
 	public function addFieldAnnotation(field:ClassField, ?overrides:Bool = false, ?self:String = "|"):Void {
 		
-		var javaDocs:Array<String> = new Array<String>();
+		/*var javaDocs:Array<String> = new Array<String>();
 		var fieldAccess:String = printAccess(field);
 		var type:String;
 		
@@ -1445,13 +1378,63 @@ class Delko  {
 			//case _:
 		}
 		
-		addJavaDoc(javaDocs);
+		addJavaDoc(javaDocs);*/
+		
+		fragment.parts.push( function() {
+			var out = '';
+			
+			out += '/**\n';
+			
+			if (field.doc != null) {
+				out += ' ' + field.doc.trim() + '\n';
+			}
+			
+			if (!field.isPublic) {
+				out += ' * @private\n';
+			}
+			
+			switch (field.kind) {
+				case FVar(r, w):
+					
+					if (r == VarAccess.AccInline && w == VarAccess.AccNever) {
+						out += ' * @const\n';
+					}
+					
+					out += ' * @type {?' + field.type.getName() + '}\n';
+					
+				case FMethod(k):
+					
+					if (overrides) {
+						out += ' * @inheritDoc\n';
+					}
+					
+					switch ( Context.getTypedExpr( field.expr() ).expr ) {
+						case EFunction(n, m):
+							
+							for (a in m.args) {
+								out += ' * @param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name + '\n';
+							}
+							
+							if (m.ret != null) {
+								out += ' * @return {' + m.ret.toString() + '}\n';
+							}
+							
+						case _:
+							
+					}
+			}
+			
+			out += ' */\n';
+			
+			return out;
+		} );
+		
 	}
 	
-	/*public function addClassAnnotation(_class:ClassType):Void {
+	public function addClassAnnotation(c:ClassType):Void {
 		
-		var superClass:ClassType;
-		var javaDoc:Array<String> = new Array<String>();
+		/*var superClass:ClassType;
+		var javaDoc:Array<String> = new Array<String>();*/
 		
 		/**
 		 * I used to type constructors as @constructor, static classes as @const, 
@@ -1471,7 +1454,7 @@ class Delko  {
 			//javaDoc.push("@constructor");
 			javaDoc.push("@const");
 		}*/
-	/*	javaDoc.push(characters.google._const);
+		/*javaDoc.push(characters.google._const);
 		
 		if (_class.isInterface) javaDoc.push(characters.google._interface);
 		
@@ -1499,9 +1482,54 @@ class Delko  {
 			}
 		}
 		
-		addJavaDoc(javaDoc);
+		addJavaDoc(javaDoc);*/
 		
-	}*/
+		fragment.parts.push( function() {
+			var out = '';
+			
+			out += '/**\n';
+			
+			if (c.constructor != null) {
+				
+				if (c.constructor.get().doc != null) {
+					out += ' * ${c.constructor.get().doc}\n';
+				}
+				
+				switch ( Context.getTypedExpr( c.constructor.get().expr() ).expr ) {
+					case EFunction(n, m):
+						
+						for (a in m.args) {
+							out += ' * @param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name + '\n';
+						}
+						
+					case _:
+						
+				}
+				
+			}
+			
+			if (c.isInterface) {
+				out += ' * @interface\n';
+			} else {
+				out += ' * @constructor\n';
+			}
+			
+			if (c.superClass != null) {
+				out += ' * @extends {' + getPath( c.superClass.t.get() ) + '}\n';
+			}
+			
+			if (c.interfaces.length > 0) {
+				for (i in c.interfaces) {
+					out += ' * @implements {' + getPath( i.t.get() ) + '}\n';
+				}
+			}
+			
+			out += ' */\n';
+			
+			return out;
+		} );
+		
+	}
 	
 	#if macro
 	public static function use() {
