@@ -740,7 +740,6 @@ class Delko  {
 
 	public function generate() {
 		
-		//var entryBuffer:StringBuf = buf;
 		var entryFragment = fragment;
 		
 		if (Context.defined("js_modern")) {
@@ -753,8 +752,7 @@ class Delko  {
 		if (has__hxClasses__) {
 			addJavaDoc(["@type {Object.<string, *>}"]);
 		}
-		/*print('var $$hxClasses = {}');
-		newline(true, 1);*/
+		
 		fragment.parts.push( function() {
 			var out = '';
 			
@@ -767,12 +765,6 @@ class Delko  {
 			return out;
 		} );
 		
-		/*addJavaDoc([characters.google._return + " {string}"]);
-		printParts( [
-			"function $estr() {",
-			"\treturn js.Boot.__string_rec(this, '');",
-			"}"]
-		);*/
 		fragment.parts.push( function() {
 			var out = '';
 			
@@ -789,10 +781,6 @@ class Delko  {
 		} );
 		
 		newline();
-		
-		/*addJavaDoc(["@type {*}"]);
-		print('var $$_ = {}');
-		newline(true, 1);*/
 		
 		fragment.parts.push( function() {
 			var out = '';
@@ -834,21 +822,6 @@ class Delko  {
 		
 		newline();
 		
-		/*addJavaDoc(["@type {*}"]);
-		print("js.Boot.__res = {}");
-		
-		newline(true);*/
-		
-		/**
-		 * Generate code for all __init__ methods
-		 */
-		/*for ( e in inits ) {
-			var string = api.generateStatement(e);
-			string = string.replace('\n', '\n' + repeat('\t', tabs));
-			print(string);
-			newline(string.trim().endsWith("}") ? false : true);
-		}*/
-		
 		/**
 		 * Generate code for all static fields
 		 */
@@ -872,11 +845,8 @@ class Delko  {
 		tabs--;
 		newline();
 		
-		//var initBuf = new StringBuf();
 		var initFragment:TBuffered = { name:'DelkoInits', parts:[] };
-		//bufA.push( { name:'DelkoInits', buffer:initBuf } );
 		bufA.push( initFragment );
-		//buf = initBuf;
 		fragment = initFragment;
 		
 		/**
@@ -894,14 +864,12 @@ class Delko  {
 			}
 		}
 		
-		//buf = entryBuffer;
 		fragment = entryFragment;
 		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
 		var uhu = massive.neko.io.File.create(PathUtil.cleanUpPath(dir.parent.nativePath + sep + "fragments"), null, true);
 		var file = null;
-		//var out = '';
 		
 		/**
 		 * Loop through the string buffer array, write the content of each to a file.
@@ -910,7 +878,6 @@ class Delko  {
 		 */
 		for (f in bufA) {
 			var out = '';
-			//out = f.buffer.toString();
 			for (p in f.parts) {
 				out += p();
 			}
@@ -953,14 +920,12 @@ class Delko  {
 	}
 	
 	public function print(str:String, ?tab:Bool = true) {
-		//buf.add((tab ? repeat('\t', tabs) : '') + str);
 		fragment.parts.push( function() {
 			return (tab ? repeat('\t', tabs) : '') + str;
 		} );
 	}
 	
 	public function newline(?semicolon:Bool = false, ?extra:Int = 0) {
-		//buf.add((semicolon ? ';' : '') + '\n' + repeat('\n', extra));
 		fragment.parts.push( function() {
 			return (semicolon ? ';' : '') + '\n' + repeat('\n', extra);
 		} );
