@@ -238,7 +238,45 @@ class Delko  {
 		var field = field(f.name);
 		var e = f.expr();
 		
-		addFieldAnnotation(f);
+		//addFieldAnnotation(f);
+		
+		fragment.parts.push( function() {
+			var out = '';
+			
+			out += '/**\n';
+			
+			if (f.doc != null) {
+				out += ' ' + f.doc.trim() + '\n';
+			}
+			
+			if (!f.isPublic) {
+				out += ' * @private\n';
+			}
+			
+			switch (f.kind) {
+				case FVar(r, w):
+					
+					out += ' * @type {' + f.type.getName() + '}\n';
+					
+				case FMethod(k):
+					
+					switch ( Context.getTypedExpr( f.expr() ).expr ) {
+						case EFunction(n, m):
+							
+							for (a in m.args) {
+								out += ' * @param {' + a.type.getName() + '} 
+							}
+							
+						case _:
+							
+					}
+			}
+			
+			out += ' */\n';
+			
+			return out;
+		} );
+		
 		checkFieldName(c, f);
 		
 		if (e == null) {
@@ -255,29 +293,32 @@ class Delko  {
 			
 			newline(true);
 			
-		} else switch( f.kind ) {
-			case FMethod(_):
-				
-				/**
-				 * If the class has the neta tag @:exportProperties, then all fields
-				 * become Class["field"] = {}.
-				 */
-				if (c.meta.has(":export") || c.meta.has(":exportProperties") ||f.meta.has(":export") || f.meta.has(":exportProperties")) {
-					print('$p["${f.name}"] = ');
-				} else {
-					print('$p$field = ');
-				}
-				
-				genExpr(e, false);
-				
-				newline();
-			default:
-				genStaticValue(c, f);
+		} else {
+			switch( f.kind ) {
+				case FMethod(_):
+					
+					/**
+					 * If the class has the neta tag @:exportProperties, then all fields
+					 * become Class["field"] = {}.
+					 */
+					if (c.meta.has(":export") || c.meta.has(":exportProperties") ||f.meta.has(":export") || f.meta.has(":exportProperties")) {
+						print('$p["${f.name}"] = ');
+					} else {
+						print('$p$field = ');
+					}
+					
+					genExpr(e, false);
+					
+					newline();
+				case _:
+					genStaticValue(c, f);
+			}
+			
 		}
 		
 		//genExpose( { name:p + field, meta:f.meta } );
 		
-		newline();
+		//newline();
 		
 	}
 	
@@ -288,7 +329,7 @@ class Delko  {
 			switch (meta.name) {
 				
 				case ':expose':
-					genExpose( b );
+					generateExpose( b );
 				case _:
 				
 			}
@@ -343,7 +384,7 @@ class Delko  {
 	/**
 	 * Generates $hxExpose call if `:expose` is found
 	 */
-	function genExpose(t: { name:String, meta:MetaAccess } ) {
+	function generateExpose(t: { name:String, meta:MetaAccess } ) {
 		
 		if (!hasExpose) {
 			
@@ -457,7 +498,37 @@ class Delko  {
 		/**
 		 * Adds class google closure compiler compatible annotations
 		 */
-		addClassAnnotation(c);
+		//addClassAnnotation(c);
+		
+		fragment.parts.push( function() {
+			var out = '';
+			
+			out += '/**\n';
+			
+			if (c.constructor != null && c.constructor.get().doc != null) {
+				out += ' * ${c.constructor.get().doc}\n';
+			}
+			
+			if (c.isInterface) {
+				out += ' * @interface\n';
+			} else {
+				out += ' * @constructor\n';
+			}
+			
+			if (c.superClass != null) {
+				out += ' * @extends {' + getPath( c.superClass.t.get() ) + '}\n';
+			}
+			
+			if (c.interfaces.length > 0) {
+				for (i in c.interfaces) {
+					out += ' * @implements {' + getPath( i.t.get() ) + '}\n';
+				}
+			}
+			
+			out += ' */\n';
+			
+			return out;
+		} );
 		
 		print(c.pack.length == 0 ? 'var ' : '');
 		print('$p = ', false);
@@ -508,7 +579,8 @@ class Delko  {
 			return out;
 		} );
 		
-		if(c.interfaces.length > 0) {
+		if (c.interfaces.length > 0) {
+			
 			var me = this;
 			var inter = c.interfaces.map(
 				function(i) { 
@@ -545,7 +617,10 @@ class Delko  {
 				if (has__superClass__) {
 					
 					out += '$p.__super__ = $psup;\n';
-					out += '$p.prototype = $$etend($psup.prototype, {\n';
+					
+					if (c.fields.get().length != 0) {
+						out += '$p.prototype = $$etend($psup.prototype, {\n';
+					}
 					
 				}
 				
@@ -553,7 +628,9 @@ class Delko  {
 			} );
 		} else {
 			//print('$p.prototype = {');
-			fragment.parts.push( function() return '$p.prototype = {\n' );
+			if (c.fields.get().length > 0) {
+				fragment.parts.push( function() return '$p.prototype = {\n' );
+			}
 		}
 		
 		/*tabs++;
@@ -566,7 +643,12 @@ class Delko  {
 			if (has__class__) {
 				
 				tabs++;
-				out += '\t__class__:$p';
+				
+				if (c.fields.get().length == 0) {
+					out += '$p.prototype.__class__:$p\n';
+				} else {
+					out += '\t__class__:$p';
+				}
 				
 			}
 			
@@ -597,14 +679,18 @@ class Delko  {
 		
 		tabs--;
 		
-		if (c.superClass != null) {
-			newline();
-			print('})');
-			newline(true);
-		} else {
-			newline();
-			print('}');
-			newline();
+		if (c.fields.get().length != 0) {
+			
+			if (c.superClass != null) {
+				newline();
+				print('})');
+				newline(true);
+			} else {
+				newline();
+				print('}');
+				newline();
+			}
+			
 		}
 		
 	}
@@ -814,10 +900,10 @@ class Delko  {
 		
 		newline();
 		
-		addJavaDoc(["@type {*}"]);
+		/*addJavaDoc(["@type {*}"]);
 		print("js.Boot.__res = {}");
 		
-		newline(true);
+		newline(true);*/
 		
 		/**
 		 * Generate code for all __init__ methods
@@ -1362,7 +1448,7 @@ class Delko  {
 		addJavaDoc(javaDocs);
 	}
 	
-	public function addClassAnnotation(_class:ClassType):Void {
+	/*public function addClassAnnotation(_class:ClassType):Void {
 		
 		var superClass:ClassType;
 		var javaDoc:Array<String> = new Array<String>();
@@ -1385,7 +1471,7 @@ class Delko  {
 			//javaDoc.push("@constructor");
 			javaDoc.push("@const");
 		}*/
-		javaDoc.push(characters.google._const);
+	/*	javaDoc.push(characters.google._const);
 		
 		if (_class.isInterface) javaDoc.push(characters.google._interface);
 		
@@ -1415,7 +1501,7 @@ class Delko  {
 		
 		addJavaDoc(javaDoc);
 		
-	}
+	}*/
 	
 	#if macro
 	public static function use() {
