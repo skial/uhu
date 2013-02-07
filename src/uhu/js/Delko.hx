@@ -673,7 +673,7 @@ class Delko  {
 					print('$p$f.toString = $$estr');
 					newline(true);
 					
-					addJavaDoc(["@type {" + p + "}"]);
+					addJavaDoc(['@type {$p}']);
 					print('$p$f.__enum__ = $p');
 					newline(true);
 					
@@ -750,15 +750,16 @@ class Delko  {
 		newline();
 		newline();
 		
-		/*addJavaDoc(["@type {Object.<string, *>}"]);
-		print('var $$hxClasses = {}');
+		if (has__hxClasses__) {
+			addJavaDoc(["@type {Object.<string, *>}"]);
+		}
+		/*print('var $$hxClasses = {}');
 		newline(true, 1);*/
 		fragment.parts.push( function() {
 			var out = '';
 			
 			if (has__hxClasses__) {
 				
-				out += "@type {Object.<string, *>}\n";
 				out += "var $hxClasses = {}\n";
 				
 			}
@@ -881,30 +882,20 @@ class Delko  {
 		/**
 		 * Generate code for all __init__ methods
 		 */
-		for (e in inits) {
-			
-			addJavaDoc( [ '@this {?}' ] );
-			var string = api.generateStatement(e);
-			string = string.replace('\n', '\n' + repeat('\t', tabs));
-			print(string);
-			newline( (string.trim().endsWith("}") ? false : true), 1);
-			
+		if (inits.length > 0) {
+			for (e in inits) {
+				
+				addJavaDoc( [ '@this {?}' ] );
+				var string = api.generateStatement(e);
+				string = string.replace('\n', '\n' + repeat('\t', tabs));
+				print(string);
+				newline( (string.trim().endsWith("}") ? false : true), 1);
+				
+			}
 		}
 		
 		//buf = entryBuffer;
 		fragment = entryFragment;
-		
-		/*if (addFeature.exists("$bind")) {
-			print("var $_");
-			newline(true);
-			print("function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; }");
-			newline();
-		}*/
-		
-		/*if (addFeature.exists("$iterator")) {
-			print("function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }");
-			newline();
-		}*/
 		
 		var sep = massive.neko.io.File.seperator;
 		var dir = massive.neko.io.File.create(FileSystem.fullPath(api.outputFile));
@@ -994,540 +985,111 @@ class Delko  {
 		}
 	}
 	
-	/**
-	 * Adds javadoc style annotations above the current field
-	 */
-	public function addJavaDoc(comments:Array<String>):Void {
-		var i:Int = 0;
+	public function addJavaDoc(parts:Array<String>) {
+		var out = '';
 		
-		if (comments.length > 0) {
-			print("/**");
-			if (comments.length != 1) {
-				newline();
-			}
-			
-			for (comment in comments) {
-				
-				if (comments.indexOf(comment) == i) {
-					if (comments.length != 1) {
-						
-						print('* $comment');
-						newline();
-						
-					} else {
-						
-						print(' $comment ', false);
-						
-					}
-				}
-				
-				i++;
-				
-			}
-			
-			print("*/", comments.length == 1 ? false : true);
-			newline();
-		}
-	}
-	
-	/*public function printAccess(field:{isPublic:Bool}):String {
-		return field.isPublic ? '' : "@private";
-	}*/
-	
-	/**
-	 * Checks the type for a google closure compiler
-	 * annotations match and returns it.
-	 */
-	public inline function checkType(type:String):String {
-		return (types.exists(type)) ? types.get(type) : type;
-	}
-	
-	private static var _typePartCache:Hash<String> = new Hash<String>();
-	private static var _typeResultCache:Hash<String> = new Hash();
-	/**
-	 * DELKO GOD!
-	 */
-	public function buildRecordType(type:Type, ?data: { parent:BaseType, params:Array<Type> } ):String {
-		var name = Std.string(type);
-		var result = _typeResultCache.get(name);
-		
-		if (result == null) {
-			switch(type) {
-				/**
-				 * If not null, then send back through buildRecordType and return
-				 */
-				case TMono(_t):
-					
-					var mono = _t.get();
-					
-					if (mono != null) {
-						result = buildRecordType(mono);
-					} else {
-						result = checkType(Std.string(mono));
-					}
-					
-				/**
-				 * Build value. If it has params, then output jsdoc style type application
-				 * e.g Array.<string> or Object.<string, number>
-				 */
-				case TEnum(_t, _p):
-					var enm:EnumType = _t.get();
-					
-					if (!_typePartCache.exists(enm.name)) {
-						
-						result = checkType(getPath(enm));
-						
-						if (_p.length != 0) {
-							
-							result += '.<';
-							
-							for (param in _p) {
-								
-								if (param != _p[0]) result += ',';
-								result += buildRecordType(param);
-								
-							}
-							
-							result += '>';
-						}
-						
-						_typePartCache.set(enm.name, result);
-						
-					} else {
-						
-						result = _typePartCache.get(enm.name);
-						
-					}
-				
-				/**
-				 * Build class string. 
-				 * 
-				 * Filter type inference e.g Array.T
-				 * 
-				 * Filter xirsys_stdjs paths and only used the class or typedef name,
-				 * e.g. js.w3c.html5.Core.HTMLElement becomes HTMLElement. I assume as
-				 * xirsys_stdjs is said to be based/parsed off w3c specs, they should
-				 * match up with google closure compilers extern files, which allow it to
-				 * do more inlining and optimisation. Crude detection of js.w3c or js.webgl
-				 * :(
-				 * 
-				 */
-				case TInst(_t, _p):
-					var cls:ClassType = _t.get();
-					
-					result = getPath(cls);
-					/*
-					 * Should detect things like indexOf.T, or indexOf.TA
-					 * or indexOf.TAADSDSDS
-					 */ 
-					var typedParam:EReg = ~/\.[A-Z]+$/;
-					
-					/*
-					 * Should detect most? of xirsys_stdjs
-					 */
-					var stdjs:EReg = ~/^js\.(w3c|webgl)\./i;
-					
-					if (typedParam.match(result)) {
-						/**
-						 * Only remove the last value if its first character
-						 * is not lowercase - this means it a package name.
-						 * Class names in most cases start with Uppercase
-						 * character. Poor mans check...
-						 */
-						var _array = result.split('.');
-						var _fchar = _array[_array.length - 2].substr(0, 1);
-						
-						if (_fchar == _fchar.toUpperCase()) {
-							result = _array.splice(0, _array.length - 1).join('.');
-						}
-						
-					}
-					
-					result = checkType(result);
-					
-					if (result == '?') result += '*';
-					
-					/*
-					 * Only if xirsys_stdjs is being used
-					 */
-					if (Context.defined("xirsys_stdjs") && stdjs.match(result)) {
-						var _array = result.split('.');
-						result = _array[_array.length-1];
-					}
-					
-					if (_p.length != 0) {
-						
-						result += '.<';
-						
-						for (param in _p) {
-							if (param != _p[0]) result += ', ';
-							result += buildRecordType(param);
-						}
-						
-						result += '>';
-					}
-					
-					_typePartCache.set(cls.name, result);
-					
-				/**
-				 * Pass typedef back through buildRecordType and return
-				 */
-				case TType(_t, _p):
-					result = buildRecordType(_t.get().type, { parent:cast _t.get(), params:_p } );
-				
-				/**
-				 * Build jsdoc function definition, usually used for param/typedef sigs
-				 */
-				case TFun(_a, _r):
-					var _return = buildRecordType(_r);
-					result = 'function(';
-					
-					for (arg in _a) {
-						
-						if (arg != _a[0]) {
-							result += ',';
-						}
-						
-						result += buildRecordType(arg.t);
-						
-						if (arg.opt) {
-							result += '=';
-						}
-						
-					}
-					
-					result += ')';
-					if (_return != '') result += ':' + _return;
-				
-				/**
-				 * Usually builds typedefs, which is why TAnonymous builds two different outputs,
-				 * a google closure compiler typedef and a truely anonymous sig.
-				 */
-				case TAnonymous(_a):
-					result = "TAnonymous";
-					
-					if (data != null) {
-						
-						var def:BaseType = data.parent;
-						name = def.name;
-						
-						result = checkType(getPath(def));
-						var anon:AnonType = _a.get();
-						
-						if (!typedefs.exists(result) && anon.fields.length != 0) {
-							var javaDoc = new Array<String>();
-							var output = characters.google._typedef + ' {{';
-							//var prevBuf = buf;
-							var prevBuf = fragment;
-							var prevTab = tabs;
-							
-							typedefs.set(result, true);
-							
-							createFile(def);
-							tabs = 1;
-							
-							genPackage(def.pack);
-							
-							for (f in anon.fields) {
-								if (f != anon.fields[0]) output += ', ';
-								output += f.name + ':' + buildRecordType(f.type);
-							}
-							
-							output += '}}';
-							
-							javaDoc.push(output);
-							
-							addJavaDoc(javaDoc);
-							
-							(def.pack.length == 0 ? print('var ') : '');
-							
-							(def.pack.length == 0 ?	print('$result', false) : print(result));
-							newline(true);
-							
-							
-							
-							//buf = prevBuf;
-							fragment = prevBuf;
-							tabs = prevTab;
-						}
-						
-					} else {
-						var anon:AnonType = _a.get();
-						result = '{';
-						
-						for (f in anon.fields) {
-							if (f != anon.fields[0]) result += ', ';
-							result += f.name + ':' + buildRecordType(f.type);
-						}
-						
-						result += '}';
-					}
-				
-				/**
-				 * If not null, send back through buildRecordType and return
-				 */
-				case TDynamic(_t):
-					if (_t != null) {
-						result = buildRecordType(_t);
-					} else {
-						result = checkType(Std.string(_t));
-					}
-					
-				/**
-				 * Havnt done this yet...
-				 */
-				case TLazy(_):
-					result = "TLazy";
-				case _:
-					result = '';
-			}
-			_typeResultCache.set(name, result);
+		if (parts.length > 0) {
+			out += '/**\n';
 		}
 		
-		return result;
-	}
-	
-	/**
-	 * Google closure compiler annotations
-	 * https://developers.google.com/closure/compiler/docs/js-for-compiler
-	 */
-	public function printType(type:Type, ?optional:Bool = false):String {
-		var _type = buildRecordType(type);
+		for (p in parts) {
+			
+			out += ' * $p\n';
+			
+		}
 		
-		if (optional) _type += '=';
-		
-		return _type;
+		if (parts.length > 0) {
+			out += ' */\n';
+			fragment.parts.push( function() return out );
+		}
 		
 	}
 	
 	public function addFieldAnnotation(field:ClassField, ?overrides:Bool = false, ?self:String = "|"):Void {
+		var parts = [];
 		
-		/*var javaDocs:Array<String> = new Array<String>();
-		var fieldAccess:String = printAccess(field);
-		var type:String;
-		
-		if (fieldAccess != '') javaDocs.push(printAccess(field));
-		
-		var annotated:Hash<Array<String>> = new Hash<Array<String>>();
-		
-		if (field.meta.has(":annotate")) {
-			for (m in field.meta.get()) {
-				if (m.name == ":annotate") {
-					for (p in m.params) {
-						switch(p.expr) {
-							case EFunction(_, f):
-								for (a in f.args) {
-									if (!annotated.exists(a.name)) {
-										annotated.set( a.name, [a.type.toString()] );
-									} else {
-										annotated.get(a.name).push( a.type.toString() );
-									}
-								}
-								if (f.ret != null) {
-									if (!annotated.exists("return")) {
-										annotated.set( "return", [f.ret.toString()] );
-									} else {
-										annotated.get("return").push( f.ret.toString() );
-									}
-								}
-							case _:
-						}
-					}
-				}
-			}
+		if (field.doc != null) {
+			parts.push( field.doc.trim() );
 		}
-		
+			
+		if (!field.isPublic) {
+			parts.push( '@private' );
+		}
+			
 		switch (field.kind) {
-			case FMethod(_):
+			case FVar(r, w):
+				
+				if (r == VarAccess.AccInline && w == VarAccess.AccNever) {
+					parts.push( '@const' );
+				}
+				
+				parts.push( '@type {?' + field.type.getName() + '}' );
+				
+			case FMethod(k):
 				
 				if (overrides) {
-					javaDocs.push( '@inheritDoc' );
+					parts.push( '@inheritDoc' );
 				}
 				
-				switch (field.type) {
-					
-					case TFun(_args, _return):
-						for (_arg in _args) {
-							if (printType(_arg.t) == "*" && annotated.count() != 0) {
-								type = "{" + annotated.get(_arg.name).join("|") + "}";
-							} else {
-								type = printType(_arg.t, _arg.opt);
-							}
-							if (type == self) type = "Object";
-							javaDocs.push(characters.google._param + ' {$type} ${_arg.name}');
+				switch ( Context.getTypedExpr( field.expr() ).expr ) {
+					case EFunction(n, m):
+						
+						for (a in m.args) {
+							parts.push( '@param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name );
 						}
 						
-						if (printType(_return) != '') {
-							if (printType(_return) == "*" && annotated.count() != 0) {
-								type = "{" + annotated.get("return").join("|") + "}";
-							} else {
-								type = printType(_return);
-							}
-							if (type == self) type = "Object";
-							javaDocs.push(characters.google._return + ' {$type}');
+						if (m.ret != null) {
+							parts.push( '@return {' + m.ret.toString() + '}' );
 						}
 						
 					case _:
+						
 				}
-				
-			case FVar(_read, _write):
-				
-				if (_read == VarAccess.AccInline && _write == VarAccess.AccNever) javaDocs.push(characters.google._const);
-				javaDocs.push('@type {' + '?' + printType(field.type) + '}');
-				
-			//case _:
 		}
 		
-		addJavaDoc(javaDocs);*/
-		
-		fragment.parts.push( function() {
-			var out = '';
-			
-			out += '/**\n';
-			
-			if (field.doc != null) {
-				out += ' ' + field.doc.trim() + '\n';
-			}
-			
-			if (!field.isPublic) {
-				out += ' * @private\n';
-			}
-			
-			switch (field.kind) {
-				case FVar(r, w):
-					
-					if (r == VarAccess.AccInline && w == VarAccess.AccNever) {
-						out += ' * @const\n';
-					}
-					
-					out += ' * @type {?' + field.type.getName() + '}\n';
-					
-				case FMethod(k):
-					
-					if (overrides) {
-						out += ' * @inheritDoc\n';
-					}
-					
-					switch ( Context.getTypedExpr( field.expr() ).expr ) {
-						case EFunction(n, m):
-							
-							for (a in m.args) {
-								out += ' * @param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name + '\n';
-							}
-							
-							if (m.ret != null) {
-								out += ' * @return {' + m.ret.toString() + '}\n';
-							}
-							
-						case _:
-							
-					}
-			}
-			
-			out += ' */\n';
-			
-			return out;
-		} );
+		addJavaDoc( parts );
 		
 	}
 	
 	public function addClassAnnotation(c:ClassType):Void {
+		var parts = [];
 		
-		/*var superClass:ClassType;
-		var javaDoc:Array<String> = new Array<String>();*/
-		
-		/**
-		 * I used to type constructors as @constructor, static classes as @const, 
-		 * but found that ADVANCED mode of google closure compiler removed static 
-		 * fields from classes with constructors, which cause reflection issues.
-		 * 
-		 * Marking every class, static or not with @const allows successful minification,
-		 * but outputs a boat load more warnings, mainly about the dangerous use of "this".
-		 * 
-		 * Code will be kept commented out.
-		 */
-		/*if (!_class.isInterface && _class.constructor != null) javaDoc.push("@const");//javaDoc.push("@constructor");
-		
-		if (_class.constructor == null && _class.interfaces.length == 0) {
-			javaDoc.push("@const");
-		} else {
-			//javaDoc.push("@constructor");
-			javaDoc.push("@const");
-		}*/
-		/*javaDoc.push(characters.google._const);
-		
-		if (_class.isInterface) javaDoc.push(characters.google._interface);
-		
-		if (_class.superClass != null) {
-			superClass = _class.superClass.t.get();
-			javaDoc.push("@extends " + (superClass.pack.length > 0 ? superClass.pack.join('.') + '.' : '') + superClass.name);
-		}
-		
-		if (_class.interfaces.length != 0) {
-			for (inter in _class.interfaces) {
-				javaDoc.push(characters.google._implements + ' ' + '{' + inter.t.get().module + '}');
+		if (c.constructor != null) {
+			
+			if (c.constructor.get().doc != null) {
+				parts.push( '${c.constructor.get().doc}' );
 			}
-		}
-		
-		if (_class.constructor != null) {
 			
-			javaDoc.push( '@this {' + getPath( _class ) + '}' );
-			
-			switch (_class.constructor.get().type) {
-				case TFun(_args, _):
-					for (_arg in _args) {
-						javaDoc.push(characters.google._param + ' ' + '{' + printType(_arg.t, _arg.opt) + '}' + ' ' + _arg.name);
+			switch ( Context.getTypedExpr( c.constructor.get().expr() ).expr ) {
+				case EFunction(n, m):
+					
+					for (a in m.args) {
+						parts.push( '@param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name );
 					}
-				default:
+					
+				case _:
+					
+			}
+			
+		}
+		
+		if (c.isInterface) {
+			parts.push( '@interface' );
+		} else {
+			parts.push( '@constructor' );
+		}
+		
+		if (c.superClass != null) {
+			parts.push( '@extends {' + getPath( c.superClass.t.get() ) + '}' );
+		}
+		
+		if (c.interfaces.length > 0) {
+			for (i in c.interfaces) {
+				parts.push( '@implements {' + getPath( i.t.get() ) + '}' );
 			}
 		}
 		
-		addJavaDoc(javaDoc);*/
-		
-		fragment.parts.push( function() {
-			var out = '';
-			
-			out += '/**\n';
-			
-			if (c.constructor != null) {
-				
-				if (c.constructor.get().doc != null) {
-					out += ' * ${c.constructor.get().doc}\n';
-				}
-				
-				switch ( Context.getTypedExpr( c.constructor.get().expr() ).expr ) {
-					case EFunction(n, m):
-						
-						for (a in m.args) {
-							out += ' * @param {' + a.type.toString() + (a.opt ? '=' : '') + '} ' + a.name + '\n';
-						}
-						
-					case _:
-						
-				}
-				
-			}
-			
-			if (c.isInterface) {
-				out += ' * @interface\n';
-			} else {
-				out += ' * @constructor\n';
-			}
-			
-			if (c.superClass != null) {
-				out += ' * @extends {' + getPath( c.superClass.t.get() ) + '}\n';
-			}
-			
-			if (c.interfaces.length > 0) {
-				for (i in c.interfaces) {
-					out += ' * @implements {' + getPath( i.t.get() ) + '}\n';
-				}
-			}
-			
-			out += ' */\n';
-			
-			return out;
-		} );
+		addJavaDoc( parts );
 		
 	}
 	
