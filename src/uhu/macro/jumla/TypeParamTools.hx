@@ -8,20 +8,20 @@ import uhu.macro.jumla.ComplexTypeTools;
 
 class TypeParamTools {
 
-	/*@:extern public static inline function toString(t:TypeParam):String {
-		return ComplexString.toString( toType(t) );
-	}*/
+	@:extern public static inline function toString(t:TypeParam):String {
+		return Printer.printTypeParam( t );
+	}
 
-	public static function toString(t:TypeParam):String {
-		var result:String = null;
+	public static function toType(t:TypeParam):TComplexString {
+		var result = null;
 		
 		switch (t) {
 			case TPType(c):
-				result = ComplexTypeTools.toString(c);
+				result = ComplexTypeTools.toType( c );
 			case TPExpr(e):
-				result = ExprTools.toString(e);
+				result = ExprTools.toType( e );
 		}
-
+		
 		return result;
 	}
 

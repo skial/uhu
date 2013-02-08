@@ -2,12 +2,40 @@ package uhu.macro.jumla;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import uhu.macro.jumla.t.TComplexString;
 
 /**
  * @author Skial Bainn
  */
 
 class FieldTools {
+	
+	@:extern public static inline function toString(f:Field):String {
+		return Printer.printField( f );
+	}
+	
+	public static function toType(f:Field):TComplexString {
+		var result = null;
+		
+		switch (f.kind) {
+			case FVar(t, e) | FProp(_, _, t, e):
+				
+				if (t != null) {
+					
+					result = ComplexTypeTools.toType( t );
+					
+				} else if (e != null) {
+					
+					result = ExprTools.toType( e );
+					
+				}
+				
+			case FFun(m):
+				
+		}
+		
+		return result;
+	}
 	
 	public static function toFProp(variable:Field):Field {
 		
