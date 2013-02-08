@@ -21,7 +21,7 @@ class ExprTools {
 		
 		switch (e.expr) {
 			case EConst(c):
-				result = { name:Printer.printConstant( c ), params:[] };
+				result = { name:ConstantTools.toType( c ), params:[] };
 			case _:
 				
 		}
