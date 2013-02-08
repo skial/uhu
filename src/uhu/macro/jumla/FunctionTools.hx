@@ -24,8 +24,10 @@ class FunctionTools {
 		}
 		
 		if (f.ret != null) {
-			names.push( ComplexTypeTools.toType( f.ret );
+			names.push( ComplexString.toString( ComplexTypeTools.toType( f.ret ) ) );
 		}
+		
+		result = { name: names.join( '->' ), params:[] }; 	//	add f.params to params array
 		
 		return result;
 	}

@@ -39,7 +39,7 @@ class ComplexTypeTools {
 				
 			case TAnonymous(f):
 				
-				
+				result = FieldTools.toType( f[0] );
 				
 			case TParent(t):
 				

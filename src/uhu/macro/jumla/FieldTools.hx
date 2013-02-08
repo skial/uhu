@@ -32,6 +32,7 @@ class FieldTools {
 				
 			case FFun(m):
 				
+				result = FunctionTools.toType( m );
 		}
 		
 		return result;
