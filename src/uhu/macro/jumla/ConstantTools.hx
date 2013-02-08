@@ -10,25 +10,25 @@ import uhu.macro.jumla.t.TComplexString;
 
 class ConstantTools {
 	
-	@:extern public static inline function toString(c:Constant):String {
+	/*@:extern public static inline function toString(c:Constant):String {
 		return ComplexString.toString( toType(c) );
-	}
+	}*/
 	
-	public static function toType(c:Constant):TComplexString {
-		var result:TComplexString = null;
+	public static function toString(c:Constant):String {
+		var result:String = null;
 		
 		switch (c) {
 			case CInt(_):
-				result = { name:'Int', params:[] };
+				result = 'Int';
 			case CFloat(_):
-				result = { name:'Float', params:[] };
+				result = 'Float';
 			case CString(_):
-				result = { name:'String', params:[] };
+				result = 'String';
 			case CIdent(s):
 				trace('ident');
 				trace(s);
 			case CRegexp(_, _):
-				result = { name:'EReg', params:[] };
+				result = 'EReg';
 		}
 		
 		return result;

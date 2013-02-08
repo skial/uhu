@@ -12,12 +12,12 @@ import uhu.macro.jumla.TypeParamTools;
 
 class ExprTools {
 	
-	@:extern public static inline function toString(e:Expr):String {
+	/*@:extern public static inline function toString(e:Expr):String {
 		return ComplexString.toString( toType(e) );
-	}
+	}*/
 
-	public static function toType(e:Expr):TComplexString {
-		var result:TComplexString = null;
+	public static function toString(e:Expr):String {
+		/*var result:String = null;
 		
 		switch (e.expr) {
 			case EConst(c):
@@ -43,7 +43,8 @@ class ExprTools {
 				trace(e.expr);
 		}
 		
-		return result;
+		return result;*/
+		return Printer.printExpr( e );
 	}
 	
 	public static function toTField(field:Field):TField {

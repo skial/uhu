@@ -2,6 +2,7 @@ package uhu.macro.jumla;
 
 import haxe.macro.Type;
 import haxe.macro.Expr;
+import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.t.TField;
 
 /**
@@ -13,6 +14,10 @@ class TypeTools {
 	// Compat code for tink_macros
 	@:extern public static inline function getID(type:Type, ?reduce:Bool = false) {
 		return getName(type);
+	}
+	
+	public static inline function toString(t:Type):String {
+		return getName( t );
 	}
 	
 	public static function getName(type:Type):String {

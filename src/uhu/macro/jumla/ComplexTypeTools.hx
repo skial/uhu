@@ -5,6 +5,7 @@ import haxe.macro.Type;
 import haxe.macro.Context;
 import uhu.macro.jumla.TypeTools;
 import uhu.macro.jumla.t.TComplexString;
+import uhu.macro.jumla.TypeTools;
 
 /**
  * ...
@@ -13,13 +14,12 @@ import uhu.macro.jumla.t.TComplexString;
  
 class ComplexTypeTools {
 	
-	@:extern public static inline function toString(c:ComplexType):String {
-		return toType(c).getName();
-	}
+	/*@:extern public static inline function toString(c:ComplexType):String {
+		return ComplexString.toString( toType( c ) );
+	}*/
 
-	// Borrowed from haxe.macro.ComplexTypeTools. This class will be fully replaced by core class.
-	static public function toType(c:ComplexType):Type {
-		return c == null ? null : Context.typeof( { expr: ECheckType(macro null, c), pos: Context.currentPos() } );
+	public static inline function toString(c:ComplexType):String {
+		return Printer.printComplexType( c );
 	}
 	
 }

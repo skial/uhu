@@ -10,17 +10,17 @@ import uhu.macro.jumla.t.TComplexString;
 
 class EVarTools {
 	
-	@:extern public static inline function toString(variable:Var):String {
+	/*@:extern public static inline function toString(variable:Var):String {
 		return ComplexString.toString( toType( variable ) );
-	}
+	}*/
 	
-	public static function toType(variable:Var):TComplexString {
-		var result:TComplexString = null;
+	public static function toString(variable:Var):String {
+		var result:String = null;
 		
 		if (variable.expr != null) {
-			result = ExprTools.toType( variable.expr );
+			result = ExprTools.toString( variable.expr );
 		} else if (variable.type != null) {
-			result = ComplexTypeTools.toType( variable.type );
+			result = ComplexTypeTools.toString( variable.type );
 		}
 		
 		return result;

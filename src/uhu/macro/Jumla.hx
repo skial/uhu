@@ -7,6 +7,7 @@ import haxe.macro.Context;
 
 typedef TField = uhu.macro.jumla.t.TField;
 typedef TComplexString = uhu.macro.jumla.t.TComplexString;
+typedef JumlaPrinter = uhu.macro.jumla.Printer;
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaEVarTools = uhu.macro.jumla.EVarTools;
 typedef JumlaEFunctionTools = uhu.macro.jumla.EFunctionTools;

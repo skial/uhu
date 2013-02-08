@@ -101,12 +101,12 @@ class Validator {
 		
 		if (pair == null) return false;
 		
-		var complex_str:TComplexString = null;
+		var complex_str:String = null;
 		
 		if (pair.type != null) {
-			complex_str = pair.type.toType();
+			complex_str = pair.type.toString();
 		} else if (pair.expr != null) {
-			complex_str = pair.expr.toType();
+			complex_str = pair.expr.toString();
 		} else {
 			return false;
 		}
@@ -134,11 +134,11 @@ class Validator {
 		
 	}
 	
-	public static function checkType(complex_str:TComplexString, field:TField, ?inLoop:Bool = false):Bool {
+	public static function checkType(complex_str:String, field:TField, ?inLoop:Bool = false):Bool {
 		
 		if (complex_str != null) {
 			
-			switch (complex_str.name) {
+			switch (complex_str) {
 				case 'String' | 'Dynamic': 
 					checkString( complex_str, field, inLoop );
 					
@@ -157,7 +157,7 @@ class Validator {
 					
 				case _:
 					
-					throw 'Type "${complex_str.name}" is currently not supported.';
+					throw 'Type "${complex_str}" is currently not supported.';
 			}
 			
 		}
@@ -165,7 +165,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkString(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public static function checkString(complex_str:String, field:TField, inLoop:Bool):Bool {
 		
 		var match = getAttribute(complex_str, field);
 		
@@ -183,7 +183,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkNumber(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public static function checkNumber(complex_str:String, field:TField, inLoop:Bool):Bool {
 		var match = getAttribute(complex_str, field);
 		
 		if (!inLoop && match == null) {
@@ -207,7 +207,7 @@ class Validator {
 			throw 'No text nodes exist.';
 		}
 		
-		var func = complex_str.name == 'Float' ? Std.parseFloat : Std.parseInt;
+		var func = complex_str == 'Float' ? Std.parseFloat : Std.parseInt;
 		
 		try {
 			var value = func( valid.first().val() );
@@ -217,7 +217,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkBool(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public static function checkBool(complex_str:String, field:TField, inLoop:Bool):Bool {
 		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
 		var match = getAttribute(complex_str, field);
 		
@@ -235,7 +235,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkArray(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public static function checkArray(complex_str:String, field:TField, inLoop:Bool):Bool {
 		/*trace(complex_str);
 		trace(field);
 		trace(currentElement);*/
@@ -245,13 +245,13 @@ class Validator {
 			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
 		}
 		
-		if (complex_str.params[0] == null) {
+		if (complex_str == null) {	// fix
 			throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
 		}
 		
-		switch (complex_str.params[0].name) {
+		switch (complex_str) {	// fix
 			case 'Hash', 'Class', 'Enum':
-				throw 'Type "${complex_str.params[0].name}" for "${field.name}" is not compatiable. Check the supported types again.';
+				throw 'Type "${complex_str}" for "${field.name}" is not compatiable. Check the supported types again.';
 		}
 		
 		var children = currentElement.children(true);
@@ -263,7 +263,7 @@ class Validator {
 		var valid = new DOMCollection();
 		var originalElement = currentElement;
 		
-		complex_str = complex_str.params[0];
+		//complex_str = complex_str.params[0];	// fix
 		
 		for (c in children) {
 			
@@ -279,7 +279,7 @@ class Validator {
 	}
 	
 	
-	public static function getAttribute(complex_str:TComplexString, field:TField):String {
+	public static function getAttribute(complex_str:String, field:TField):String {
 		var match = null;
 		
 		for (a in currentElement.attributes()) {
