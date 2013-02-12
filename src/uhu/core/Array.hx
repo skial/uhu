@@ -13,7 +13,7 @@ import uhu.StdTypes;
 	#elseif js
 	typedef Array<T> = uhu.js.JSArray<T>;
 	#else
-	typedef typedef Array<T> = StdArray<T>;
+	typedef Array<T> = StdArray<T>;
 	#end
 	
 #else

@@ -4,7 +4,7 @@ package uhu.php;
  * @author Skial Bainn
  */
 
-abstract PHPHash(Hash<T>)<T> {
+abstract PHPHash<T>(Hash<T>) {
 
 	/**
 		Creates a new empty hashtable.

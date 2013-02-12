@@ -8,7 +8,7 @@ import php.NativeArray;
  */
  
 @:arrayAccess
-abstract PHPArray(Array<T>)<T> {
+abstract PHPArray<T>(Array<T>) {
 	
 	#if !display
 	/*@:from public static inline function fromNativeArray(array:NativeArray):PHPArray<T> {
