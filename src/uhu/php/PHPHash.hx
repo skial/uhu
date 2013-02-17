@@ -23,8 +23,12 @@ abstract PHPHash<T>(Hash<T>) {
 	/**
 		Get a value for the given key.
 	**/
-	public function get(key:String):Null<T> untyped {
-		return (null == this[key]) ? null : this[key];
+	public inline function get(key:String):Null<T> untyped {
+		var result = null;
+		if ( __call__('array_key_exists', key, this) ) {
+			result = this[key];
+		}
+		return result;
 	}
 
 	/**

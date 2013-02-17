@@ -6,10 +6,10 @@ package uhu.php.native;
  */
 
 extern class SortFlags {
-	public static inline var SORT_REGULAR:Int = untyped __php__('SORT_REGULAR');
-	public static inline var SORT_NUMERIC:Int = untyped __php__('SORT_REGULAR');
-	public static inline var SORT_STRING:Int = untyped __php__('SORT_STRING');
-	public static inline var SORT_LOCALE_STRING:Int = untyped __php__('SORT_LOCALE_STRING');
+	@:extern public static var SORT_REGULAR:Int = untyped __php__('SORT_REGULAR');
+	@:extern public static var SORT_NUMERIC:Int = untyped __php__('SORT_REGULAR');
+	@:extern public static var SORT_STRING:Int = untyped __php__('SORT_STRING');
+	@:extern public static var SORT_LOCALE_STRING:Int = untyped __php__('SORT_LOCALE_STRING');
 }
 
 extern class NativeArray<T> implements ArrayAccess<T> {
