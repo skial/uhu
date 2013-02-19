@@ -2,57 +2,11 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Vezati</title>
+	<title>Tem</title>
 </head>
 <body>
-	<div class="Class1 css1 css2 cssN">
-		<img id="myArray" src=""/>
-	</div>
 	
-<div class="Class1">
-	<!-- Now in scope Class1 -->
-	<h1>Hello World</h1>
-	<div class="Class2">
-		<!-- Now in scope Class2 -->
-		<img src="..." />
-		<p>more!</p>
-	</div>
-	<!-- Returned to scope Class1 -->
-	<img src="..." data-format/>
-</div>
-
-<div class="Class1 Class2 css" data-format><div></div>Hello World by <span>Skial Bainn</span></div>
-<div class="Class1 Class2 ClassN">Hello <!-- field --> World</div>
-<div class="Class Class2 ClassN">This sentence is written by <!-- name --> who is <!-- age --> years old.</div>
-
-<div class="MyClass1">
-	<ul data-fields>
-		<li>One</li>
-		<li>Two</li>
-		<li>Three</li>
-	</ul>
-</div>
-
-<div class="MyClass2" data-fields style="..." contenteditable="true" data-author="skial">Hello World</div>
-
-<div class="Class1">
-	<div data-format>Hello World</div>
-</div>
-
-<div class="Grandad">
-	<!-- Grandad scope -->
-	<div data-name>value</div>	<!-- Checks against the Grandad instance -->
-	<div class="Bob" data-name>value</div>	<!-- Sets Bob scope, name checked against Bob. If it fails its checked against Grandad -->
-</div>
-
-<div id="MyClass2">
-	<!-- Within MyClass scope -->
-	<div data-myField>value</div>	<!-- Checks against MyClass -->
-	<div id="YourClass">
-		<!-- Within YourClass scope -->
-		<div data-yourField>value</div> <!-- Checks against YourClass. If it fails, its checked against MyClass -->
-	</div>
-</div>
-
+	<div class="C1" data-field>Hello World</div>
+	<script type="text/script" src="tem.js" ></script>
 </body>
 </html>

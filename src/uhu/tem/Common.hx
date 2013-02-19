@@ -1,12 +1,13 @@
 package uhu.tem;
 
-import Type in StdType;
-import haxe.macro.Type;
-import haxe.macro.Expr;
 import uhu.tem.t.TemClass;
 import uhu.tem.t.TemTemplate;
 
+#if macro
+import haxe.macro.Type;
+import haxe.macro.Expr;
 import uhu.macro.Jumla;
+#end
 
 /**
  * ...
@@ -19,11 +20,13 @@ import uhu.macro.Jumla;
 
 class Common {
 	
-	public static var classes:Hash<TemClass> = new Hash<TemClass>();
+	#if macro
 	public static var currentClass:ClassType;
 	public static var currentFields:Array<TField>;
 	public static var currentStatics:Array<TField>;
+	#end
 	
+	public static var classes:Hash<TemClass> = new Hash<TemClass>();
 	public static var partials:Array<TemTemplate> = [];
 	public static var index:TemTemplate = null;
 	

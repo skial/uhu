@@ -23,7 +23,7 @@ using Lambda;
  
 class TemMacro {
 
-	public static macro function modify():Array<Field> {
+	public static macro function build():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		trace( cls.name );
@@ -51,8 +51,9 @@ class TemMacro {
 			var xml = Common.index.xml;
 			var scope = new Scope();
 			
-			xml = scope.parse(xml);
-			xml = Validator.parse(xml);
+			xml = scope.parse( xml );
+			xml = Validator.parse( xml );
+			fields = Binder.parse( xml, fields );
 			
 			File.saveContent(Compiler.getOutput() + '.html', xml.toString());
 		}

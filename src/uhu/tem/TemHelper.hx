@@ -1,12 +1,14 @@
 package uhu.tem;
 
+import uhu.tem.i.ITem;
+import uhu.tem.Common;
+
 /**
  * @author Skial Bainn
  */
 
-@:keep
-class TemHelper implements Tem {
-
+class TemHelper implements ITem {
+	
 	public function new() {
 		
 	}
