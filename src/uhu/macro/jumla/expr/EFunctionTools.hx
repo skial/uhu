@@ -1,4 +1,4 @@
-package uhu.macro.jumla;
+package uhu.macro.jumla.expr;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;

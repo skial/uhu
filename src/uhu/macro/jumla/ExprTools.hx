@@ -20,8 +20,18 @@ class ExprTools {
 		var result = null;
 		
 		switch (e.expr) {
+			case EArrayDecl(_) | EArray(_, _):
+				result = { name:'Array', params:[] };
+				
 			case EConst(c):
-				result = { name:ConstantTools.toType( c ), params:[] };
+				result = ConstantTools.toType( c );
+				
+			case ENew(t, _):
+				result = TypePathTools.toType( t );
+				
+			case EObjectDecl(_):
+				result = { name:'Typedef', params:[] };
+				
 			case _:
 				
 		}

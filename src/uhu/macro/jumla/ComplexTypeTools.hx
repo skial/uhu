@@ -3,6 +3,7 @@ package uhu.macro.jumla;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.Context;
+import uhu.macro.jumla.expr.FieldTools;
 import uhu.macro.jumla.t.TComplexString;
 
 /**
@@ -45,7 +46,7 @@ class ComplexTypeTools {
 				
 				result = toType( t );
 				
-			case TExtend(p, f):
+			case TExtend(p, _):
 				
 				result = TypePathTools.toType( p );
 				

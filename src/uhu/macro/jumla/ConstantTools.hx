@@ -14,21 +14,22 @@ class ConstantTools {
 		return Printer.printConstant( c );
 	}
 	
-	public static function toType(c:Constant):String {
-		var result:String = null;
+	public static function toType(c:Constant):TComplexString {
+		var result:TComplexString = null;
 		
 		switch (c) {
 			case CInt(_):
-				result = 'Int';
+				result = { name:'Int', params:[] };
 			case CFloat(_):
-				result = 'Float';
+				result = { name:'Float', params:[] };
 			case CString(_):
-				result = 'String';
+				result = { name:'String', params:[] };
 			case CIdent(s):
 				trace('ident');
 				trace(s);
+				result = { name:s, params:[] };
 			case CRegexp(_, _):
-				result = 'EReg';
+				result = { name:'EReg', params:[] };
 		}
 		
 		return result;

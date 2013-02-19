@@ -93,22 +93,31 @@ class Validator {
 		switch(field.kind) {
 			case FVar(t, e): 
 				pair = { type:t, expr:e };
+				
 			case FProp(_, _, t, e): 
 				pair = { type:t, expr:e };
+				
 			case _:
 				pair = null;
+				
 		}
 		
 		if (pair == null) return false;
 		
-		var complex_str:String = null;
+		var complex_str:TComplexString = null;
 		
 		if (pair.type != null) {
-			complex_str = pair.type.toString();
+			
+			complex_str = pair.type.toType();
+			
 		} else if (pair.expr != null) {
-			complex_str = pair.expr.toString();
+			
+			complex_str = pair.expr.toType();
+			
 		} else {
+			
 			return false;
+			
 		}
 		
 		checkType( complex_str, field );
@@ -118,27 +127,60 @@ class Validator {
 	}
 	
 	public static function method(field:TField) {
-		
+		var result = true;
 		var func:Function = null;
+		
+		var hasArgument = false;
+		var hasReturn = false;
 		
 		switch (field.kind) {
 			case FFun( f ):
 				func = f;
+				
 			case _:
+				throw '"${field.name}" is not a function.';
 				
 		}
 		
-		if (func == null) {
-			throw '"${field.name}" is not a function.';
+		if (func.args.length == 0 && (func.ret == null || func.ret.toType().name == 'Void')) {
+			throw 'Function "${field.name}" has no arguments and no return type.';
 		}
 		
+		if (func.ret != null && func.ret.toType().name != 'Void') {
+			
+			if ( checkType( func.ret.toType(), field ) ) {
+				
+				hasReturn = true;
+				
+			}
+			
+		}
+		
+		if (!hasReturn) {
+		
+			switch (func.args.length) {
+				case length if (length > 1):
+					throw 'Function "${field.name}" has more than one mandatory argument.';
+					
+				case length if (length < 1):
+					throw 'Function "${field.name}" has no arguments.';
+					
+				case _:
+					
+			}
+			
+			result = checkType( func.args[0].toType(), field );
+			
+		}
+		
+		return result;
 	}
 	
-	public static function checkType(complex_str:String, field:TField, ?inLoop:Bool = false):Bool {
+	public static function checkType(complex_str:TComplexString, field:TField, ?inLoop:Bool = false):Bool {
 		
 		if (complex_str != null) {
 			
-			switch (complex_str) {
+			switch (complex_str.name) {
 				case 'String' | 'Dynamic': 
 					checkString( complex_str, field, inLoop );
 					
@@ -165,7 +207,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkString(complex_str:String, field:TField, inLoop:Bool):Bool {
+	public static function checkString(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		
 		var match = getAttribute(complex_str, field);
 		
@@ -183,7 +225,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkNumber(complex_str:String, field:TField, inLoop:Bool):Bool {
+	public static function checkNumber(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		var match = getAttribute(complex_str, field);
 		
 		if (!inLoop && match == null) {
@@ -207,7 +249,7 @@ class Validator {
 			throw 'No text nodes exist.';
 		}
 		
-		var func = complex_str == 'Float' ? Std.parseFloat : Std.parseInt;
+		var func = complex_str.name == 'Float' ? Std.parseFloat : Std.parseInt;
 		
 		try {
 			var value = func( valid.first().val() );
@@ -217,7 +259,7 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkBool(complex_str:String, field:TField, inLoop:Bool):Bool {
+	public static function checkBool(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
 		var match = getAttribute(complex_str, field);
 		
@@ -235,23 +277,23 @@ class Validator {
 		return true;
 	}
 	
-	public static function checkArray(complex_str:String, field:TField, inLoop:Bool):Bool {
+	public static function checkArray(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
 		/*trace(complex_str);
 		trace(field);
 		trace(currentElement);*/
 		var match = getAttribute(complex_str, field);
 		
 		if (!inLoop && match == null) {
-			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. Check the field name is spelt correctly and the case matches.';
+			throw 'Can not find attribute "data-${field.name}" or "${field.name}" on $currentElement. \nCheck the field name is spelt correctly and the case matches.';
 		}
 		
 		if (complex_str == null) {	// fix
 			throw 'No type was detected for field "${field.name}" of type "Array<Unknown>"';
 		}
 		
-		switch (complex_str) {	// fix
+		switch (complex_str.name) {	// fix
 			case 'Hash', 'Class', 'Enum':
-				throw 'Type "${complex_str}" for "${field.name}" is not compatiable. Check the supported types again.';
+				throw 'Type "${complex_str.name}" for "${field.name}" is not compatiable. Check the supported types again.';
 		}
 		
 		var children = currentElement.children(true);
@@ -263,7 +305,7 @@ class Validator {
 		var valid = new DOMCollection();
 		var originalElement = currentElement;
 		
-		//complex_str = complex_str.params[0];	// fix
+		complex_str = complex_str.params[0];	// fix
 		
 		for (c in children) {
 			
@@ -279,7 +321,7 @@ class Validator {
 	}
 	
 	
-	public static function getAttribute(complex_str:String, field:TField):String {
+	public static function getAttribute(complex_str:TComplexString, field:TField):String {
 		var match = null;
 		
 		for (a in currentElement.attributes()) {
