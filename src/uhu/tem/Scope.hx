@@ -47,12 +47,15 @@ class Scope {
 	
 	public function processXML(xml:Xml) {
 		
-		if (findIds( xml ).indexOf( Common.currentClass.name ) != -1) {
+		/*if (findIds( xml ).indexOf( Common.currentClass.name ) != -1) {
 			matchAttributes(xml, true);
-		}
+		}*/
 		
 		if (findClasses( xml ).indexOf( Common.currentClass.name ) != -1) {
+			// matches instance classes and fields first
 			matchAttributes(xml, false);
+			// matches static classes and fields last
+			matchAttributes(xml, true);
 		}
 		
 		for (child in xml.children()) {
@@ -61,7 +64,7 @@ class Scope {
 		
 	}
 	
-	public function findIds(xml:Xml):Array<String> {
+	/*public function findIds(xml:Xml):Array<String> {
 		var results = [xml.attr('id').split(' ')[0].trim()];
 		
 		for (ancestor in xml.ancestors()) {
@@ -73,7 +76,7 @@ class Scope {
 		}
 		
 		return results;
-	}
+	}*/
 	
 	public function findClasses(xml:Xml):Array<String> {
 		var attr:String = xml.attr('class');

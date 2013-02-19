@@ -26,7 +26,7 @@ class TemMacro {
 	public static macro function modify():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
-		
+		trace( cls.name );
 		if ( Common.index != null /*&& (Context.defined('debug') || Context.defined('js'))*/ ) {
 			
 			Common.currentFields = [];
@@ -49,8 +49,9 @@ class TemMacro {
 			Common.currentClass = cls;
 			
 			var xml = Common.index.xml;
+			var scope = new Scope();
 			
-			xml = Scope.parse(xml);
+			xml = scope.parse(xml);
 			xml = Validator.parse(xml);
 			
 			File.saveContent(Compiler.getOutput() + '.html', xml.toString());

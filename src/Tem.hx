@@ -1,6 +1,7 @@
 package ;
 
 import Type in StdType;
+import uhu.tem.TemHelper;
 
 #if macro
 import dtx.XMLWrapper;
@@ -36,21 +37,9 @@ using Lambda;
 @:keep
 #if !macro
 @:autoBuild(uhu.tem.TemMacro.modify())
-#end
+interface Tem { }
+#else
 class Tem {
-	
-	#if !macro
-	/*
-	 * Tem.hxml entry point
-	 */
-	public static function main() {
-		
-	}
-	#end
-	
-	public function new() {
-		
-	}
 	
 	/**
 	 * Call this method by adding ``--macro Tem.setIndex("path/to/my/file.html")`` to your ``.hxml`` file.
@@ -62,12 +51,11 @@ class Tem {
 	}
 	
 }
+#end
 
-class Class1 extends Tem {
+class Class1 implements Tem {
 	
-	public function new() {
-		super();
-	}
+	public function new() {	}
 	
 	public var format(get_format, set_format):Array<Dynamic>;
 	
@@ -76,28 +64,24 @@ class Class1 extends Tem {
 	
 }
 
-class MyClass1 extends Tem {
+class MyClass1 implements Tem {
 	
-	public function new() {
-		super();
-	}
+	public function new() {	}
 	
 	public function fields() { }
 	public static var myField(default,default):String = '';
 	
 }
 
-class MyClass2 extends Tem {
+class MyClass2 implements Tem {
 	
-	public function new(bob = '') { 
-		super();
-	}
+	public function new(bob = '') {	}
 	
 	public function fields() { }
 	public static var myField = 0;
 	
 }
 
-class YourClass extends Tem {
+class YourClass implements Tem {
 	public static function yourField() {}
 }
