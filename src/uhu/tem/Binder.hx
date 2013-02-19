@@ -93,7 +93,7 @@ class Binder {
 					access:[APublic],
 					kind:FVar(
 						macro : String,
-						null
+						macro 's'
 					),
 					pos:
 						#if macro
