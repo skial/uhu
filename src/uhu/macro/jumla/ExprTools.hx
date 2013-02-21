@@ -86,7 +86,7 @@ class ExprTools {
 				
 				m1.args = m1.args.concat( m2.args );
 				m1.params = m1.params.concat( m2.params );
-				m1.expr = ExprTools.concat( m1.expr, m2.expr );
+				m1.expr = concat( m1.expr, m2.expr );
 				result = EFunction( n1, m1 );
 				
 			case [EObjectDecl( f1 ), EObjectDecl( f2 )]:

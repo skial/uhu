@@ -96,8 +96,8 @@ class Binder {
 					doc:null,
 					access:[APublic],
 					kind:FVar(
-						macro : String,
-						macro 's'
+						macro : dtx.DOMNode,
+						macro null
 					),
 					pos:
 						#if macro
@@ -143,7 +143,9 @@ class Binder {
 			
 			if (!currentFields.toTFields().hasClassField( 'TemCreate' )) {
 				
-				var returnType = TypeTools.toComplexType( Context.getType( Common.currentClass.name ) );
+				var class_name = Common.currentClass.name;
+				var complexType = Context.getType( Common.currentClass.name );
+				var returnType = TypeTools.toComplexType( complexType );
 				
 				var newField:Field = { 
 					name:'TemCreate',
@@ -156,17 +158,18 @@ class Binder {
 								opt:false,
 								type:macro :dtx.DOMNode,
 							},
-							{
+							/*{
 								name:'selector',
 								opt:false,
 								type:macro :String,
-							}
+							}*/
 						],
 						ret:returnType ,
 						expr:macro {
-							var cls = $ { Context.parse( 'new ${Common.currentClass.name}()', Context.currentPos() ) };
-							cls.element = null;
-							trace('Hello Tem from ${Common.currentClass.name}');
+							var cls = $ { Context.parse( 'new $class_name()', Context.currentPos() ) };
+							cls.element = node;
+							trace('Hello Tem from $class_name');
+							trace(node);
 							return cls;
 						},
 						params:[]
@@ -195,7 +198,7 @@ class Binder {
 						args:[],
 						ret:null ,
 						expr:macro {
-							TemHelper.runtime_classes.set( '${Common.currentClass.name}', '' );
+							TemHelper.runtime_classes.set( '$class_name', ${Context.parse('$class_name', Context.currentPos())} );
 						},
 						params:[]
 					} ),

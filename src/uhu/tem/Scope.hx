@@ -56,6 +56,8 @@ class Scope {
 			matchAttributes(xml, false);
 			// matches static classes and fields last
 			matchAttributes(xml, true);
+			// add `Tem` to `class="..."`
+			xml.addClass( 'UhuTem' );
 		}
 		
 		for (child in xml.children()) {

@@ -3,14 +3,33 @@
 <head>
 	<meta charset="utf-8">
 	<title>Tem</title>
+	<style>
+	@keyframes nodeInserted {  
+		from {  
+			clip: rect(1px, auto, auto, auto);  
+		}
+		to {  
+			clip: rect(0px, auto, auto, auto);
+		}  
+	}
+
+	@-webkit-keyframes nodeInserted {  
+		from {  
+			clip: rect(1px, auto, auto, auto);  
+		}
+		to {  
+			clip: rect(0px, auto, auto, auto);
+		}  
+	}
+	</style>
 </head>
 <body>
 	<div id="haxe:trace">
 		
 	</div>
 	<div class="C1" data-field>Hello World</div>
-	<script src="tem.js" >
-	
-	</script>
+	<script src="jquery-latest.min.js"></script>
+	<script src="bean.js"></script>
+	<script src="tem.js" ></script>
 </body>
 </html>

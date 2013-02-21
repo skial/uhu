@@ -26,7 +26,7 @@ class TemMacro {
 	public static macro function build():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
-		trace( cls.name );
+		
 		if ( Common.index != null /*&& (Context.defined('debug') || Context.defined('js'))*/ ) {
 			
 			Common.currentFields = [];

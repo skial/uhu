@@ -1,6 +1,7 @@
 -cp src
 -cp ../detox/src
 -cp ../thx/src
+-cp ../beanhx/src
 -lib mdown
 -lib polygonal-core
 -js bin/tem/tem.js

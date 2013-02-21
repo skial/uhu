@@ -3,7 +3,7 @@ package uhu.tem;
 import uhu.tem.t.TemClass;
 import uhu.tem.t.TemTemplate;
 
-#if macro
+#if (macro || test_mode)
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import uhu.macro.Jumla;
@@ -20,7 +20,7 @@ import uhu.macro.Jumla;
 
 class Common {
 	
-	#if macro
+	#if (macro || test_mode)
 	public static var currentClass:ClassType;
 	public static var currentFields:Array<TField>;
 	public static var currentStatics:Array<TField>;
