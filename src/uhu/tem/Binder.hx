@@ -26,10 +26,14 @@ class Binder {
 		
 		currentFields = fields;
 		
-		// Add public instance fields if they dont exist
-		createTemFields();
-		// Add public static function TemCreate to class if it doesnt exist
-		createTemCreate();
+		if (!Common.currentClass.meta.has(':TemIgnore')) {
+			
+			// Add public instance fields if they dont exist
+			createTemFields();
+			// Add public static function TemCreate to class if it doesnt exist
+			createTemCreate();
+			
+		}
 		
 		for (x in xml) {
 			
@@ -183,6 +187,49 @@ class Binder {
 				
 				currentFields.push( newField );
 				
+				var newField:Field = { 
+					name:'__init__',
+					doc:null,
+					access:[APublic, AStatic],
+					kind:FFun( {
+						args:[],
+						ret:null ,
+						expr:macro {
+							TemHelper.runtime_classes.set( '${Common.currentClass.name}', '' );
+						},
+						params:[]
+					} ),
+					pos:
+						#if macro
+						Context.currentPos()
+						#else
+						{
+							file:'',
+							min:0,
+							max:1
+						}
+						#end
+						,
+					meta:[
+						{
+							name:':keep',
+							params:[],
+							pos:
+							#if macro
+							Context.currentPos()
+							#else
+							{
+								file:'',
+								min:0,
+								max:1
+							}
+							#end
+							,
+						}
+					]
+				};
+				
+				currentFields.push( newField );
 			}
 			
 		}

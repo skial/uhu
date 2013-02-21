@@ -55,6 +55,7 @@ class Tem implements ITem {
 	
 	#if TestTem
 	public static function main() {
+		trace('Hello World');
 		Tem.init();
 	}
 	#end
