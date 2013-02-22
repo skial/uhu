@@ -55,7 +55,7 @@ class FieldTools {
 		return variable;
 	}
 	
-	public static function createGetter(variable:Field):Field {
+	public static function createGetter(variable:Field, expression:Expr):Field {
 		var result:Field = null;
 		
 		switch (variable.kind) {
@@ -68,7 +68,7 @@ class FieldTools {
 					kind:FFun( {
 						args:[],
 						ret:t,
-						expr:macro return $i{variable.name},
+						expr:expression,
 						params:[]
 					} ),
 					pos:variable.pos,
@@ -82,7 +82,7 @@ class FieldTools {
 		return result;
 	}
 	
-	public static function createSetter(variable:Field):Field {
+	public static function createSetter(variable:Field, expression:Expr):Field {
 		var result:Field = null;
 		
 		switch (variable.kind) {
@@ -94,12 +94,12 @@ class FieldTools {
 					access:variable.access,
 					kind:FFun( {
 						args:[ {
-							name:'val',
+							name:'v',
 							opt:false,
 							type:t,
 						} ],
 						ret:t,
-						expr:macro return val,
+						expr:expression,
 						params:[]
 					} ),
 					pos:variable.pos,

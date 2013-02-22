@@ -2,8 +2,8 @@ package uhu.tem;
 
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
-import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.Expr;
 import haxe.macro.TypeTools;
 
 import uhu.tem.Common;
@@ -50,6 +50,10 @@ class Binder {
 	public static function processXML(xml:Xml) {
 		
 		var fields:Array<String>;
+		var field:String;
+		var pack:Array<String>;
+		var name:String;
+		var mfield:Field;
 		
 		if ( xml.exists(Common.x_instance) ) {
 			
@@ -58,11 +62,12 @@ class Binder {
 			
 			for (field in fields) {
 				
-				var pack:Array<String> = field.split('.');
-				var name:String = pack.pop();
-				var mfield = Common.currentFields.exists( name );
+				pack = field.split('.');
+				name = pack.pop();
+				//var mfield = Common.currentFields.exists( name );
+				mfield = currentFields.get( name );
 				
-				
+				fieldKind( mfield );
 			}
 			
 		}
@@ -70,17 +75,68 @@ class Binder {
 		if ( xml.exists(Common.x_static) ) {
 			
 			currentElement = xml;
-			var field = xml.attr(Common.x_static).split(' ')[0];
+			field = xml.attr(Common.x_static).split(' ')[0];
 			
-			var pack:Array<String> = field.split('.');
-			var name:String = pack.pop();
-			var mfield = Common.currentStatics.exists(name);
-			
+			pack = field.split('.');
+			name = pack.pop();
+			//var mfield = Common.currentStatics.exists( name );
+			mfield = currentFields.get( name );
 			
 		}
 		
 		for (child in xml.children()) {
 			processXML( child );
+		}
+		
+	}
+	
+	public static function fieldKind(field:Field) {
+		var type:ComplexType = null;
+		var expr:Expr = null;
+		
+		var get:Field = null;
+		var set:Field = null;
+		
+		switch (field.kind) {
+			case FVar(t, e):
+				type = t;
+				expr = e;
+				
+			case FProp(g, s, t, e):
+				
+				switch (g) {
+					case 'default', 'null', 'dynamic', 'never', '':
+						get = null;
+					case n if (currentFields.exists( n )):
+						get = currentFields.get( n );
+				}
+				
+				
+				switch (s) {
+					case 'default', 'null', 'dynamic', 'never', '':
+						set = null;
+					case n if (currentFields.exists( n )):
+						set = currentFields.get( n );
+				}
+				
+				type = t;
+				expr = e;
+				
+			case FFun(_):
+				
+				
+		}
+		
+		if (get == null) {
+			
+			var getter = macro { return 'SKIAL!?!?!?!?!!!!!.....!'; };
+			var setter = macro { return v; };
+			
+			field.kind = FProp('get_${field.name}', 'set_${field.name}', type, expr);
+			
+			currentFields.push( field.createGetter( getter ) );
+			currentFields.push( field.createSetter( setter ) );
+			
 		}
 		
 	}
