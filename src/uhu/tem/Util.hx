@@ -20,7 +20,7 @@ class Util {
 	
 	// rename to hasField?
 	public static inline function hasClassField(fields:Array<TField>, name:String):Bool {
-		return fields.has( name );
+		return fields.exists( name );
 	}
 	
 	// rename to getField?

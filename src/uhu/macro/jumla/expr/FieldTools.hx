@@ -113,7 +113,7 @@ class FieldTools {
 		return result;
 	}
 	
-	public static function has(fields:Array<Field>, name:String):Bool {
+	public static function exists(fields:Array<Field>, name:String):Bool {
 		var result = fields.exists( function(field):Bool {
 			return (field.name == name) ? true : false;
 		} );

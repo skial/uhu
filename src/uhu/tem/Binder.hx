@@ -9,7 +9,7 @@ import haxe.macro.TypeTools;
 import uhu.tem.Common;
 
 using Detox;
-using uhu.tem.Util;
+//using uhu.tem.Util;
 using uhu.macro.Jumla;
 
 /**
@@ -60,7 +60,7 @@ class Binder {
 				
 				var pack:Array<String> = field.split('.');
 				var name:String = pack.pop();
-				var mfield = Common.currentFields.getClassField( name );
+				var mfield = Common.currentFields.exists( name );
 				
 				
 			}
@@ -74,7 +74,7 @@ class Binder {
 			
 			var pack:Array<String> = field.split('.');
 			var name:String = pack.pop();
-			var mfield = Common.currentStatics.getClassField(name);
+			var mfield = Common.currentStatics.exists(name);
 			
 			
 		}
@@ -89,7 +89,7 @@ class Binder {
 		
 		if (Common.currentFields.length > 0) {
 			
-			if (!currentFields.toTFields().hasClassField( 'element' )) {
+			if (!currentFields.exists( 'element' )) {
 				
 				var field_type:FieldType = null;
 				var field_meta:Array<MetadataEntry> = null;
@@ -113,7 +113,7 @@ class Binder {
 		
 		if (Common.currentFields.length > 0) {
 			
-			if (!currentFields.toTFields().hasClassField( 'TemCreate' )) {
+			if (!currentFields.exists( 'TemCreate' )) {
 				
 				var class_name = Common.currentClass.name;
 				var complex_type = Context.getType( Common.currentClass.name );

@@ -10,7 +10,7 @@ using Lambda;
 
 class TFieldTools {
 	
-	public static function has(fields:Array<TField>, name:String):Bool {
+	public static function exists(fields:Array<TField>, name:String):Bool {
 		var result = fields.exists( function(field):Bool {
 			return (field.name == name) ? true : false;
 		} );
