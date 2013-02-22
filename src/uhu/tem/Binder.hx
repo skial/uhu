@@ -29,9 +29,9 @@ class Binder {
 		if (!Common.currentClass.meta.has(':TemIgnore')) {
 			
 			// Add public instance fields if they dont exist
-			createTemFields();
+			createTemInstanceFields();
 			// Add public static function TemCreate to class if it doesnt exist
-			createTemCreate();
+			createTemStaticsFields();
 			
 		}
 		
@@ -60,7 +60,7 @@ class Binder {
 				
 				var pack:Array<String> = field.split('.');
 				var name:String = pack.pop();
-				var mfield = Common.currentFields.getClassField(name);
+				var mfield = Common.currentFields.getClassField( name );
 				
 				
 			}
@@ -85,51 +85,23 @@ class Binder {
 		
 	}
 	
-	public static function createTemFields():Void {
+	public static function createTemInstanceFields():Void {
 		
 		if (Common.currentFields.length > 0) {
 			
 			if (!currentFields.toTFields().hasClassField( 'element' )) {
 				
-				var newField:Field = {
-					name:'element',
-					doc:null,
-					access:[APublic],
-					kind:FVar(
-						macro : dtx.DOMNode,
-						macro null
-					),
-					pos:
-						#if macro
-						Context.currentPos()
-						#else
-						{
-							file:'',
-							min:0,
-							max:1,
-						}
-						#end
-						,
-					meta:[
-						{
-							name:':keep',
-							params:[],
-							pos:
-							#if macro
-							Context.currentPos()
-							#else
-							{
-								file:'',
-								min:0,
-								max:1,
-							}
-							#end
-							,
-						}
-					]
-				}
+				var field_type:FieldType = null;
+				var field_meta:Array<MetadataEntry> = null;
 				
-				currentFields.push( newField );
+				field_type = FVar(
+					macro : dtx.DOMNode,
+					macro null
+				);
+				
+				field_meta = [ createMetaEntry(':keep', []) ];
+				
+				currentFields.push( createField('element', field_type, field_meta, false) );
 				
 			}
 			
@@ -137,105 +109,118 @@ class Binder {
 		
 	}
 	
-	public static function createTemCreate():Void {
+	public static function createTemStaticsFields():Void {
 		
 		if (Common.currentFields.length > 0) {
 			
 			if (!currentFields.toTFields().hasClassField( 'TemCreate' )) {
 				
 				var class_name = Common.currentClass.name;
-				var complexType = Context.getType( Common.currentClass.name );
-				var returnType = TypeTools.toComplexType( complexType );
+				var complex_type = Context.getType( Common.currentClass.name );
+				var return_type = TypeTools.toComplexType( complex_type );
 				
-				var newField:Field = { 
-					name:'TemCreate',
-					doc:null,
-					access:[APublic, AStatic],
-					kind:FFun( {
-						args:[
-							{
-								name:'node',
-								opt:false,
-								type:macro :dtx.DOMNode,
-							},
-							/*{
-								name:'selector',
-								opt:false,
-								type:macro :String,
-							}*/
-						],
-						ret:returnType ,
-						expr:macro {
-							var cls = $ { Context.parse( 'new $class_name()', Context.currentPos() ) };
-							cls.element = node;
-							trace('Hello Tem from $class_name');
-							trace(node);
-							return cls;
+				var field_type:FieldType = null;
+				var field_meta:Array<MetadataEntry> = null;
+				
+				// First create TemCreate(node:DOMNode) { ... }
+				field_type = FFun( {
+					args:[
+						{
+							name:'node',
+							opt:false,
+							type:macro :dtx.DOMNode,
 						},
-						params:[]
-					} ),
-					pos:
-						#if macro
-						Context.currentPos()
-						#else
-						{
-							file:'',
-							min:0,
-							max:1
-						}
-						#end
-						,
-					meta:[]
-				};
+					],
+					ret:return_type ,
+					expr:macro {
+						var cls = $ { Context.parse( 'new $class_name()', Context.currentPos() ) };
+						cls.element = node;
+						trace('Hello Tem from $class_name');
+						trace(node);
+						return cls;
+					},
+					params:[]
+				} );
 				
-				currentFields.push( newField );
+				currentFields.push( createField('TemCreate', field_type, [], true) );
 				
-				var newField:Field = { 
-					name:'__init__',
-					doc:null,
-					access:[APublic, AStatic],
-					kind:FFun( {
-						args:[],
-						ret:null ,
-						expr:macro {
-							TemHelper.runtime_classes.set( '$class_name', ${Context.parse('$class_name', Context.currentPos())} );
-						},
-						params:[]
-					} ),
-					pos:
-						#if macro
-						Context.currentPos()
-						#else
-						{
-							file:'',
-							min:0,
-							max:1
-						}
-						#end
-						,
-					meta:[
-						{
-							name:':keep',
-							params:[],
-							pos:
-							#if macro
-							Context.currentPos()
-							#else
-							{
-								file:'',
-								min:0,
-								max:1
-							}
-							#end
-							,
-						}
-					]
-				};
+				// Then create __init__ method
+				field_type = FFun( {
+					args:[],
+					ret:null ,
+					expr:macro {
+						TemHelper.runtime_classes.set( '$class_name', ${Context.parse('$class_name', Context.currentPos())} );
+					},
+					params:[]
+				} );
 				
-				currentFields.push( newField );
+				field_meta = [ createMetaEntry(':keep', []) ];
+				
+				currentFields.push( createField('__init__', field_type, field_meta, true) );
 			}
 			
 		}
+		
+	}
+	
+	public static function createMetaEntry(name:String, params:Array<Expr>):MetadataEntry {
+		var newMeta = null;
+		
+		if (params == null) {
+			params = [];
+		}
+		
+		newMeta = {
+			name:name,
+			params:params,
+			pos:
+			#if macro
+			Context.currentPos()
+			#else
+			{
+				file:'',
+				min:0,
+				max:1
+			}
+			#end
+			,
+		}
+		
+		return newMeta;
+	}
+	
+	public static function createField(name:String, kind:FieldType, meta:Array<MetadataEntry>, isStatic:Bool):Field {
+		var newField:Field = null;
+		var newAccess = [APublic];
+		
+		if (isStatic) {
+			newAccess.push( AStatic );
+		}
+		
+		if (meta == null) {
+			meta = [];
+		}
+		
+		newField = {
+			name:name,
+			doc:null,
+			access:newAccess,
+			kind:kind,
+			pos:
+				#if macro
+				Context.currentPos()
+				#else
+				{
+					file:'',
+					min:0,
+					max:1
+				}
+				#end
+				,
+			meta:meta
+		}
+		
+		return newField;
 		
 	}
 	

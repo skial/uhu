@@ -19,13 +19,8 @@ using uhu.macro.Jumla;
 class Util {
 	
 	// rename to hasField?
-	public static function hasClassField(fields:Array<TField>, name:String):Bool {
-		return fields.exists( function(f) {
-			if (f.name == name) {
-				return true;
-			}
-			return false;
-		} );
+	public static inline function hasClassField(fields:Array<TField>, name:String):Bool {
+		return fields.has( name );
 	}
 	
 	// rename to getField?

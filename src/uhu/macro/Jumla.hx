@@ -6,14 +6,15 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 
 typedef TField = uhu.macro.jumla.t.TField;
-typedef TComplexString = uhu.macro.jumla.t.TComplexString;
+typedef JumlaTFieldTools = uhu.macro.jumla.TFieldTools;
 typedef JumlaPrinter = uhu.macro.jumla.Printer;
+typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
+typedef TComplexString = uhu.macro.jumla.t.TComplexString;
 typedef JumlaConstantTools = uhu.macro.jumla.ConstantTools;
-typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
-typedef JumlaComplexString = uhu.macro.jumla.ComplexString;
 typedef JumlaTypePathTools = uhu.macro.jumla.TypePathTools;
 typedef JumlaTypeParamTools = uhu.macro.jumla.TypeParamTools;
-typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
+typedef JumlaComplexString = uhu.macro.jumla.ComplexStringTools;
+typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaEVarTools = uhu.macro.jumla.expr.EVarTools;

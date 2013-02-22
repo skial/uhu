@@ -1,8 +1,11 @@
 package uhu.macro.jumla.expr;
 
-import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Context;
+import uhu.macro.jumla.t.TField;
 import uhu.macro.jumla.t.TComplexString;
+
+using Lambda;
 
 /**
  * @author Skial Bainn
@@ -105,6 +108,53 @@ class FieldTools {
 				
 			case _:
 				throw '"${variable.name} field kind is not of type "FieldType::FProp". Use toFProp before calling this method.';
+		}
+		
+		return result;
+	}
+	
+	public static function has(fields:Array<Field>, name:String):Bool {
+		var result = fields.exists( function(field):Bool {
+			return (field.name == name) ? true : false;
+		} );
+		
+		return result;
+	}
+	
+	public static function get(fields:Array<Field>, name:String):Field {
+		var result = null;
+		
+		for (field in fields) {
+			if (field.name == name) {
+				result = field;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
+	public static function toTField(field:Field):TField {
+		var result = {
+			name:'',
+			pos:null,
+			access:[],
+			kind:null,
+		}
+		
+		result.name = field.name;
+		result.pos = field.pos;
+		result.access = field.access;
+		result.kind = field.kind;
+		
+		return result;
+	}
+	
+	public static function toTFields(fields:Array<Field>):Array<TField> {
+		var result = [];
+		
+		for (field in fields) {
+			result.push( toTField( field ) );
 		}
 		
 		return result;

@@ -7,7 +7,7 @@ import uhu.macro.jumla.t.TComplexString;
  * @author Skial Bainn
  */
 
-class ComplexString {
+class ComplexStringTools {
 
 	public static function toString(c:TComplexString):String {
 		var result = '';

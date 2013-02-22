@@ -49,16 +49,16 @@ class Tem implements ITem {
 	}
 	#end
 	
-	public static function init():Void {
-		var help = new TemHelper();
-	}
-	
 	#if TestTem
 	public static function main() {
 		trace('Hello World');
-		Tem.init();
+		Tem.Init();
 	}
 	#end
+	
+	public static function Init():Void {
+		var help = new TemHelper();
+	}
 	
 }
 

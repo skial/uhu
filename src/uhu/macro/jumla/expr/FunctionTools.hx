@@ -1,8 +1,8 @@
 package uhu.macro.jumla.expr;
 
 import haxe.macro.Expr;
-import uhu.macro.jumla.ComplexString;
 import uhu.macro.jumla.t.TComplexString;
+import uhu.macro.jumla.ComplexStringTools;
 
 /**
  * @author Skial Bainn
@@ -20,11 +20,11 @@ class FunctionTools {
 		var names = [];
 		
 		for (a in f.args) {
-			names.push( ComplexString.toString( FunctionArgTools.toType( a ) ) );
+			names.push( ComplexStringTools.toString( FunctionArgTools.toType( a ) ) );
 		}
 		
 		if (f.ret != null) {
-			names.push( ComplexString.toString( ComplexTypeTools.toType( f.ret ) ) );
+			names.push( ComplexStringTools.toString( ComplexTypeTools.toType( f.ret ) ) );
 		}
 		
 		result = { name: names.join( '->' ), params:[] }; 	//	add f.params to params array
