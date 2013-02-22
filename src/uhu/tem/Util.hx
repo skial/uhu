@@ -24,13 +24,8 @@ class Util {
 	}
 	
 	// rename to getField?
-	public static function getClassField(fields:Array<TField>, name:String):Null<TField> {
-		
-		for (f in fields) {
-			if (f.name == name) return f;
-		}
-		
-		return null;
+	public static inline function getClassField(fields:Array<TField>, name:String):Null<TField> {
+		return fields.get( name );
 	}
 	
 	public static function getFieldType(type:Type):String {
