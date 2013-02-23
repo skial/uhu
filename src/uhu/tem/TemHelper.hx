@@ -34,13 +34,15 @@ class TemHelper implements ITem {
 		
 		// Finally loop through each runtime_classes pair and call TemCreate
 		var cls = null;
+		var node = null;
 		
 		for (key in runtime_classes.keys()) {
 			cls = runtime_classes.get( key );
 			#if !macro
 			//searchNode( '.UhuTem[class~="$key"]' );
+			node = '.UhuTem[class~="$key"]'.find().collection[0];
 			#end
-			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [] );
+			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
 		}
 		
 	}

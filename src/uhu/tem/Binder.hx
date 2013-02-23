@@ -1,5 +1,6 @@
 package uhu.tem;
 
+import dtx.DOMCollection;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Type;
@@ -97,10 +98,47 @@ class Binder {
 		var get:Field = null;
 		var set:Field = null;
 		
+		var get_expr:Expr = null;
+		var set_expr:Expr = null;
+		
+		var helper_name:String;
+		var helper_type:FieldType;
+		var helper_meta:Array<MetadataEntry> = [];
+		
 		switch (field.kind) {
+			// Turn a normal variable into a getter/setter variable.
 			case FVar(t, e):
 				type = t;
 				expr = e;
+				
+				helper_name = 'TemNodeFor_' + field.name;
+				field.kind = FProp('get_' + field.name, 'set_' + field.name, t, e);
+				field.meta.push( createMetaEntry(':isVar', []) );
+				
+				get_expr = macro {
+					if ($i{helper_name} != null) {
+						return dtx.single.ElementManipulation.innerHTML( $i{ helper_name } );
+					} else if ($i{ helper_name } == null) {
+						$i { helper_name } = dtx.single.Traversing.find(classNode, '[data-${field.name}]').collection[0];
+						trace($i { helper_name } );
+						return dtx.single.ElementManipulation.innerHTML( $i { helper_name } );
+					}
+					return $i{field.name};
+				}
+				
+				set_expr = macro {
+					return v;
+				};
+				
+				// Define helper variables type and expression.
+				helper_type = FVar(
+					macro : dtx.DOMNode,
+					macro null
+				);
+				
+				currentFields.push( createField(helper_name, helper_type, helper_meta, false) );
+				currentFields.push( field.createGetter( get_expr ) );
+				currentFields.push( field.createSetter( set_expr ) );
 				
 			case FProp(g, s, t, e):
 				
@@ -110,7 +148,6 @@ class Binder {
 					case n if (currentFields.exists( n )):
 						get = currentFields.get( n );
 				}
-				
 				
 				switch (s) {
 					case 'default', 'null', 'dynamic', 'never', '':
@@ -122,21 +159,10 @@ class Binder {
 				type = t;
 				expr = e;
 				
-			case FFun(_):
+			case FFun(f):
+				type = f.ret;
+				expr = f.expr;
 				
-				
-		}
-		
-		if (get == null) {
-			
-			var getter = macro { return 'SKIAL!?!?!?!?!!!!!.....!'; };
-			var setter = macro { return v; };
-			
-			field.kind = FProp('get_${field.name}', 'set_${field.name}', type, expr);
-			
-			currentFields.push( field.createGetter( getter ) );
-			currentFields.push( field.createSetter( setter ) );
-			
 		}
 		
 	}
@@ -145,7 +171,7 @@ class Binder {
 		
 		if (Common.currentFields.length > 0) {
 			
-			if (!currentFields.exists( 'element' )) {
+			if (!currentFields.exists( 'classNode' )) {
 				
 				var field_type:FieldType = null;
 				var field_meta:Array<MetadataEntry> = null;
@@ -157,7 +183,7 @@ class Binder {
 				
 				field_meta = [ createMetaEntry(':keep', []) ];
 				
-				currentFields.push( createField('element', field_type, field_meta, false) );
+				currentFields.push( createField('classNode', field_type, field_meta, false) );
 				
 			}
 			
@@ -190,8 +216,8 @@ class Binder {
 					ret:return_type ,
 					expr:macro {
 						var cls = $ { Context.parse( 'new $class_name()', Context.currentPos() ) };
-						cls.element = node;
-						trace('Hello Tem from $class_name');
+						cls.classNode = node;
+						trace('Hello from $class_name');
 						trace(node);
 						return cls;
 					},

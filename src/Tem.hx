@@ -64,7 +64,7 @@ class Tem implements ITem {
 
 class C1 extends Tem {
 	
-	public var field:String;
+	public var field:String = 'Skial?';
 	
 	public function new() {
 		trace( field ); 	//	Should be Hello World
