@@ -4,9 +4,8 @@
 -cp ../beanhx/src
 -lib mdown
 -lib polygonal-core
--js bin/tem/tem.js
+-neko bin/tem/tem.js
 -D haxe3
 -D no-macro-cache
 -D TestTem
 -main Tem
---macro Tem.setIndex('templates/tem/basic.tem.html')

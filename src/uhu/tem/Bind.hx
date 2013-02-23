@@ -5,9 +5,9 @@ package uhu.tem;
  */
 
 #if (macro || TestTem)
-typedef Scope = uhu.tem.scope.Scope_Macro;
+typedef Bind = uhu.tem.bind.Bind_Macro;
 #else
-typedef Scope = {
+typedef Bind = {
 	
 }
 #end

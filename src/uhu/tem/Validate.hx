@@ -5,9 +5,9 @@ package uhu.tem;
  */
 
 #if (macro || TestTem)
-typedef Scope = uhu.tem.scope.Scope_Macro;
+typedef Validate = uhu.tem.validate.Validate_Macro;
 #else
-typedef Scope = {
+typedef Validate = {
 	
 }
 #end

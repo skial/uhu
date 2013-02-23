@@ -11,7 +11,7 @@ typedef TField = {
 	var name:String;
 	var pos:Position;
 	
-	@:optional var access:Array<Access>;
+	var access:Array<Access>;
 	@:optional var kind:FieldType;
 }
 
