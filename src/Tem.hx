@@ -37,6 +37,7 @@ using StringTools;
  * Vezati is "bind" in Croatian
  */
 
+@:TemIgnore
 class Tem implements ITem { 
 	
 	#if macro

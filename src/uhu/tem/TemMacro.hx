@@ -41,6 +41,8 @@ class TemMacro {
 			var bind = new Bind(common);
 			common.html = bind.parse();
 			
+			fields = common.fields;
+			
 			// Write modified html to output directory.
 			
 			var output_parts = Compiler.getOutput().split('/');

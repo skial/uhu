@@ -32,7 +32,7 @@ class Bind_Macro implements IBind {
 		
 		if (!common.current.cls.meta.has( ':TemIgnore' ) && common.fields.length > 0) {
 			
-			//createHelpers();
+			createHelpers();
 			
 		}
 		
