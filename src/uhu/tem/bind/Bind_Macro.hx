@@ -95,21 +95,29 @@ class Bind_Macro implements IBind {
 		
 	}
 	
-	public function bindFVar_TypeDependent(cname:String, node_name:String, field:Field) {
+	public function wrapExpression(value:TComplexString, expr:Expr, getter:Bool) {
 		var result = macro null;
 		
-		switch (field.toType().name) {
-			case 'String':
-				result = macro dtx.single.ElementManipulation.innerHTML($i { node_name } );
-				
-			case 'Int':
-				result = macro Std.parseInt( dtx.single.ElementManipulation.innerHTML( $i { node_name } ) );
-				
-			case 'Float':
-				result = macro Std.parseFloat( dtx.single.ElementManipulation.innerHTML( $i { node_name } ) );
-				
-			case _:
-				
+		if (getter) {
+			switch (value.name) {
+				case 'String':
+					result = expr;
+					
+				case 'Int':
+					result = macro Std.parseInt( $ { expr } );
+					
+				case 'Float':
+					result = macro Std.parseFloat( $ { expr } );
+					
+				case _:
+			}
+		} else {
+			switch (value.name) {
+				case 'String':
+					result = expr;
+				case _:
+					result = macro Std.string( $ { expr } );	//	Possible to find a toString?? Even though this should force a toString...
+			}
 		}
 		
 		return result;
@@ -122,34 +130,43 @@ class Bind_Macro implements IBind {
 		var node_name = 'TemNodeFor_' + field.name;
 		var node_selector = macro '.$cname.UhuTem[data-binding*="$cname.${field.name}"]';
 		
+		var return_expr = macro dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+		var wrapped_expr = wrapExpression(field.toType(), return_expr, true);
+		
 		var getter_expr = macro {
 			
 			if ($i { node_name } != null) {
 				
+				return $wrapped_expr;
 				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
-				return ${bindFVar_TypeDependent(cname, node_name, field)};
+				//return ${bindFVar_TypeDependent(cname, node_name, field)};
 				
 			} else if ($i { node_name } == null) {
 				
 				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				return $wrapped_expr;
 				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
-				return ${bindFVar_TypeDependent(cname, node_name, field)};
+				//return ${bindFVar_TypeDependent(cname, node_name, field)};
 				
 			}
 			
 			return $i { field.name };
 		}
 		
+		wrapped_expr = wrapExpression(field.toType(), macro v, false);
+		
 		var setter_expr = macro {
 			$i { field.name } = v;
 			if ($i { node_name } != null) {
 				
-				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
+				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
 			} else if ($i { node_name } == null) {
 				
 				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
+				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
 			}
 			return v;
