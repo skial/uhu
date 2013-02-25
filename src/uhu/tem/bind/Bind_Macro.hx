@@ -17,18 +17,18 @@ using uhu.macro.Jumla;
  */
 class Bind_Macro implements IBind {
 	
-	public var dom:DOMNode
+	public var dom:DOMNode;
 	public var common:Common;
 	
 	public var field_type:FieldType;
 	public var field_meta:Array<MetadataEntry>;
 
-	public function new(xml:DOMNode, common:Common) {
-		this.dom = xml;
+	public function new(common:Common) {
 		this.common = common;
+		this.dom = common.html;
 	}
 	
-	public function parse():DOMNode {
+	public function parse() {
 		
 		if (!common.current.cls.meta.has( ':TemIgnore' ) && common.fields.length > 0) {
 			
@@ -38,11 +38,15 @@ class Bind_Macro implements IBind {
 		
 		for (node in dom) {
 			
-			process( node );
+			try {
+				process( node );
+			} catch (e:Dynamic) {
+				
+			}
 			
 		}
 		
-		return dom;
+		common.html = dom;
 	}
 	
 	public function process(node:DOMNode) {
@@ -53,9 +57,13 @@ class Bind_Macro implements IBind {
 			
 			for (field in fields) {
 				
-				var pack = field.split( '.' );
-				var fname = pack.pop().trim();
-				var cname = pack.pop().trim();
+				var path = field.split( '.' );
+				var field_name = path.pop().trim();
+				var class_name = path.pop().trim();
+				
+				trace(path);
+				trace(field_name);
+				trace(class_name);
 				
 			}
 			
@@ -94,7 +102,7 @@ class Bind_Macro implements IBind {
 				],
 				ret:class_type,
 				expr:macro {
-					var cls = $ { Context.parse('new $class_name()', $createPosition() ) };
+					var cls = $ { Context.parse('new $class_name()', createPosition() ) };
 					cls.TemClassNode = node;
 					trace('Hellow from $class_name');
 					trace(node);
@@ -141,7 +149,7 @@ class Bind_Macro implements IBind {
 	
 	public function createField(name:String, isStatic:Bool):Field {
 		var newField:Field = null;
-		var newAccess [APublic];
+		var newAccess:Array<Access> = [APublic];
 		
 		if (isStatic) {
 			newAccess.push( AStatic );
@@ -155,6 +163,8 @@ class Bind_Macro implements IBind {
 			pos:createPosition(),
 			meta:field_meta
 		}
+		
+		return newField;
 	}
 	
 	public function createMeta(name:String, params:Array<Expr>):MetadataEntry {
@@ -175,6 +185,7 @@ class Bind_Macro implements IBind {
 			min:0,
 			max:1
 		};
+		#end
 	}
 	
 }

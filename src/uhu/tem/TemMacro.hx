@@ -1,12 +1,11 @@
 package uhu.tem;
 
+import sys.io.File;
+import sys.FileSystem;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.Context;
 import haxe.macro.Compiler;
-import sys.io.File;
-
-import sys.FileSystem;
 
 using Lambda;
 
@@ -22,40 +21,24 @@ using Lambda;
  */
  
 class TemMacro {
+	
+	public static var common:Common = null;
 
 	public static macro function build():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
-		if ( Common.index != null /*&& (Context.defined('debug') || Context.defined('js'))*/ ) {
+		if (common != null && common.html != null) {
 			
-			Common.currentFields = [];
-			Common.currentStatics = [];
+			common.current.cls = cls;
+			common.current.name = cls.name;
 			
-			// pick out all the static fields
-			for (f in fields) {
-				if (f.access.indexOf(AStatic) != -1) {
-					Common.currentStatics.push(f);
-				} else {
-					Common.currentFields.push(f);
-				}
-			}
+			var scope = new Scope(common);
+			scope.parse();
 			
-			if (Context.defined('debug')) {
-				/*trace('static count : ' + Common.currentStatics.length);
-				trace('instance count : ' + Common.currentFields.length);*/
-			}
+			var bind = new Bind(common);
+			bind.parse();
 			
-			Common.currentClass = cls;
-			
-			var xml = Common.index.xml;
-			var scope = new Scope();
-			
-			xml = scope.parse( xml );
-			xml = Validator.parse( xml );
-			fields = Binder.parse( xml, fields );
-			
-			File.saveContent(Compiler.getOutput() + '.html', xml.toString());
 		}
 		
 		return fields;

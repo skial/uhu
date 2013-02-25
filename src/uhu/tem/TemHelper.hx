@@ -1,6 +1,6 @@
 package uhu.tem;
 
-#if !macro
+#if !(macro || neko)
 import js.Browser;
 import js.html.Event;
 import js.html.AnimationEvent;
@@ -28,7 +28,7 @@ class TemHelper implements ITem {
 	
 	public function new() {
 		
-		#if !macro
+		#if !(macro || neko)
 		Browser.window.addEventListener('animationstart', cast onAnimationStart, false);
 		#end
 		
@@ -38,7 +38,7 @@ class TemHelper implements ITem {
 		
 		for (key in runtime_classes.keys()) {
 			cls = runtime_classes.get( key );
-			#if !macro
+			#if !(macro || neko)
 			//searchNode( '.UhuTem[class~="$key"]' );
 			node = '.UhuTem[class~="$key"]'.find().collection[0];
 			#end
@@ -47,7 +47,7 @@ class TemHelper implements ITem {
 		
 	}
 	
-	#if !macro
+	#if !(macro || neko)
 	private function onAnimationStart(e:AnimationEvent) {
 		if (e.animationName == 'nodeInserted') {
 			

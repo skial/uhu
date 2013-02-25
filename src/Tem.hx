@@ -1,6 +1,6 @@
 package ;
 
-/*import uhu.tem.i.ITem;
+import uhu.tem.i.ITem;
 import uhu.tem.TemHelper;
 
 #if macro
@@ -18,13 +18,14 @@ import sys.FileSystem;
 import uhu.macro.Du;
 import uhu.tem.Scope;
 import uhu.tem.Common;
-import uhu.tem.Binder;
+//import uhu.tem.Binder;
 import uhu.macro.Jumla;
-import uhu.tem.Validator;
+//import uhu.tem.Validator;
+import uhu.tem.TemMacro;
 #end
 
 using Lambda;
-using StringTools;*/
+using StringTools;
 
 /**
  * ...
@@ -36,13 +37,15 @@ using StringTools;*/
  * Vezati is "bind" in Croatian
  */
 
-/*class Tem implements ITem { 
+class Tem implements ITem { 
 	
 	#if macro
 	// Call this method by adding `--macro Tem.setIndex("path/to/my/file.html")` to your `.hxml` file.
 	public static macro function setIndex(path:String) {
 		var input = File.getContent( FileSystem.fullPath( Context.resolvePath(path) ) );
-		Common.index = { xml:Html.toXml( input ), path:path };
+		TemMacro.common = new Common();
+		TemMacro.common.html = Html.toXml( input );
+		TemMacro.common.file = path;
 		return macro null;
 	}
 	#end
@@ -57,10 +60,6 @@ using StringTools;*/
 	public static function Init():Void {
 		var help = new TemHelper();
 	}
-	
-}*/
-
-class Tem {
 	
 }
 

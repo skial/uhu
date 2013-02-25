@@ -18,26 +18,30 @@ class Scope_Macro implements IScope {
 	public var dom:DOMNode;
 	public var common:Common;
 
-	public function new(xml:DOMNode, common:Common) {
-		this.dom = xml;
+	public function new(common:Common) {
 		this.common = common;
+		this.dom = common.html;
 	}
 	
-	public function parse():DOMNode {
+	public function parse() {
 		
 		for (node in dom) {
 			
-			process( node );
+			try {
+				process( node );
+			} catch (e:Dynamic) {
+				
+			}
 			
 		}
 		
-		return dom;
+		common.html = dom;
 		
 	}
 	
 	public function process(node:DOMNode) {
 		
-		if (node.hasClass( common.current.name )) {
+		if (node.exists( 'class' ) && node.hasClass( common.current.name )) {
 			
 			if (common.fields.length > 0) {
 				
@@ -55,7 +59,7 @@ class Scope_Macro implements IScope {
 						attr = attribute.substr( 5 ).trim();
 					}
 					
-					if (common.fields.exists( attr ) {
+					if (common.fields.exists( attr )) {
 						
 						var value = '';
 						
