@@ -73,6 +73,8 @@ class C1 extends Tem {
 		
 		// now lets change the html value
 		field = 'Hello Haxe Universe - C1.hx';
+		
+		trace( field );		//	Should now be Hello Haxe Universe - C1.hx
 	}
 	
 	public function get_field():String {

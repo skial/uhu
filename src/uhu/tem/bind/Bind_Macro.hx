@@ -100,6 +100,7 @@ class Bind_Macro implements IBind {
 		field.meta.push( createMeta(':isVar', []) );
 		
 		var node_name = 'TemNodeFor_' + field.name;
+		var node_selector = macro '.$cname.UhuTem[data-binding*="$cname.${field.name}"]';
 		
 		var getter_expr = macro {
 			
@@ -109,7 +110,7 @@ class Bind_Macro implements IBind {
 				
 			} else if ($i { node_name } == null) {
 				
-				$i { node_name } = dtx.Tools.find('.$cname.UhuTem[data-${field.name}]').collection[0];
+				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
 				return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
 				
 			}
@@ -120,7 +121,14 @@ class Bind_Macro implements IBind {
 		var setter_expr = macro {
 			$i { field.name } = v;
 			if ($i { node_name } != null) {
+				
 				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+				
+			} else if ($i { node_name } == null) {
+				
+				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+				
 			}
 			return v;
 		}
@@ -142,6 +150,8 @@ class Bind_Macro implements IBind {
 		var setter = common.fields.get( s );
 		
 		var node_name = 'TemNodeFor_' + field.name;
+		var node_selector = macro '.$cname.UhuTem[data-binding*="$cname.${field.name}"]';
+		
 		// Create `TemNodeFor_*` variable
 		field_type = FVar(macro : dtx.DOMNode);
 		field_meta = [];
@@ -157,7 +167,7 @@ class Bind_Macro implements IBind {
 						
 					} else if ($i { node_name } == null) {
 						
-						$i { node_name } = dtx.Tools.find('.$cname.UhuTem[data-${field.name}]').collection[0];
+						$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
 						return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
 						
 					}
@@ -173,7 +183,14 @@ class Bind_Macro implements IBind {
 				var old_expr = f.expr;
 				var new_expr = macro {
 					if ($i { node_name } != null) {
+						
 						dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+						
+					} else if ($i { node_name } == null) {
+						
+						$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+						dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+						
 					}
 				}
 				
