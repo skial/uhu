@@ -35,8 +35,6 @@ class Scope_Macro implements IScope {
 			
 		}
 		
-		return dom;
-		
 	}
 	
 	public function process(node:DOMNode) {

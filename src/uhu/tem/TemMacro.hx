@@ -36,10 +36,14 @@ class TemMacro {
 			common.current.name = cls.name;
 			
 			var scope = new Scope(common);
-			common.html = scope.parse();
+			scope.parse();
+			
+			common = scope.common;
 			
 			var bind = new Bind(common);
-			common.html = bind.parse();
+			bind.parse();
+			
+			common = bind.common;
 			
 			fields = common.fields;
 			

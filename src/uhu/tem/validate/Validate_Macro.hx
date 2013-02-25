@@ -19,7 +19,7 @@ class Validate_Macro implements IValidate {
 		
 	}
 	
-	public function checkType(complex_str:TComplexString, field:Field, ?inLoop:Bool = false) {
+	public function checkType(complex_str:TComplexString, field:Field, inLoop:Bool):Bool {
 		var result = false;
 		
 		if (complex_str != null) {

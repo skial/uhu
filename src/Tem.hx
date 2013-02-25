@@ -53,7 +53,7 @@ class Tem implements ITem {
 	
 	#if TestTem
 	public static function main() {
-		trace('Hello World');
+		trace('Hello World - Tem.hx');
 		Tem.Init();
 	}
 	#end
@@ -69,7 +69,7 @@ class C1 extends Tem {
 	public var field:String = 'Skial?';
 	
 	public function new() {
-		trace( field ); 	//	Should be Hello World
+		trace( field ); 	//	Should be Hello Haxe World - HTML
 	}
 	
 }
