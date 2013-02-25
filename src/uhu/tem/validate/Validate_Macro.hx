@@ -5,6 +5,8 @@ import uhu.tem.i.IValidate;
 
 import haxe.macro.Expr;
 
+using Detox;
+
 /**
  * ...
  * @author Skial Bainn
@@ -42,7 +44,7 @@ class Validate_Macro implements IValidate {
 					
 				case _:
 					
-					//throw 'Type "${complex_str}" is currently not supported.';
+					throw 'Type "${complex_str}" is currently not supported.';
 			}
 			
 		}
@@ -50,7 +52,7 @@ class Validate_Macro implements IValidate {
 		return result;
 	}
 	
-	public function checkString(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public function checkString(complex_str:TComplexString, field:Field, inLoop:Bool):Bool {
 		
 		var match = getAttribute(complex_str, field);
 		
@@ -68,7 +70,7 @@ class Validate_Macro implements IValidate {
 		return true;
 	}
 	
-	public function checkNumber(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public function checkNumber(complex_str:TComplexString, field:Field, inLoop:Bool):Bool {
 		var match = getAttribute(complex_str, field);
 		
 		if (!inLoop && match == null) {
@@ -102,7 +104,7 @@ class Validate_Macro implements IValidate {
 		return true;
 	}
 	
-	public function checkBool(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public function checkBool(complex_str:TComplexString, field:Field, inLoop:Bool):Bool {
 		// Based on HTML5 spec - This gives quick overview http://stackoverflow.com/a/4140263
 		var match = getAttribute(complex_str, field);
 		
@@ -120,7 +122,7 @@ class Validate_Macro implements IValidate {
 		return true;
 	}
 	
-	public function checkArray(complex_str:TComplexString, field:TField, inLoop:Bool):Bool {
+	public function checkArray(complex_str:TComplexString, field:Field, inLoop:Bool):Bool {
 		/*trace(complex_str);
 		trace(field);
 		trace(node);*/
@@ -164,7 +166,7 @@ class Validate_Macro implements IValidate {
 	}
 	
 	
-	public function getAttribute(complex_str:TComplexString, field:TField):String {
+	public function getAttribute(complex_str:TComplexString, field:Field):String {
 		var match = null;
 		
 		for (a in node.attributes()) {

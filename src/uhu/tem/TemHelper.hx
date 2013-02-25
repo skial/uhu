@@ -6,7 +6,6 @@ import js.html.Event;
 import js.html.AnimationEvent;
 #end
 import uhu.tem.i.ITem;
-import uhu.tem.Common;
 import haxe.ds.StringMap;
 
 #if !macro

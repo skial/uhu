@@ -4,6 +4,7 @@ import haxe.macro.Context;
 import haxe.macro.TypeTools;
 import uhu.tem.Common;
 import uhu.tem.i.IBind;
+import uhu.tem.Validate;
 
 import haxe.macro.Expr;
 
@@ -20,12 +21,16 @@ class Bind_Macro implements IBind {
 	public var dom:DOMNode;
 	public var common:Common;
 	
+	public var validate:Validate;
+	
 	public var field_type:FieldType;
 	public var field_meta:Array<MetadataEntry>;
 
 	public function new(common:Common) {
 		this.common = common;
 		this.dom = common.html;
+		
+		validate = new Validate();
 	}
 	
 	public function parse() {
@@ -34,13 +39,13 @@ class Bind_Macro implements IBind {
 			
 			createHelpers();
 			
-		}
-		
-		for (node in dom) {
-			
-			try {
-				process( node );
-			} catch (e:Dynamic) {
+			for (node in dom) {
+				
+				try {
+					process( node );
+				} catch (e:Dynamic) {
+					
+				}
 				
 			}
 			
@@ -61,13 +66,40 @@ class Bind_Macro implements IBind {
 				var field_name = path.pop().trim();
 				var class_name = path.pop().trim();
 				
-				trace(path);
-				trace(field_name);
-				trace(class_name);
+				bind( class_name, common.fields.get( field_name ) );
 				
 			}
 			
 		}
+		
+		for (child in node.children( true )) {
+			
+			process( child );
+			
+		}
+		
+	}
+	
+	public function bind(cname:String, field:Field) {
+		
+		var complex_string:TComplexString = null;
+		
+		switch (field.kind) {
+			
+			case FVar(t, e):
+				complex_string = t.toType();
+				
+				
+			case FProp(g, s, t, e):
+				complex_string = t.toType();
+				
+			case FFun(f):
+				complex_string = f.toType();
+				
+			
+		}
+		
+		trace(complex_string);
 		
 	}
 	
@@ -104,7 +136,7 @@ class Bind_Macro implements IBind {
 				expr:macro {
 					var cls = $ { Context.parse('new $class_name()', createPosition() ) };
 					cls.TemClassNode = node;
-					trace('Hellow from $class_name');
+					trace('Hello from $class_name');
 					trace(node);
 					return cls;
 				},
