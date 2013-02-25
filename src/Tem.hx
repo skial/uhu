@@ -70,6 +70,9 @@ class C1 extends Tem {
 	
 	public function new() {
 		trace( field ); 	//	Should be Hello Haxe World - HTML
+		
+		// now lets change the html value
+		field = 'Hello Haxe Universe - C1.hx';
 	}
 	
 }

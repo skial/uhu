@@ -96,10 +96,6 @@ class Bind_Macro implements IBind {
 	}
 	
 	public function bindFVar(cname:String, field:Field, t:ComplexType, e:Expr) {
-		var complex_string = t.toType();
-		
-		//validate.checkType( complex_string, field, false );
-		
 		field.kind = FProp('get_' + field.name, 'set_' + field.name, t, e);
 		field.meta.push( createMeta(':isVar', []) );
 		
@@ -108,22 +104,24 @@ class Bind_Macro implements IBind {
 		var getter_expr = macro {
 			
 			if ($i { node_name } != null) {
-				trace('node not null');
+				
 				return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
 				
 			} else if ($i { node_name } == null) {
-				trace('node is null - lets find it');
+				
 				$i { node_name } = dtx.Tools.find('.$cname.UhuTem[data-${field.name}]').collection[0];
-				trace($i { node_name } );
 				return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
 				
 			}
-			trace('FAILED!!!!');
+			
 			return $i { field.name };
 		}
 		
 		var setter_expr = macro {
 			$i { field.name } = v;
+			if ($i { node_name } != null) {
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+			}
 			return v;
 		}
 		
@@ -165,9 +163,9 @@ class Bind_Macro implements IBind {
 			
 			// Create setter for TemClassNode, which checks TemHelper.tempory_node during creation.
 			common.fields.push( field.createGetter(macro {
-				if (TemClassNode == null) {
+				/*if (TemClassNode == null) {
 					TemClassNode = uhu.tem.TemHelper.tempory_node;
-				}
+				}*/
 				return TemClassNode;
 			} ) );
 			
@@ -196,8 +194,7 @@ class Bind_Macro implements IBind {
 				expr:macro {
 					var cls = $ { Context.parse('new $class_name()', createPosition() ) };
 					cls.TemClassNode = node;
-					trace('Hello from $class_name');
-					trace(uhu.tem.TemHelper.tempory_node);
+					trace('Hello from $class_name. Created by TemHelper.hx');
 					trace(node);
 					return cls;
 				},

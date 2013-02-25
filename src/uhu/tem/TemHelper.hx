@@ -19,10 +19,6 @@ using Detox;
 @:TemIgnore
 class TemHelper implements ITem {
 	
-	#if !(macro || neko)
-	public static var tempory_node:DOMNode;
-	#end
-	
 	public static var runtime_classes:StringMap<Class<Dynamic>>;
 	
 	public static function __init__() {
@@ -42,8 +38,7 @@ class TemHelper implements ITem {
 		for (key in runtime_classes.keys()) {
 			cls = runtime_classes.get( key );
 			#if !(macro || neko)
-			//searchNode( '.UhuTem[class~="$key"]' );
-			tempory_node = node = '.UhuTem[class~="$key"]'.find().collection[0];
+			node = '.UhuTem[class~="$key"]'.find().collection[0];
 			#end
 			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
 		}
