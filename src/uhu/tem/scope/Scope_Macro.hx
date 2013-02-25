@@ -35,7 +35,7 @@ class Scope_Macro implements IScope {
 			
 		}
 		
-		common.html = dom;
+		return dom;
 		
 	}
 	
@@ -66,10 +66,12 @@ class Scope_Macro implements IScope {
 						// Check if `data-binding` already exists
 						if (node.exists( common.binding )) {
 							value = node.attr( common.binding );
+							value + ' ';
 						}
 						
-						value += ' ' + common.fields.get( attr ).name;
+						value += common.current.name + '.' + common.fields.get( attr ).name;
 						
+						node.setAttr( common.binding, value );
 					}
 					
 				}

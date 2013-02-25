@@ -32,7 +32,7 @@ class Bind_Macro implements IBind {
 		
 		if (!common.current.cls.meta.has( ':TemIgnore' ) && common.fields.length > 0) {
 			
-			createHelpers();
+			//createHelpers();
 			
 		}
 		
@@ -46,7 +46,7 @@ class Bind_Macro implements IBind {
 			
 		}
 		
-		common.html = dom;
+		return dom;
 	}
 	
 	public function process(node:DOMNode) {
@@ -112,6 +112,7 @@ class Bind_Macro implements IBind {
 			} );
 			
 			common.fields.push( createField('TemCreate', true) );
+			
 		}
 		
 		if (!common.fields.exists( '__init__' )) {

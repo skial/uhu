@@ -21,7 +21,7 @@ class Common_Macro implements ICommon {
 	public var current:TemClass;
 	public var binding:String;
 	
-	public var fields:Array<TField>;
+	public var fields:Array<Field>;
 	public var ignore:Array<String>;
 	
 	public function new() {

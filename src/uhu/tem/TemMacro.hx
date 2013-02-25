@@ -1,5 +1,6 @@
 package uhu.tem;
 
+import sys.FileStat;
 import sys.io.File;
 import sys.FileSystem;
 import haxe.macro.Expr;
@@ -30,14 +31,26 @@ class TemMacro {
 		
 		if (common != null && common.html != null) {
 			
+			common.fields = fields;
 			common.current.cls = cls;
 			common.current.name = cls.name;
 			
 			var scope = new Scope(common);
-			scope.parse();
+			common.html = scope.parse();
 			
 			var bind = new Bind(common);
-			bind.parse();
+			common.html = bind.parse();
+			
+			// Write modified html to output directory.
+			
+			var output_parts = Compiler.getOutput().split('/');
+			output_parts.pop();
+			
+			var output_dir = output_parts.join('/');
+			var input_parts = common.file.split('/');
+			var input_name = input_parts.pop();
+			
+			File.saveContent( output_dir + '/' + input_name, common.html.toString() );
 			
 		}
 		
