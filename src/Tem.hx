@@ -66,13 +66,21 @@ class Tem implements ITem {
 
 class C1 extends Tem {
 	
-	public var field:String = 'Skial?';
+	public var field(get_field, set_field):String;
 	
 	public function new() {
 		trace( field ); 	//	Should be Hello Haxe World - HTML
 		
 		// now lets change the html value
 		field = 'Hello Haxe Universe - C1.hx';
+	}
+	
+	public function get_field():String {
+		return '__kk__';
+	}
+	
+	public function set_field(v):String {
+		return v;
 	}
 	
 }

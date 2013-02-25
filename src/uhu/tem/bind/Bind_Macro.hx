@@ -138,7 +138,49 @@ class Bind_Macro implements IBind {
 	}
 	
 	public function bindFProp(cname:String, field:Field, g:String, s:String, t:ComplexType, e:Expr) {
+		var getter = common.fields.get( g );
+		var setter = common.fields.get( s );
 		
+		var node_name = 'TemNodeFor_' + field.name;
+		// Create `TemNodeFor_*` variable
+		field_type = FVar(macro : dtx.DOMNode);
+		field_meta = [];
+		common.fields.push( createField(node_name, false) );
+		
+		switch (getter.kind) {
+			case FFun(f):
+				var old_expr = f.expr;
+				var new_expr = macro {
+					if ($i { node_name } != null) {
+						
+						return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+						
+					} else if ($i { node_name } == null) {
+						
+						$i { node_name } = dtx.Tools.find('.$cname.UhuTem[data-${field.name}]').collection[0];
+						return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+						
+					}
+				};
+				
+				f.expr = new_expr.merge( old_expr );
+				
+			case _:
+		}
+		
+		switch (setter.kind) {
+			case FFun(f):
+				var old_expr = f.expr;
+				var new_expr = macro {
+					if ($i { node_name } != null) {
+						dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+					}
+				}
+				
+				f.expr = new_expr.merge( old_expr );
+				
+			case _:
+		}
 	}
 	
 	public function bindFFun(cname:String, field:Field, f:Function) {
@@ -163,9 +205,6 @@ class Bind_Macro implements IBind {
 			
 			// Create setter for TemClassNode, which checks TemHelper.tempory_node during creation.
 			common.fields.push( field.createGetter(macro {
-				/*if (TemClassNode == null) {
-					TemClassNode = uhu.tem.TemHelper.tempory_node;
-				}*/
 				return TemClassNode;
 			} ) );
 			
