@@ -220,7 +220,7 @@ class Bind_Macro implements IBind {
 			
 			common.fields.push( field );
 			
-			// Create setter for TemClassNode, which checks TemHelper.tempory_node during creation.
+			// Create setter for TemClassNode
 			common.fields.push( field.createGetter(macro {
 				return TemClassNode;
 			} ) );
