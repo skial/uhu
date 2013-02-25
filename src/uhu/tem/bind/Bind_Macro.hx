@@ -95,6 +95,26 @@ class Bind_Macro implements IBind {
 		
 	}
 	
+	public function bindFVar_TypeDependent(cname:String, node_name:String, field:Field) {
+		var result = macro null;
+		
+		switch (field.toType().name) {
+			case 'String':
+				result = macro dtx.single.ElementManipulation.innerHTML($i { node_name } );
+				
+			case 'Int':
+				result = macro Std.parseInt( dtx.single.ElementManipulation.innerHTML( $i { node_name } ) );
+				
+			case 'Float':
+				result = macro Std.parseFloat( dtx.single.ElementManipulation.innerHTML( $i { node_name } ) );
+				
+			case _:
+				
+		}
+		
+		return result;
+	}
+	
 	public function bindFVar(cname:String, field:Field, t:ComplexType, e:Expr) {
 		field.kind = FProp('get_' + field.name, 'set_' + field.name, t, e);
 		field.meta.push( createMeta(':isVar', []) );
@@ -106,12 +126,14 @@ class Bind_Macro implements IBind {
 			
 			if ($i { node_name } != null) {
 				
-				return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+				return ${bindFVar_TypeDependent(cname, node_name, field)};
 				
 			} else if ($i { node_name } == null) {
 				
 				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
+				return ${bindFVar_TypeDependent(cname, node_name, field)};
 				
 			}
 			
@@ -122,12 +144,12 @@ class Bind_Macro implements IBind {
 			$i { field.name } = v;
 			if ($i { node_name } != null) {
 				
-				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
 				
 			} else if ($i { node_name } == null) {
 				
 				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, v);
+				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
 				
 			}
 			return v;
