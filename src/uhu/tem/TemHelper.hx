@@ -40,7 +40,7 @@ class TemHelper implements ITem {
 		for (key in classes.keys()) {
 			
 			tem_class = classes.get( key );
-			
+			trace(tem_class.amount);
 			if (tem_class.amount > 0) {
 				
 				for (value in 0...tem_class.amount) {
