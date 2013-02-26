@@ -7,6 +7,7 @@ import js.html.AnimationEvent;
 #end
 import uhu.tem.i.ITem;
 import haxe.ds.StringMap;
+import uhu.tem.t.TemClass;
 
 #if !macro
 using Detox;
@@ -19,13 +20,11 @@ using Detox;
 @:TemIgnore
 class TemHelper implements ITem {
 	
-	public static var runtime_classes:StringMap<Class<Dynamic>>;
-	public static var runtime_count:StringMap<Int>;
-	public static var runtime_index:Int = 0;
+	public static var classes:StringMap<TemClass>;
+	public static var current_index:Int = 0;
 	
 	public static function __init__() {
-		runtime_classes = new StringMap<Class<Dynamic>>();
-		runtime_count = new StringMap<Int>();
+		classes = new StringMap<TemClass>();
 	}
 	
 	public function new() {
@@ -35,24 +34,35 @@ class TemHelper implements ITem {
 		#end
 		
 		// Finally loop through each runtime_classes pair and call TemCreate
-		var cls = null;
+		var tem_class = null;
 		var node = null;
 		
-		for (key in runtime_classes.keys()) {
-			cls = runtime_classes.get( key );
+		for (key in classes.keys()) {
+			tem_class = classes.get( key );
 			#if !(macro || neko)
 			//node = '.UhuTem[class~="$key"]'.find().collection[0];
 			#end
 			//Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
-			if (!runtime_count.exists( key )) {
-				runtime_index = 0;
-				runtime_count.set( key, runtime_index );
+			
+			if (tem_class.amount > 0) {
+				
+				for (value in 0...tem_class.amount) {
+					
+					current_index = value;
+					Reflect.callMethod( tem_class.cls, Reflect.field( tem_class.cls, 'TemCreate' ), [] );
+					
+				}
+				
 			} else {
-				runtime_index = runtime_count.get( key );
-				runtime_index++;
-				runtime_count.set( key, runtime_index );
+				
+				current_index = 0;
+				Reflect.callMethod( tem_class.cls, Reflect.field( tem_class.cls, 'TemCreate' ), [] );
+				
 			}
-			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [] );
+			
+			
+			
+			
 		}
 		
 	}

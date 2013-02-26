@@ -149,7 +149,7 @@ class Bind_Macro implements IBind {
 			} else if ($i { node_name } == null) {
 				
 				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				trace(TemClassNode);
+				//trace(TemClassNode);
 				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
 				return $wrapped_expr;
 				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
@@ -170,7 +170,7 @@ class Bind_Macro implements IBind {
 				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
 			} else if ($i { node_name } == null) {
-				trace(TemClassNode);
+				//trace(TemClassNode);
 				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
 				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
 				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
@@ -271,8 +271,8 @@ class Bind_Macro implements IBind {
 			// Create setter for TemClassNode
 			common.fields.push( field.createGetter(macro {
 				if (TemClassNode == null) {
-					TemClassNode = dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.runtime_index];
-					trace('$class_name :: index == ' + uhu.tem.TemHelper.runtime_index);
+					TemClassNode = dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.current_index];
+					trace('$class_name :: index == ' + uhu.tem.TemHelper.current_index);
 				}
 				return TemClassNode;
 			} ) );
@@ -322,7 +322,11 @@ class Bind_Macro implements IBind {
 				args:[],
 				ret:null,
 				expr:macro {
-					uhu.tem.TemHelper.runtime_classes.set('$class_name', $ { Context.parse('$class_name', createPosition()) } );
+					uhu.tem.TemHelper.classes.set('$class_name', { 
+						name:$v{class_name}, 
+						cls:$ { Context.parse('$class_name', createPosition()) },
+						amount:$v{common.current.amount}
+					} );
 				},
 				params:[],
 			} );

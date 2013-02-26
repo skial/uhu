@@ -28,7 +28,7 @@ class Common_Macro implements ICommon {
 		current = {
 			name:null,
 			cls:null,
-			params:null
+			amount:0,
 		}
 		
 		binding = 'data-binding';

@@ -51,12 +51,12 @@ class Tem implements ITem {
 	}
 	#end
 	
-	#if TestTem
+	//#if TestTem
 	public static function main() {
 		trace('Hello World - Tem.hx');
 		Tem.Init();
 	}
-	#end
+	//#end
 	
 	public static function Init():Void {
 		var help = new TemHelper();

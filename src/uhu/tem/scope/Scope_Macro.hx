@@ -41,6 +41,8 @@ class Scope_Macro implements IScope {
 		
 		if (node.exists( 'class' ) && node.hasClass( common.current.name )) {
 			
+			common.current.amount++;
+			
 			if (common.fields.length > 0) {
 				
 				for (attribute in node.attributes()) {

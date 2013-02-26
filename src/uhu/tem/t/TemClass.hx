@@ -13,6 +13,9 @@ typedef TemClass = {
 	
 	#if (macro || TestTem)
 	var cls:ClassType;
-	var params:Array<Type>;
+	#else
+	var cls:Class<Dynamic>;
 	#end
+	
+	var amount:Int;
 }
