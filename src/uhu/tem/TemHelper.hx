@@ -38,30 +38,20 @@ class TemHelper implements ITem {
 		var node = null;
 		
 		for (key in classes.keys()) {
+			
 			tem_class = classes.get( key );
-			#if !(macro || neko)
-			//node = '.UhuTem[class~="$key"]'.find().collection[0];
-			#end
-			//Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
 			
 			if (tem_class.amount > 0) {
 				
 				for (value in 0...tem_class.amount) {
-					
 					current_index = value;
 					Reflect.callMethod( tem_class.cls, Reflect.field( tem_class.cls, 'TemCreate' ), [] );
-					
 				}
 				
 			} else {
-				
 				current_index = 0;
 				Reflect.callMethod( tem_class.cls, Reflect.field( tem_class.cls, 'TemCreate' ), [] );
-				
 			}
-			
-			
-			
 			
 		}
 		

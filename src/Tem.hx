@@ -51,12 +51,10 @@ class Tem implements ITem {
 	}
 	#end
 	
-	//#if TestTem
 	public static function main() {
 		trace('Hello World - Tem.hx');
 		Tem.Init();
 	}
-	//#end
 	
 	public static function Init():Void {
 		var help = new TemHelper();
@@ -71,9 +69,9 @@ class C1 extends Tem {
 	public var fieldFloat:Float;
 	
 	public function new() {
-		trace( fieldString ); 	//	Should be Hello Haxe World - HTML
+		trace( fieldString ); 								//	Should be Hello Haxe World - HTML
 		fieldString = 'Hello Haxe Universe - C1.hx';		//	Now lets change the html value
-		trace( fieldString );		//	Should now be Hello Haxe Universe - C1.hx
+		trace( fieldString );								//	Should now be Hello Haxe Universe - C1.hx
 	}
 	
 }

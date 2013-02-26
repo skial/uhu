@@ -143,17 +143,20 @@ class Bind_Macro implements IBind {
 			if ($i { node_name } != null) {
 				
 				return $wrapped_expr;
-				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
-				//return ${bindFVar_TypeDependent(cname, node_name, field)};
 				
 			} else if ($i { node_name } == null) {
 				
-				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				//trace(TemClassNode);
-				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
-				return $wrapped_expr;
-				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
-				//return ${bindFVar_TypeDependent(cname, node_name, field)};
+				var nodes = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' );
+				if (nodes.collection.length > 0) {
+					
+					$i { node_name } = nodes.collection[0];
+					return $wrapped_expr;
+					
+				} else if (TemClassNode.hasAttribute( 'data-${field.name}' )) {
+					
+					$i { node_name } = TemClassNode;
+					return $wrapped_expr;
+				}
 				
 			}
 			
@@ -166,15 +169,22 @@ class Bind_Macro implements IBind {
 			$i { field.name } = v;
 			if ($i { node_name } != null) {
 				
-				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
 				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
 			} else if ($i { node_name } == null) {
-				//trace(TemClassNode);
-				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
-				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
-				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
-				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
+				
+				var nodes = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' );
+				if (nodes.collection.length > 0) {
+					
+					$i { node_name } = nodes.collection[0];
+					dtx.single.ElementManipulation.setInnerHTML( $i { node_name }, $wrapped_expr );
+					
+				} else if (TemClassNode.hasAttribute( 'data-${field.name}' )) {
+					
+					$i { node_name } = TemClassNode;
+					dtx.single.ElementManipulation.setInnerHTML( $i { node_name }, $wrapped_expr );
+					
+				}
 				
 			}
 			return v;
@@ -256,7 +266,7 @@ class Bind_Macro implements IBind {
 	 */
 	
 	public function createHelpers() {
-		var dtx_DOMNode = macro : dtx.DOMNode;
+		var dtx_DOMNode = macro : dtx.DOMNode.DOMElement;
 		
 		if (!common.fields.exists( 'TemClassNode' )) {
 			
@@ -271,7 +281,7 @@ class Bind_Macro implements IBind {
 			// Create setter for TemClassNode
 			common.fields.push( field.createGetter(macro {
 				if (TemClassNode == null) {
-					TemClassNode = dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.current_index];
+					TemClassNode = cast dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.current_index];
 					trace('$class_name :: index == ' + uhu.tem.TemHelper.current_index);
 				}
 				return TemClassNode;
