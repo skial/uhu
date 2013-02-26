@@ -81,16 +81,20 @@ class Bind_Macro implements IBind {
 	
 	public function bind(cname:String, field:Field) {
 		
-		switch (field.kind) {
-			case FVar(t, e):
-				bindFVar(cname, field, t, e);
-				
-			case FProp(g, s, t, e):
-				bindFProp(cname, field, g, s, t, e);
-				
-			case FFun(f):
-				bindFFun(cname, field, f);
-				
+		if (!field.meta.exists(':TemDone')) {
+			
+			switch (field.kind) {
+				case FVar(t, e):
+					bindFVar(cname, field, t, e);
+					
+				case FProp(g, s, t, e):
+					bindFProp(cname, field, g, s, t, e);
+					
+				case FFun(f):
+					bindFFun(cname, field, f);
+					
+			}
+			
 		}
 		
 	}
@@ -126,6 +130,7 @@ class Bind_Macro implements IBind {
 	public function bindFVar(cname:String, field:Field, t:ComplexType, e:Expr) {
 		field.kind = FProp('get_' + field.name, 'set_' + field.name, t, e);
 		field.meta.push( createMeta(':isVar', []) );
+		field.meta.push( createMeta(':TemDone', []) );
 		
 		var node_name = 'TemNodeFor_' + field.name;
 		var node_selector = macro '.$cname.UhuTem[data-binding*="$cname.${field.name}"]';
@@ -143,7 +148,9 @@ class Bind_Macro implements IBind {
 				
 			} else if ($i { node_name } == null) {
 				
-				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				trace(TemClassNode);
+				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
 				return $wrapped_expr;
 				//return dtx.single.ElementManipulation.innerHTML( $i { node_name } );
 				//return ${bindFVar_TypeDependent(cname, node_name, field)};
@@ -163,8 +170,9 @@ class Bind_Macro implements IBind {
 				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
 			} else if ($i { node_name } == null) {
-				
-				$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				trace(TemClassNode);
+				//$i { node_name } = dtx.Tools.find( $node_selector ).collection[0];
+				$i { node_name } = dtx.single.Traversing.find( TemClassNode, '[data-binding*="$cname.${field.name}"]' ).collection[0];
 				//dtx.single.ElementManipulation.setInnerHTML($i { node_name }, Std.string( v ));
 				dtx.single.ElementManipulation.setInnerHTML($i { node_name }, $wrapped_expr);
 				
@@ -174,7 +182,7 @@ class Bind_Macro implements IBind {
 		
 		// Create `TemNodeFor_*` variable
 		field_type = FVar(macro : dtx.DOMNode);
-		field_meta = [];
+		field_meta = [ createMeta(':TemDone', []) ];
 		common.fields.push( createField(node_name, false) );
 		
 		// Create getter for field
@@ -193,7 +201,7 @@ class Bind_Macro implements IBind {
 		
 		// Create `TemNodeFor_*` variable
 		field_type = FVar(macro : dtx.DOMNode);
-		field_meta = [];
+		field_meta = [ createMeta(':TemDone', []) ];
 		common.fields.push( createField(node_name, false) );
 		
 		switch (getter.kind) {
@@ -252,6 +260,7 @@ class Bind_Macro implements IBind {
 		
 		if (!common.fields.exists( 'TemClassNode' )) {
 			
+			var class_name = common.current.name;
 			field_type = FProp('get_TemClassNode', 'set_TemClassNode', dtx_DOMNode);
 			field_meta = [ createMeta(':keep', []), createMeta(':isVar', []) ];
 			
@@ -261,6 +270,10 @@ class Bind_Macro implements IBind {
 			
 			// Create setter for TemClassNode
 			common.fields.push( field.createGetter(macro {
+				if (TemClassNode == null) {
+					TemClassNode = dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.runtime_index];
+					trace('$class_name :: index == ' + uhu.tem.TemHelper.runtime_index);
+				}
 				return TemClassNode;
 			} ) );
 			
@@ -279,18 +292,19 @@ class Bind_Macro implements IBind {
 			
 			field_type = FFun( {
 				args:[
-					{
+					/*{
 						name:'node',
 						opt:false,
 						type:dtx_DOMNode,
-					},
+					},*/
 				],
 				ret:class_type,
 				expr:macro {
 					var cls = $ { Context.parse('new $class_name()', createPosition() ) };
-					cls.TemClassNode = node;
+					//cls.TemClassNode = node;
 					trace('Hello from $class_name. Created by TemHelper.hx');
-					trace(node);
+					//trace(node);
+					trace(cls.TemClassNode);
 					return cls;
 				},
 				params:[],

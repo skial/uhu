@@ -23,6 +23,8 @@ typedef JumlaFieldTools = uhu.macro.jumla.expr.FieldTools;
 typedef JumlaFunctionTools = uhu.macro.jumla.expr.FunctionTools;
 typedef JumlaFunctionArgTools = uhu.macro.jumla.expr.FunctionArgTools;
 
+typedef JumlaMetadataEntryTools = uhu.macro.jumla.meta.MetadataEntryTools;
+
 /**
  * ...
  * @author Skial Bainn

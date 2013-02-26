@@ -20,9 +20,12 @@ using Detox;
 class TemHelper implements ITem {
 	
 	public static var runtime_classes:StringMap<Class<Dynamic>>;
+	public static var runtime_count:StringMap<Int>;
+	public static var runtime_index:Int = 0;
 	
 	public static function __init__() {
-		runtime_classes = new StringMap();
+		runtime_classes = new StringMap<Class<Dynamic>>();
+		runtime_count = new StringMap<Int>();
 	}
 	
 	public function new() {
@@ -38,9 +41,18 @@ class TemHelper implements ITem {
 		for (key in runtime_classes.keys()) {
 			cls = runtime_classes.get( key );
 			#if !(macro || neko)
-			node = '.UhuTem[class~="$key"]'.find().collection[0];
+			//node = '.UhuTem[class~="$key"]'.find().collection[0];
 			#end
-			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
+			//Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [node] );
+			if (!runtime_count.exists( key )) {
+				runtime_index = 0;
+				runtime_count.set( key, runtime_index );
+			} else {
+				runtime_index = runtime_count.get( key );
+				runtime_index++;
+				runtime_count.set( key, runtime_index );
+			}
+			Reflect.callMethod( cls, Reflect.field( cls, 'TemCreate' ), [] );
 		}
 		
 	}
