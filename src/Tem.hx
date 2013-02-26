@@ -72,6 +72,9 @@ class C1 extends Tem {
 		trace( fieldString ); 								//	Should be Hello Haxe World - HTML
 		fieldString = 'Hello Haxe Universe - C1.hx';		//	Now lets change the html value
 		trace( fieldString );								//	Should now be Hello Haxe Universe - C1.hx
+		
+		trace(fieldInt);
+		trace(fieldFloat);
 	}
 	
 }

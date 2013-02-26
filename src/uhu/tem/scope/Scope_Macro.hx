@@ -28,7 +28,7 @@ class Scope_Macro implements IScope {
 		for (node in dom) {
 			
 			try {
-				process( node );
+				process( node, false );
 			} catch (e:Dynamic) {
 				
 			}
@@ -37,9 +37,9 @@ class Scope_Macro implements IScope {
 		
 	}
 	
-	public function process(node:DOMNode) {
+	public function process(node:DOMNode, scoped:Bool) {
 		
-		if (node.exists( 'class' ) && node.hasClass( common.current.name )) {
+		if (node.exists( 'class' ) && node.hasClass( common.current.name ) || scoped) {
 			
 			common.current.amount++;
 			
@@ -82,9 +82,11 @@ class Scope_Macro implements IScope {
 			
 		}
 		
+		scoped = node.hasClass( common.current.name );
+		
 		for (child in node.children()) {
 			
-			process( child );
+			process( child, scoped );
 			
 		}
 		
