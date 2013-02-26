@@ -80,7 +80,9 @@ class Scope_Macro implements IScope {
 				
 			}
 			
-			node.addClass( 'UhuTem' );
+			if (!scoped) {
+				node.addClass( 'UhuTem' );
+			}
 			
 		}
 		

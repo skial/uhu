@@ -284,7 +284,6 @@ class Bind_Macro implements IBind {
 					TemClassNode = cast dtx.Tools.find('.$class_name.UhuTem').collection[uhu.tem.TemHelper.current_index];
 					trace('$class_name :: index == ' + uhu.tem.TemHelper.current_index);
 				}
-				trace(TemClassNode);
 				return TemClassNode;
 			} ) );
 			
