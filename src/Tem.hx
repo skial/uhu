@@ -62,7 +62,7 @@ class Tem implements ITem {
 	
 }
 
-class C1 extends Tem {
+class C1 extends Tem {	//	change `extends` to `implements` and have the build macro insert `new TemHelper()`.
 	
 	public var fieldString:String;
 	public var fieldInt:Int;
