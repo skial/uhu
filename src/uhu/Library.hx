@@ -105,7 +105,7 @@ class Library {
 	/**
 	 * From domtools(dtx|detox)? Widget class - thanks!
 	 */
-	macro public static function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
+	public static macro function loadTemplate(fileName:ExprOf<String>):ExprOf<String>	{
 		var p = Context.currentPos();
 		var f:String;
 		

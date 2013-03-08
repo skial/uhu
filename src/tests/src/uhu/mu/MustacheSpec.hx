@@ -33,29 +33,29 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testNewline():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/newline.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/newline.html');
+		template = Library.loadTemplate('resources/mu/newline.mustache');
+		expected = Library.loadTemplate('templates/html/newline.html');
 		output = mu.render(template, { name:"skial" } );
 		assertEquals(expected.trim(), output.trim());
 	}
 	
 	public function testVariable():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/variables.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/variables.html');
+		template = Library.loadTemplate('resources/mu/variables.mustache');
+		expected = Library.loadTemplate('templates/html/variables.html');
 		output = mu.render(template, { "name":"Chris", company:"<b>GitHub</b>" } );
 		assertEquals(expected.trim(), output.trim());
 	}
 	
 	public function testSections():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/sections.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/sections.html');
+		template = Library.loadTemplate('resources/mu/sections.mustache');
+		expected = Library.loadTemplate('templates/html/sections.html');
 		output = mu.render(template, { "person": true } );
 		assertEquals(expected.trim(), output.trim());
 	}
 	
 	public function testNonEmptyLists():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/nonEmptyLists.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/nonEmptyLists.html');
+		template = Library.loadTemplate('resources/mu/nonEmptyLists.mustache');
+		expected = Library.loadTemplate('templates/html/nonEmptyLists.html');
 		output = mu.render(template, { "repo": [
 			{ "name": "resque" },
 			{ "name": "hub" },
@@ -65,8 +65,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testMethods():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/methods.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/methods.html');
+		template = Library.loadTemplate('resources/mu/methods.mustache');
+		expected = Library.loadTemplate('templates/html/methods.html');
 		output = mu.render(template, { "name": "Willy",
 			"wrapped":function(text, render) {
 				return "<b>" + render(text) + "</b>";
@@ -76,15 +76,15 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testNonFalse():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/nonFalse.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/nonFalse.html');
+		template = Library.loadTemplate('resources/mu/nonFalse.mustache');
+		expected = Library.loadTemplate('templates/html/nonFalse.html');
 		output = mu.render(template, { "person?": { "name": "Jon" }	} );
 		assertEquals(expected.trim(), output.trim());
 	}
 	
 	public function testInvertedSections():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/inverted.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/inverted.html');
+		template = Library.loadTemplate('resources/mu/inverted.mustache');
+		expected = Library.loadTemplate('templates/html/inverted.html');
 		output = mu.render(template, { 
 			t:true,
 			f:false,
@@ -96,17 +96,17 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testComments():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/comments.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/comments.html');
+		template = Library.loadTemplate('resources/mu/comments.mustache');
+		expected = Library.loadTemplate('templates/html/comments.html');
 		output = mu.render(template, { title:'Today.'} );
 		assertEquals(expected.trim(), output.trim());
 	}
 	
 	/*@Ignore('Not part of the spec')
 	public function testPartials():Void {
-		Settings.TEMPLATE_PATH = 'resources/mu/';
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/partials.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/partials.html');
+		Settings.TEMPLATE_PATH = '../resources/mu/';
+		template = Library.loadTemplate('resources/mu/partials.mustache');
+		expected = Library.loadTemplate('templates/html/partials.html');
 		output = mu.render(template, { names: [
 			{ name:'Chris' },
 			{ name:'Bob' }
@@ -115,8 +115,8 @@ class MustacheSpec extends TestCase {
 	}*/
 	
 	public function testDelimiters():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/delimiters.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/delimiters.html');
+		template = Library.loadTemplate('resources/mu/delimiters.mustache');
+		expected = Library.loadTemplate('templates/html/delimiters.html');
 		output = mu.render(template, { 
 			first:'It worked the first time.', 
 			second:'And it worked the second time.', 
@@ -126,8 +126,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testComplex():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/complex.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/complex.html');
+		template = Library.loadTemplate('resources/mu/complex.mustache');
+		expected = Library.loadTemplate('templates/html/complex.html');
 		var items:Array<Dynamic> = [
 				{ name:'red', current:true, url:'#Red' },
 				{ name:'green', link:true, url:'#Green' },
@@ -149,8 +149,8 @@ class MustacheSpec extends TestCase {
 	
 	//@Ignore('\\r\\n issue')
 	public function testDoubleSection():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/double_section.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/double_section.html');
+		template = Library.loadTemplate('resources/mu/double_section.mustache');
+		expected = Library.loadTemplate('templates/html/double_section.html');
 		output = mu.render(template, { 
 			t:true,
 			two:'second',
@@ -159,8 +159,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testEscape():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/escaped.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/escaped.html');
+		template = Library.loadTemplate('resources/mu/escaped.mustache');
+		expected = Library.loadTemplate('templates/html/escaped.html');
 		output = mu.render(template, { 
 			title:'Bear > Shark',
 		} );
@@ -168,8 +168,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testUnicodeOutput():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/unicodeOutput.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/unicodeOutput.html');
+		template = Library.loadTemplate('resources/mu/unicodeOutput.mustache');
+		expected = Library.loadTemplate('templates/html/unicodeOutput.html');
 		output = mu.render(template, { 
 			name:'Henri Poincaré',
 		} );
@@ -177,9 +177,9 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testTemplatePartial():Void {
-		Settings.TEMPLATE_PATH = 'resources/mu/';
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/templatePartial.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/templatePartial.html');
+		Settings.TEMPLATE_PATH = '../resources/mu/';
+		template = Library.loadTemplate('resources/mu/templatePartial.mustache');
+		expected = Library.loadTemplate('templates/html/templatePartial.html');
 		var title:String = 'Welcome';
 		output = mu.render(template, { 
 			title:title,
@@ -200,8 +200,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testAmpersandEscape():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/ampersand_escape.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/ampersand_escape.html');
+		template = Library.loadTemplate('resources/mu/ampersand_escape.mustache');
+		expected = Library.loadTemplate('templates/html/ampersand_escape.html');
 		output = mu.render(template, { 
 			message: "Some <code>",
 		} );
@@ -209,8 +209,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testApostrope():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/apostrophe.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/apostrophe.txt');
+		template = Library.loadTemplate('resources/mu/apostrophe.mustache');
+		expected = Library.loadTemplate('templates/html/apostrophe.txt');
 		output = mu.render(template, { 
 			'apos': "'",
 			'control': 'X',
@@ -219,8 +219,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testArrayOfStrings():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/array_of_strings.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/array_of_strings.txt');
+		template = Library.loadTemplate('resources/mu/array_of_strings.mustache');
+		expected = Library.loadTemplate('templates/html/array_of_strings.txt');
 		output = mu.render(template, { 
 			array_of_strings: ['hello', 'world']
 		} );
@@ -228,8 +228,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testBackSlashes():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/backslashes.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/backslashes.txt');
+		template = Library.loadTemplate('resources/mu/backslashes.mustache');
+		expected = Library.loadTemplate('templates/html/backslashes.txt');
 		output = mu.render(template, { 
 			value: "\\abc"
 		} );
@@ -238,8 +238,8 @@ class MustacheSpec extends TestCase {
 	
 	//@Ignore('Following the mustache(5) spec, this is not allowed. Other ports allow this. I\'m still undecided.')
 	public function testContextLookup():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/context_lookup.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/context_lookup.txt');
+		template = Library.loadTemplate('resources/mu/context_lookup.mustache');
+		expected = Library.loadTemplate('templates/html/context_lookup.txt');
 		output = mu.render(template, { 
 			"outer": {
 				"id": 1,
@@ -252,8 +252,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testUnescaped():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/unescaped.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/unescaped.txt');
+		template = Library.loadTemplate('resources/mu/unescaped.mustache');
+		expected = Library.loadTemplate('templates/html/unescaped.txt');
 		output = mu.render(template, { 
 			title: "Bear > Shark",
 		} );
@@ -261,8 +261,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testDisappearingWhitespace():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/disappearing_whitespace.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/disappearing_whitespace.txt');
+		template = Library.loadTemplate('resources/mu/disappearing_whitespace.mustache');
+		expected = Library.loadTemplate('templates/html/disappearing_whitespace.txt');
 		output = mu.render(template, { 
 			bedrooms: true,
 			total: 1
@@ -271,8 +271,8 @@ class MustacheSpec extends TestCase {
 	}
 	
 	public function testDoubleRender():Void {
-		template = Library.loadTemplate('unit tests/mustache/resources/mu/double_render.mustache');
-		expected = Library.loadTemplate('unit tests/mustache/templates/html/double_render.txt');
+		template = Library.loadTemplate('resources/mu/double_render.mustache');
+		expected = Library.loadTemplate('templates/html/double_render.txt');
 		output = mu.render(template, { 
 			foo: true,
 			bar: "{{win}}",
