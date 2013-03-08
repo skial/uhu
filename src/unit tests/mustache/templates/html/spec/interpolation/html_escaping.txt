@@ -1,1 +1,0 @@
-These characters should be HTML escaped: &amp; &quot; &lt; &gt;
