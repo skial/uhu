@@ -1,0 +1,6 @@
+
+-main EchoSocket
+-D haxe3
+-D neko_v2
+-cp src
+-neko bin/echosocket.n

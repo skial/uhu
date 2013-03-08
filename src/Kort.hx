@@ -21,13 +21,13 @@ import neko.vm.Module;
 
 import uhu.neko.cmd.CommandLineWrapper;
 
-import uhu.kort.log.Log;
-import uhu.kort.cmd.Config;
-import uhu.kort.cmd.Setup;
-import uhu.kort.typedefs.TInputOutput;
-import uhu.kort.typedefs.TAction;
-import uhu.kort.typedefs.TFileType;
-import uhu.kort.typedefs.TStatistics;
+import uhx.kort.log.Log;
+import uhx.kort.cmd.Config;
+import uhx.kort.cmd.Setup;
+import uhx.kort.typedefs.TInputOutput;
+import uhx.kort.typedefs.TAction;
+import uhx.kort.typedefs.TFileType;
+import uhx.kort.typedefs.TStatistics;
 
 using Std;
 using StringTools;

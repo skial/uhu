@@ -1,7 +1,7 @@
 package ;
 
-import uhu.tem.i.ITem;
-import uhu.tem.TemHelper;
+import uhx.tem.i.ITem;
+import uhx.tem.TemHelper;
 
 #if macro
 import thx.html.Html;
@@ -16,12 +16,12 @@ import sys.io.File;
 import sys.FileSystem;
 
 import uhu.macro.Du;
-import uhu.tem.Scope;
-import uhu.tem.Common;
-//import uhu.tem.Binder;
+import uhx.tem.Scope;
+import uhx.tem.Common;
+//import uhx.tem.Binder;
 import uhu.macro.Jumla;
-//import uhu.tem.Validator;
-import uhu.tem.TemMacro;
+//import uhx.tem.Validator;
+import uhx.tem.TemMacro;
 #end
 
 using Lambda;
