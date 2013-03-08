@@ -5,6 +5,7 @@ package uhx.core;
  * @author Skial Bainn
  */
 
-class Cls {
-	
-}
+/**
+ * Haitian Creole for... wait for it... class
+ */
+interface Klas { }

@@ -1,6 +1,6 @@
-package uhu.mu;
+package uhu.mu.e;
 
-import uhu.mu.typedefs.TParser;
+import uhu.mu.t.TParser;
 import uhu.mu.Common;
 
 /**

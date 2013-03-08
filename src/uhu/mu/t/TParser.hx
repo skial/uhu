@@ -1,6 +1,6 @@
-package uhu.mu.typedefs;
+package uhu.mu.t;
 
-import uhu.mu.ETag;
+import uhu.mu.e.ETag;
 
 /**
  * ...

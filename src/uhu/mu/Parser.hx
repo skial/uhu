@@ -1,10 +1,11 @@
 package uhu.mu;
 
+import haxe.ds.StringMap;
 import haxe.io.Eof;
 import haxe.io.StringInput;
-import uhu.mu.typedefs.TParser;
-import uhu.mu.typedefs.TSection;
-import uhu.mu.ETag;
+import uhu.mu.t.TParser;
+import uhu.mu.t.TSection;
+import uhu.mu.e.ETag;
 import uhu.mu.Common;
 
 using Arrays;
@@ -22,7 +23,7 @@ class Parser {
 	
 	public var tokens(default, null):Array<ETag>;
 	public var sections(default, null):Array<ETag>;
-	public var partials(default, null):Hash<String>;
+	public var partials(default, null):StringMap<String>;
 	public var template(default, null):String;
 	public var regex(default, null):EReg;
 	public var standalone(default, null):EReg;
@@ -41,7 +42,7 @@ class Parser {
 	public function new(otag:String = null, ctag:String = null) {
 		tokens = new Array<ETag>();
 		sections = new Array<ETag>();
-		partials = new Hash<String>();
+		partials = new StringMap<String>();
 		
 		this.otag = (otag == null ? Common.OPENING : otag);
 		this.ctag = (ctag == null ? Common.CLOSING : ctag);
@@ -166,7 +167,7 @@ class Parser {
 		}
 		
 		switch (tag) {
-			case null, '':
+			case '':
 				
 				tokens.push(Normal(content));
 				
@@ -207,7 +208,7 @@ class Parser {
 				
 				switch (sections.pop()) {
 					default:
-						throw Std.format('Problem with last section. Check $all.');
+						throw 'Problem with last section. Check $all.';
 					case Section(_, _, t, _, _):
 						tokens = t;
 				}
@@ -228,7 +229,7 @@ class Parser {
 				tokens.push(Delimiter(content));
 			
 			#if mu_grow
-			default:
+			case _:
 				extend(tag, tokens);
 			#end
 		}

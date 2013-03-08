@@ -1,6 +1,8 @@
 package uhu.mu;
 
-import uhu.mu.typedefs.TParser;
+import haxe.ds.StringMap;
+
+import uhu.mu.t.TParser;
 import uhu.mu.Settings;
 
 #if js
@@ -38,7 +40,7 @@ class Common {
 	public static var REGEX:EReg = createRegex(OPENING, CLOSING);
 	public static var STANDALONE:EReg = createStandalone(OPENING, CLOSING);
 	
-	public static var _partialCache:Hash<TParser> = new Hash<TParser>();
+	public static var _partialCache:StringMap<TParser> = new StringMap<TParser>();
 	
 	public static function createRegex(otag:String, ctag:String):EReg {
 		// {{([!>&/#^={]?)(\s*\s?[\s\S]+?\s*)([=}]?)}}
@@ -120,7 +122,7 @@ class Common {
 	}
 	
 	public static function clearCache():Void {
-		_partialCache = new Hash<TParser>();
+		_partialCache = new StringMap<TParser>();
 	}
 	
 	/*public static function EOL_TYPE(?escaped:Bool = false):String {

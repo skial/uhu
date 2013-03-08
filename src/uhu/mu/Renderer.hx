@@ -3,11 +3,12 @@ package uhu.mu;
 using Std;
 using Reflect;
 using StringTools;
+import haxe.ds.StringMap;
 import uhu.js.Console;
-import uhu.mu.typedefs.TParser;
-import uhu.mu.typedefs.TPartial;
-import uhu.mu.typedefs.TSection;
-import uhu.mu.ETag;
+import uhu.mu.t.TParser;
+import uhu.mu.t.TPartial;
+import uhu.mu.t.TSection;
+import uhu.mu.e.ETag;
 import uhu.mu.Common;
 import uhu.mu.Parser;
 
@@ -23,10 +24,10 @@ class Renderer {
 	
 	private var _parser:Parser;
 	
-	private var _cache:Hash<Dynamic>;
-	private var _values:Hash<Dynamic>;
-	public var _partials:Hash<String>;
-	private var _sections:Hash<Bool>;
+	private var _cache:StringMap<Dynamic>;
+	private var _values:StringMap<Dynamic>;
+	public var _partials:StringMap<String>;
+	private var _sections:StringMap<Bool>;
 	
 	private var _state:String;
 	
@@ -41,14 +42,14 @@ class Renderer {
 	private var _sectionType:Int = null;
 	
 	public function new() {
-		_values = new Hash<Dynamic>();
-		_cache = new Hash<Dynamic>();
-		_partials = new Hash<String>();
+		_values = new StringMap<Dynamic>();
+		_cache = new StringMap<Dynamic>();
+		_partials = new StringMap<String>();
 		_buffer = new StringBuf();
 	}
 	
 	public function render(parser:TParser, view:Dynamic):String {
-		if (Std.is(view, Hash)) {
+		if (Std.is(view, StringMap)) {
 			throw 'Can/t access the view. It cant/t be a Hash object. Sorry!';
 		}
 		
@@ -95,7 +96,8 @@ class Renderer {
 					
 					_buffer.add(result);
 				} else {
-					_buffer.add(func(c, callback(_getField, _view)));
+					//_buffer.add(func(c, callback(_getField, _view)));
+					_buffer.add(func(c,_getField.bind( _view )));
 				}
 				
 			case Unescape(c):
@@ -119,10 +121,11 @@ class Renderer {
 					
 					_buffer.add(result);
 				} else {
-					_buffer.add(func(c, callback(_getField, _view)));
+					//_buffer.add(func(c, callback(_getField, _view)));
+					_buffer.add(func(c, _getField.bind( _view )));
 				}
 				
-			case Section(tag, opening, tokens, template, inverted):
+			case Section(tag, _, tokens, template, inverted):
 				
 				var names:Array<String> = (tag.indexOf('.') == -1) ? [tag] : tag.split('.');
 				
@@ -211,9 +214,9 @@ class Renderer {
 					
 				}
 				
-			case Comments(c):
+			case Comments(_):
 				
-			case Partials(c, psr):
+			case Partials(_, psr):
 				
 				var parsed = psr();
 				
@@ -229,9 +232,7 @@ class Renderer {
 					
 				}
 				
-			case Delimiter(c):
-				
-			default:
+			case Delimiter(_):
 				
 		}
 	}

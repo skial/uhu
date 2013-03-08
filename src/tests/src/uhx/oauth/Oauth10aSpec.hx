@@ -18,7 +18,7 @@ using uhx.oauth.core.ESignatureTool;
  * ...
  * @author Skial Bainn
  */
-class Oauth10aSpec extends TestCase {
+class OAuth10aSpec extends TestCase {
 	
 	public var request_url:String = 'http://term.ie/oauth/example/request_token.php';
 	public var access_url:String = 'http://term.ie/oauth/example/access_token.php';
