@@ -1,18 +1,18 @@
 package uhx.oauth;
-import haxe.unit.TestCase;
-import de.polygonal.core.fmt.StringUtil;
+
 import haxe.Utf8;
 import uhx.crypto.Base16;
 import uhx.crypto.Base64;
-import uhx.oauth.core.Util;
-import uhx.oauth.core.Client;
-import uhx.oauth.core.requests.IRequest;
-import uhx.oauth.core.requests.PostRequest;
+import haxe.unit.TestCase;
+import uhx.oauth.spec1_0a.Common;
+import uhx.oauth.spec1_0a.Client;
+import uhx.oauth.spec1_0a.Request;
+import uhx.oauth.spec1_0a.i.IRequest;
 
 using StringTools;
 using uhx.util.URLParser;
-using uhx.oauth.core.ClientTool;
-using uhx.oauth.core.ESignatureTool;
+using uhx.oauth.spec1_0a.util.ClientTools;
+using uhx.oauth.spec1_0a.util.SignatureTools;
 
 /**
  * ...
@@ -34,13 +34,14 @@ class OAuth10aSpec extends TestCase {
 		c = new Client();
 		c.consumer.key = 'key';
 		c.consumer.secret = 'secret';
-		c.request = new URLParser( request_url );
+		
+		c.access.request = new URLParser( request_url );
 		
 		var time_stamp = '0';
 		var nonce = '0';
 		
-		r = new PostRequest();
-		r.url = c.request;
+		r = new Request();
+		r.url = c.access.request;
 		r.add('oauth_consumer_key', c.consumer.key);
 		r.add('oauth_nonce', nonce);
 		r.add('oauth_signature_method', c.signature.toString());
@@ -59,28 +60,28 @@ class OAuth10aSpec extends TestCase {
 	// This tests the value __before__ SHA1, Base64 encodings
 	public function testRequestSignature_plain() {
 		var expected = c.consumer.secret + '&' + c.token.secret;
-		assertEquals(expected, c.genSignature().key);
+		assertEquals(expected, c.generateKey());
 	}
 	
 	// This tests the value __after__ its been SHA1 encoded
 	public function testRequestSignature_sha1() {
 		// from an online sha1 tool - r.base SHA1 encoded with `secret&` as the key
 		var expected = '526c0fe3e210ba1f94789912015002d61ced17a3';
-		assertEquals(expected, c.genSignature().sha1);
+		assertEquals(expected, c.generateSHA1());
 	}
 	
 	public function testRequestSignature_digest() {
 		// from http://hueniverse.com/oauth/guide/authentication/ _create your own
 		// option. 
 		var expected = 'UmwP4+IQuh+UeJkSAVAC1hztF6M=';
-		assertEquals(expected, c.genSignature().digest);
+		assertEquals(expected, c.generateDigest());
 	}
 	
 	public function testRequestAuth_BaseString() {
 		c.token.key = 'accesskey';
 		c.token.secret = 'accesssecret';
 		
-		r.add(Util.TOKEN, c.token.key);
+		r.add(Common.TOKEN, c.token.key);
 		
 		r.url.path = '/oauth/example/access_token.php';
 		r.url.query.set('fname', ['skial']);
@@ -93,26 +94,26 @@ class OAuth10aSpec extends TestCase {
 		c.token.key = 'accesskey';
 		c.token.secret = 'accesssecret';
 		
-		r.add(Util.TOKEN, c.token.key);
+		r.add(Common.TOKEN, c.token.key);
 		
 		r.url.path = '/oauth/example/access_token.php';
 		r.url.query.set('fname', ['skial']);
 		r.url.query.set('lname', ['bainn']);
 		var e = 'secret&accesssecret';
-		assertEquals(e, c.genSignature().key);
+		assertEquals(e, c.generateKey());
 	}
 	
 	public function testRequestAuthSecret_hmac_sha1() {
 		c.token.key = 'accesskey';
 		c.token.secret = 'accesssecret';
 		
-		r.add(Util.TOKEN, c.token.key);
+		r.add(Common.TOKEN, c.token.key);
 		
 		r.url.path = '/oauth/example/access_token.php';
 		r.url.query.set('fname', ['skial']);
 		r.url.query.set('lname', ['bainn']);
 		var e = 'K6hFN+ya/XsfZxMbP2FjktUGqEQ=';
-		assertEquals(e, c.genSignature().digest);
+		assertEquals(e, c.generateDigest());
 	}
 	
 }
