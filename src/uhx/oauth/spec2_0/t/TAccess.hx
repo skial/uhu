@@ -10,5 +10,5 @@ import uhx.util.URLParser;
 typedef TAccess = {
 	var auth:URLParser;
 	var access:URLParser;
-	var callback:URLParser;
+	@:optional var callback:URLParser;
 }
