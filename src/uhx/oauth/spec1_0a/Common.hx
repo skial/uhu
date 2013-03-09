@@ -36,4 +36,17 @@ class Common {
 		return result;
 	}
 	
+	public static function stringSort(a:String, b:String):Int {
+		a = a.toLowerCase();
+		b = b.toLowerCase();
+		
+		return if (a < b) {
+			-1;
+		} else if (a > b) {
+			1;
+		} else {
+			0;
+		} 
+	}
+	
 }

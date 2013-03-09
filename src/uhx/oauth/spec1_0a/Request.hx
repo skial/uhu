@@ -2,9 +2,8 @@ package uhx.oauth.spec1_0a;
 
 import haxe.Http;
 import haxe.ds.StringMap;
-import uhx.http.Methods;
+import uhx.http.Method;
 import uhx.util.URLParser;
-import uhx.oauth.core.Util;
 import uhx.oauth.spec1_0a.i.IRequest;
 
 using Lambda;
@@ -22,7 +21,7 @@ class Request implements IRequest {
 	public var http(default, null):Http;
 	public var base(get, null):String;
 	public var url(default, set):URLParser;
-	public var method(default, null):Methods;
+	public var method(default, null):Method;
 	public var params(default, null):StringMap<String>;
 	
 	public var realm:String;
@@ -111,10 +110,10 @@ class Request implements IRequest {
 		}
 		
 		// now sort the keys
-		keys.sort(Util.stringSort);
+		keys.sort(Common.stringSort);
 		
 		for (k in keys) {
-			if ( k != Util.SIGNATURE ) {
+			if ( k != Common.SIGNATURE ) {
 				parameters.push( k + '=' + '' + map.get(k) );
 			}
 		}

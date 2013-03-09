@@ -5,7 +5,7 @@ package uhx.http;
  * @author Skial Bainn
  */
 
-enum Methods {
+enum Method {
 	GET;
 	HEAD;
 	POST;

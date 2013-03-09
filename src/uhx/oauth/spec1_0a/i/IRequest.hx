@@ -1,7 +1,7 @@
 package uhx.oauth.spec1_0a.i;
 
 import haxe.Http;
-import uhx.http.Methods;
+import uhx.http.Method;
 import haxe.ds.StringMap;
 import uhx.util.URLParser;
 
@@ -28,7 +28,7 @@ interface IRequest {
 	public var base(get, null):String;
 	
 	//	The http method to use - POST, GET etc all uppercase ... enum?
-	public var method(default, null):Methods;
+	public var method(default, null):Method;
 	
 	public function request():Void;
 	public function add(key:String, value:String):Void;
