@@ -1,4 +1,4 @@
-package uhx.util.i;
+package uhx.web.i;
 
 import haxe.ds.StringMap;
 
@@ -7,7 +7,7 @@ import haxe.ds.StringMap;
  */
 
 /**
- URLParser.hx
+ URI.hx
  -----
  
  Simple example :
@@ -18,7 +18,7 @@ import haxe.ds.StringMap;
  
  Should add `directory`, `file` and `relative` fields.
  */
-interface IURLParser {
+interface IURI {
 	
 	/**
 	 * example - `http` of `http://www.test.com`

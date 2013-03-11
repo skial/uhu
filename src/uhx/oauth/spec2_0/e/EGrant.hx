@@ -10,5 +10,5 @@ enum EGrant {
 	Implicit;
 	Password;
 	Client_Credentials;
-	Extension(method:Void->Void);
+	//Extension(method:Void->Void);
 }

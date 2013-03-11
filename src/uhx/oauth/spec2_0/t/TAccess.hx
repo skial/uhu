@@ -1,6 +1,6 @@
 package uhx.oauth.spec2_0.t;
 
-import uhx.util.URLParser;
+import uhx.web.URI;
 
 /**
  * ...
@@ -8,7 +8,7 @@ import uhx.util.URLParser;
  */
 
 typedef TAccess = {
-	var auth:URLParser;
-	var access:URLParser;
-	@:optional var callback:URLParser;
+	var auth:URI;
+	var access:URI;
+	@:optional var callback:URI;
 }

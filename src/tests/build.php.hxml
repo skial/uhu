@@ -1,0 +1,13 @@
+-D debug
+
+-cp src
+-cp ..
+-cp ../../../../../jonas/src
+-cp ../../../thx/src
+
+-lib polygonal
+
+-main AllTests
+-php bin/tests_php
+
+-cmd php ./bin/tests_php/index.php

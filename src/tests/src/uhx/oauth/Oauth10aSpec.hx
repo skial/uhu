@@ -10,7 +10,7 @@ import uhx.oauth.spec1_0a.Request;
 import uhx.oauth.spec1_0a.i.IRequest;
 
 using StringTools;
-using uhx.util.URLParser;
+using uhx.web.URI;
 using uhx.oauth.spec1_0a.util.ClientTools;
 using uhx.oauth.spec1_0a.util.SignatureTools;
 
@@ -35,7 +35,7 @@ class OAuth10aSpec extends TestCase {
 		c.consumer.key = 'key';
 		c.consumer.secret = 'secret';
 		
-		c.access.request = new URLParser( request_url );
+		c.access.request = new URI( request_url );
 		
 		var time_stamp = '0';
 		var nonce = '0';

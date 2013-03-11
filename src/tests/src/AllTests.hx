@@ -1,6 +1,10 @@
 package ;
 
 import haxe.unit.TestRunner;
+import uhx.oauth.GithubSpec;
+import haxe.Utf8Spec;
+
+#if !js
 import uhu.mu.CommentSpec;
 import uhu.mu.DelimiterSpec;
 import uhu.mu.InterpolationSpec;
@@ -9,17 +13,18 @@ import uhu.mu.MustacheSpec;
 import uhu.mu.PartialSpec;
 import uhu.mu.SectionSpec;
 import uhu.mu.WalkContextSpec;
+#end
 
-import haxe.Utf8Spec;
-
+#if sys
 import sys.net.HostSpec;
 import sys.net.SocketSpec;
+import uhx.oauth.OAuth10aSpec;
+#end
 
 import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
 import uhx.crypto.MD5Spec;
-import uhx.oauth.OAuth10aSpec;
-import uhx.util.URLParserSpec;
+import uhx.web.URISpec;
 
 /**
  * ...
@@ -38,7 +43,7 @@ class AllTests {
 		runner.add( new MD5Spec() );
 		runner.add( new HMACSpec() );
 		
-		runner.add( new URLParserSpec() );
+		runner.add( new URISpec() );
 		
 		#if sys
 		
@@ -49,7 +54,8 @@ class AllTests {
 		
 		#end
 		
-		// Mustache tests
+		#if !js
+		// Mustache Tests
 		runner.add( new CommentSpec() );
 		runner.add( new DelimiterSpec() ); //
 		runner.add( new InterpolationSpec() );
@@ -58,6 +64,10 @@ class AllTests {
 		runner.add( new PartialSpec() ); //
 		runner.add( new SectionSpec() ); 
 		runner.add( new WalkContextSpec() ); 
+		#end
+		
+		// Github OAuth Tests
+		//runner.add( new GithubSpec() );
 		
 		runner.run();
 		

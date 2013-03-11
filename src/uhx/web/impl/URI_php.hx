@@ -1,9 +1,9 @@
-package uhx.util.impl;
+package uhx.web.impl;
 
 import php.Lib;
 import php.NativeArray;
 import haxe.ds.StringMap;
-import uhx.util.i.IURLParser;
+import uhx.web.i.IURI;
 
 using Lambda;
 using StringTools;
@@ -13,7 +13,7 @@ using uhx.util.Helper;
  * @author Skial Bainn
  */
 
-class URLParser_php implements IURLParser {
+class URI_php implements IURI {
 
 	public var scheme(get_scheme, set_scheme):String;
 	public var username(get_username, set_username):String;

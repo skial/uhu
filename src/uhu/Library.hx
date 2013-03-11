@@ -8,15 +8,16 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 //import tink.macro.tools.AST;
 import uhu.macro.Du;
-#end 
-
-#if js
-import UserAgent;
-import UserAgentContext;
 #end
 
 using Std;
 using StringTools;
+
+#if js
+typedef WindowProxy = js.html.DOMWindow;
+typedef HTMLElement = js.html.HtmlElement;
+typedef CSSStyleDeclaration = js.html.CSSStyleDeclaration;
+#end
 
 #if macro
 typedef WindowProxy = Dynamic;
@@ -32,7 +33,7 @@ typedef CSSStyleDeclaration = Dynamic;
 class Library {
 	
 	#if js
-	macro public static function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
+	public static macro function requestAnimationFrame(window:ExprOf<WindowProxy>, handler:ExprOf<Dynamic>, ?element:ExprOf<HTMLElement>):ExprOf<Dynamic> {
 		Compiler.define('raf');
 		
 		if ( Context.defined('raf_included') ) {
@@ -58,7 +59,7 @@ class Library {
 		return untyped element.getBoundingClientRect();
 	}
 	
-	public static function getComputedStyle(element:HTMLElement):CSSStyleDeclaration untyped {
+	/*public static function getComputedStyle(element:HTMLElement):CSSStyleDeclaration untyped {
 		var style:CSSStyleDeclaration = null;
 		
 		if (__js__('window').getComputedStyle != null) {
@@ -68,10 +69,10 @@ class Library {
 		}
 		
 		return style;
-	}
+	}*/
 	
 	// https://github.com/cowboy/jquery-throttle-debounce/blob/master/jquery.ba-throttle-debounce.js
-	public static function debounce(method:Dynamic, delay:Int = 250, at_end:Bool = true):Dynamic {
+	/*public static function debounce(method:Dynamic, delay:Int = 250, at_end:Bool = true):Dynamic {
 		var lastExec:Float = .0;
 		
 		var return_method = function() {
@@ -99,7 +100,7 @@ class Library {
 		}
 		
 		return return_method;
-	}
+	}*/
 	#end
 	
 	/**
@@ -143,7 +144,7 @@ class Library {
 	}
 	
 	#if js
-	@:macro public static function untype(e:ExprOf<Dynamic>):ExprOf<Dynamic> {
+	public static macro function untype(e:ExprOf<Dynamic>):ExprOf<Dynamic> {
 		/**
 		 * Returns the expression but untyped.
 		 */
@@ -153,7 +154,7 @@ class Library {
 	/**
 	 * https://developers.google.com/closure/compiler/docs/api-tutorial3#propnames
 	 */
-	@:macro public static function exportProperty(e:ExprOf<Dynamic>) {
+	public static macro function exportProperty(e:ExprOf<Dynamic>) {
 		var output = '';
 		
 		switch (e.expr) {

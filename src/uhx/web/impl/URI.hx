@@ -1,14 +1,14 @@
-package uhx.util.impl;
+package uhx.web.impl;
 
-import uhx.util.i.IURLParser;
 import haxe.ds.StringMap;
+import uhx.web.i.IURI;
 
 using Lambda;
 using StringTools;
 using uhx.util.Helper;
-using uhx.util.ParamParser;
+using uhx.web.ParamParser;
 
-class URLParser implements IURLParser {
+class URI implements IURI {
 	
 	// regular expression from http://code.google.com/p/jsuri/source/browse/src/uri.js
 	// massive help - thanks!
@@ -51,14 +51,14 @@ class URLParser implements IURLParser {
 	 * @link http://tantek.com/2011/238/b1/many-ways-slice-url-name-pieces
 	 */
 	
-	public var scheme(get_scheme, set_scheme):String;
-	public var username(get_username, set_username):String;
-	public var password(get_password, set_password):String;
-	public var hostname(get_hostname, set_hostname):String;
-	public var port(get_port, set_port):String;
-	public var path(get_path, set_path):String;
+	public var scheme(get, set):String;
+	public var username(get, set):String;
+	public var password(get, set):String;
+	public var hostname(get, set):String;
+	public var port(get, set):String;
+	public var path(get, set):String;
 	public var query(default, default):StringMap<Array<String>>;
-	public var fragment(get_fragment, set_fragment):String;
+	public var fragment(get, set):String;
 	
 	@:noComplete public var hash:StringMap<String>;
 	@:noComplete public var order:StringMap<Int>;

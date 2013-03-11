@@ -1,0 +1,14 @@
+-D debug
+
+-cp src
+-cp ..
+-cp ../../../../../jonas/src
+-cp ../../../thx/src
+
+-lib polygonal
+
+-main AllTests
+-js bin/tests.js
+
+#-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes
+-cmd nekotools server -p 80

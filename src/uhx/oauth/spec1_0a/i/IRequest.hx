@@ -2,8 +2,8 @@ package uhx.oauth.spec1_0a.i;
 
 import haxe.Http;
 import uhx.http.Method;
+import uhx.web.URI;
 import haxe.ds.StringMap;
-import uhx.util.URLParser;
 
 /**
  * ...
@@ -22,7 +22,7 @@ interface IRequest {
 	public var params(default, null):StringMap<String>;
 	
 	//	The url to send everything to
-	public var url(default, set):URLParser;
+	public var url(default, set):URI;
 	
 	//	http://tools.ietf.org/html/rfc5849#section-3.4.1
 	public var base(get, null):String;
@@ -34,6 +34,6 @@ interface IRequest {
 	public function add(key:String, value:String):Void;
 	
 	private function get_base():String;
-	private function set_url(value:URLParser):URLParser;
+	private function set_url(value:URI):URI;
 	
 }

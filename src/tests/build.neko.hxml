@@ -1,0 +1,11 @@
+-D debug
+
+-cp src
+-cp ..
+-cp ../../../../../jonas/src
+-cp ../../../thx/src
+
+-lib polygonal
+
+-main AllTests
+-x bin/tests

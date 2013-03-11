@@ -1,8 +1,8 @@
 package uhx.oauth.spec2_0.i;
 
-import haxe.ds.StringMap;
 import haxe.Http;
-import uhx.util.URLParser;
+import haxe.ds.StringMap;
+import uhx.web.URI;
 import uhx.oauth.spec2_0.e.EGrant;
 
 /**
@@ -11,19 +11,11 @@ import uhx.oauth.spec2_0.e.EGrant;
 
 interface IRequest {
 	
-	public var http(default, null):Http;
+	// The prepared http object.
+	public var http(get, null):Http;
+	public function get_http():Http;
 	
 	// The url to send everything to.
-	public var url(default, set):URLParser;
-	
-	// What type of request to make.
-	public var type:EGrant;
-	
-	public var params:StringMap<String>;
-	
-	public function request():Void;
-	public function add(key:String, value:String):Void;
-	
-	public function set_url(value:URLParser):URLParser;
+	public var url:URI;
 	
 }

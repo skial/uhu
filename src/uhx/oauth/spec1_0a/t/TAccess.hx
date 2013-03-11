@@ -1,13 +1,13 @@
 package uhx.oauth.spec1_0a.t;
 
-import uhx.util.URLParser;
+import uhx.web.URI;
 
 /**
  * @author Skial Bainn
  */
 
 typedef TAccess = {
-	var request:URLParser;
-	var auth:URLParser;
-	var access:URLParser;
+	var request:URI;
+	var auth:URI;
+	var access:URI;
 }

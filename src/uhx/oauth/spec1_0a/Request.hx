@@ -1,15 +1,15 @@
 package uhx.oauth.spec1_0a;
 
 import haxe.Http;
-import haxe.ds.StringMap;
 import uhx.http.Method;
-import uhx.util.URLParser;
+import haxe.ds.StringMap;
+import uhx.web.URI;
 import uhx.oauth.spec1_0a.i.IRequest;
 
 using Lambda;
 using StringTools;
-using uhx.util.Helper;
 using haxe.EnumTools;
+using uhx.util.Helper;
 
 /**
  * ...
@@ -20,7 +20,7 @@ class Request implements IRequest {
 	
 	public var http(default, null):Http;
 	public var base(get, null):String;
-	public var url(default, set):URLParser;
+	public var url(default, set):URI;
 	public var method(default, null):Method;
 	public var params(default, null):StringMap<String>;
 	
@@ -119,7 +119,7 @@ class Request implements IRequest {
 		}
 		
 		// need to edit url but dont want values to persist
-		var clone = new URLParser( url.toString() );
+		var clone = new URI( url.toString() );
 		
 		/**
 		 * @link http://tools.ietf.org/html/rfc5849#section-3.4.1.2
@@ -151,7 +151,7 @@ class Request implements IRequest {
 		return result;
 	}
 	
-	private function set_url(value:URLParser):URLParser {
+	private function set_url(value:URI):URI {
 		url = value;
 		http = new Http( value.toString() );
 		return value;

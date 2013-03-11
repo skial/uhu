@@ -1,9 +1,11 @@
 package uhx.oauth.spec2_0;
 
-import uhx.util.URLParser;
+import uhx.web.URI;
 import uhx.oauth.spec2_0.e.EGrant;
 import uhx.oauth.spec2_0.i.IRequest;
 import uhx.oauth.spec2_0.t.TAccess;
+
+using uhx.web.URLs;
 
 /**
  * ...
@@ -12,15 +14,17 @@ import uhx.oauth.spec2_0.t.TAccess;
 
 class Client {
 	
-	public var id:String = ''
+	public var id:String = '';
 	public var secret:String = '';
 	
 	public var url:TAccess;
 	public var type:EGrant;
-	public var scopes:Array<String>;
+	
 	public var http_request:IRequest;
 	
 	public var state:String = null;
+	public var scopes:Array<String>;
+	public var scope_separator:String = ' ';
 
 	public function new() {
 		
@@ -30,27 +34,29 @@ class Client {
 		
 	}
 	
-	public function makeRequest(url:URLParser):IRequest {
-		http_request = new Request();
-		http_request.url = url;
+	public function makeRequest(url:URI):IRequest {
+		var clone = url.toString().toURL();
 		
-		http_request.add( Common.RESPONSE_TYPE, 'code' );
-		http_request.add( Common.CLIENT_ID, id );
+		clone.query.set( Common.RESPONSE_TYPE, [ 'code' ] );
+		clone.query.set( Common.CLIENT_ID, [ id ] );
 		
 		// http://tools.ietf.org/html/rfc6749#section-3.1.2
-		if (url.callback != null) {
-			http_request.add( Common.REDIRECT_URI, url.callback );
+		if (this.url.callback != null) {
+			clone.query.set( Common.REDIRECT_URI, [ this.url.callback.toString() ] );
 		}
 		
 		// http://tools.ietf.org/html/rfc6749#section-3.3
 		if (scopes.length > 0) {
-			http_request.add( Common.SCOPE, scopes.join(' ') );
+			clone.query.set( Common.SCOPE, [ scopes.join( scope_separator ) ] );
 		}
 		
 		// http://tools.ietf.org/html/rfc6749#section-10.12
 		if (state != null) {
-			http_request.add( Common.STATE, state );
+			clone.query.set( Common.STATE, [ state ] );
 		}
+		trace(clone);
+		http_request = new Request();
+		http_request.url = clone;
 		
 		return http_request;
 	}

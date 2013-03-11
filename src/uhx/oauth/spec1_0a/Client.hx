@@ -1,6 +1,6 @@
 package uhx.oauth.spec1_0a;
 
-import uhx.util.URLParser;
+import uhx.web.URI;
 import uhx.oauth.spec1_0a.t.TAccess;
 import uhx.oauth.spec1_0a.i.IRequest;
 import uhx.oauth.spec1_0a.t.TKeySecret;
@@ -36,7 +36,7 @@ class Client {
 		
 	}
 	
-	public function makeRequest(url:URLParser):IRequest {
+	public function makeRequest(url:URI):IRequest {
 		http_request = new Request();
 		http_request.url = url;
 		

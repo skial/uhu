@@ -1,4 +1,4 @@
-package uhx.util;
+package uhx.web;
 
 import haxe.ds.StringMap;
 
