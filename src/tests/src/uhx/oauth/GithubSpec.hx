@@ -3,10 +3,10 @@ package uhx.oauth;
 import haxe.Json;
 import haxe.unit.TestCase;
 import uhx.oauth.Github;
-import uhx.web.URLs;
+import uhx.web.URL;
 
 using uhu.Library;
-using uhx.web.URLs;
+using uhx.web.URL;
 
 /**
  * ...
@@ -29,7 +29,7 @@ class GithubSpec extends TestCase {
 		github.client.secret = json.client.secret;
 		
 		// optional but recommended
-		github.client.url.callback = 'http://localhost/oauth/test.js.html'.toURL();
+		github.client.url.callback = 'http://localhost/bin/test.js.html'.toURL();
 		
 		github.onSuccess = function(d:String) {
 			trace(d);
@@ -40,7 +40,7 @@ class GithubSpec extends TestCase {
 		}
 		
 		github.getAccess();
-		trace( URLs.location );
+		trace( URL.location );
 		
 		
 	}

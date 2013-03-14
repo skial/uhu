@@ -5,7 +5,7 @@ package uhx.web;
  */
 
 #if js
-typedef URLs = uhx.web.impl.URLs_js;
+typedef URL = uhx.web.impl.URL_js;
 #else
-typedef URLs = uhx.web.impl.URLs;
+typedef URL = uhx.web.impl.URL;
 #end

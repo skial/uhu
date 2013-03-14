@@ -5,7 +5,7 @@ import uhx.oauth.spec2_0.e.EGrant;
 import uhx.oauth.spec2_0.i.IRequest;
 import uhx.oauth.spec2_0.t.TAccess;
 
-using uhx.web.URLs;
+using uhx.web.URL;
 
 /**
  * ...
@@ -29,7 +29,11 @@ class Client {
 	public function new() {
 		
 		scopes = [];
+		#if sys
 		type = Authorization_Code;
+		#else
+		type = Implicit;
+		#end
 		url = { auth:null, access:null, callback:null };
 		
 	}

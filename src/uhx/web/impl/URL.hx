@@ -8,13 +8,13 @@ import php.Web in Web;
 
 import uhx.web.URI;
 
-using uhx.web.URLs;
+using uhx.web.URL;
 
 /**
  * @author Skial Bainn
  */
 
-class URLs {
+class URL {
 	
 	public static var location(get, null):URI;
 	

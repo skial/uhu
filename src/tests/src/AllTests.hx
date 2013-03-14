@@ -1,8 +1,10 @@
 package ;
 
-import haxe.unit.TestRunner;
-import uhx.oauth.GithubSpec;
 import haxe.Utf8Spec;
+import uhx.web.URISpec;
+import uhx.oauth.GithubSpec;
+import haxe.unit.TestRunner;
+import uhx.http.impl.t.TRequest;
 
 #if !js
 import uhu.mu.CommentSpec;
@@ -21,10 +23,13 @@ import sys.net.SocketSpec;
 import uhx.oauth.OAuth10aSpec;
 #end
 
+#if js
+import uhx.http.RequestSpec;
+#end
+
 import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
 import uhx.crypto.MD5Spec;
-import uhx.web.URISpec;
 
 /**
  * ...
@@ -66,8 +71,13 @@ class AllTests {
 		runner.add( new WalkContextSpec() ); 
 		#end
 		
+		#if js
+		// Request Tests
+		runner.add( new RequestSpec() );
+		#end
+		
 		// Github OAuth Tests
-		//runner.add( new GithubSpec() );
+		runner.add( new GithubSpec() );
 		
 		runner.run();
 		

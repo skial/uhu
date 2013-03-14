@@ -5,7 +5,7 @@ import uhx.oauth.spec2_0.i.IRequest;
 
 using StringTools;
 using haxe.EnumTools;
-using uhx.web.URLs;
+using uhx.web.URL;
 
 /**
  * ...
@@ -31,6 +31,11 @@ class Github {
 		
 		client.url.auth = 'https://github.com/login/oauth/authorize'.toURL();
 		client.url.access = 'https://github.com/login/oauth/access_token'.toURL();
+		
+		trace(URL.location);
+		if (client.http_request != null) {
+			trace(client.http_request.http.responseData);
+		}
 	}
 	
 	public function getAccess() {

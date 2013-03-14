@@ -2,7 +2,7 @@ package uhx.web;
 import uhx.web.URI;
 import haxe.unit.TestCase;
 
-using uhx.web.URLs;
+using uhx.web.URL;
 
 /**
  * ...

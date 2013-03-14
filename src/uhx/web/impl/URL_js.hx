@@ -2,13 +2,14 @@ package uhx.web.impl;
 
 import uhx.web.URI;
 
+using StringTools;
 using uhx.web.ParamParser;
 
 /**
  * ...
  * @author Skial Bainn
  */
-class URLs_js {
+class URL_js {
 	
 	public static var location(get, null):URI;
 	
@@ -22,7 +23,7 @@ class URLs_js {
 		result.path = current.pathname;
 		result.fragment = current.hash;
 		
-		result.query = current.search.parseParams();
+		result.query = current.search.replace('?', '').parseParams();
 		
 		return result;
 	}

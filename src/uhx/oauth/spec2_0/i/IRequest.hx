@@ -1,8 +1,8 @@
 package uhx.oauth.spec2_0.i;
 
 import haxe.Http;
-import haxe.ds.StringMap;
 import uhx.web.URI;
+import haxe.ds.StringMap;
 import uhx.oauth.spec2_0.e.EGrant;
 
 /**

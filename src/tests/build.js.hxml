@@ -6,6 +6,7 @@
 -cp ../../../thx/src
 
 -lib polygonal
+-lib msignal
 
 -main AllTests
 -js bin/tests.js

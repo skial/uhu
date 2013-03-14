@@ -12,6 +12,5 @@ enum Method {
 	PUT;
 	DELETE;
 	OPTIONS;
-	CONNECT;
 	PATCH;
 }

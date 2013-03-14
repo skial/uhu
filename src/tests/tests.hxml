@@ -3,5 +3,6 @@
 -cp ../../../../../jonas/src
 -cp ../../../thx/src
 -lib polygonal
--neko bin/tests.n
+-lib msignal
+-js bin/tests.n
 -main AllTests
