@@ -20,6 +20,30 @@ class TypeTools {
 		return getName( t );
 	}
 	
+	public static inline function isEnum(type:Type):Bool {
+		return type.getName() == 'TEnum';
+	}
+	
+	public static inline function isClass(type:Type):Bool {
+		return type.getName() = 'TInst';
+	}
+	
+	public static inline function isTypedef(type:Type):Bool {
+		return type.getName() == 'TType';
+	}
+	
+	public static inline function isFunction(type:Type):Bool {
+		return type.getName() == 'TFun';
+	}
+	
+	public static inline function isStructure(type:Type):Bool {
+		return (type.getName() == 'TAnonymous' || isTypedef( type ));
+	}
+	
+	public static inline function isAbstract(type:Type):Bool {
+		return type.getName() == 'TAbstract';
+	}
+	
 	public static function getName(type:Type):String {
 		switch (type) {
 			case TInst(t, _):
@@ -28,10 +52,8 @@ class TypeTools {
 				return t.toString();
 			case TType(t, _):
 				return t.toString();
-			#if haxe3
 			case TAbstract(t, _):
 				return t.toString();
-			#end
 			default:
 				
 		}

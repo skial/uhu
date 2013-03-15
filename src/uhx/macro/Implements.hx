@@ -111,6 +111,7 @@ class Implements {
 									Context.error('Parameter ${param.name} should be optional', field.pos);
 								}
 								
+								// need to make it more intelligent, class instances and structures etc
 								/*if (param.type.toType().toString() != arg.t.toString()) {
 									Context.error('Parameter ${param.name} type should be ${arg.t.toString()}', field.pos);
 								}*/
