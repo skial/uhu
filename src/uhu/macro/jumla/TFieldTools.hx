@@ -2,8 +2,6 @@ package uhu.macro.jumla;
 
 import uhu.macro.jumla.t.TField;
 
-using Lambda;
-
 /**
  * @author Skial Bainn
  */
@@ -11,9 +9,14 @@ using Lambda;
 class TFieldTools {
 	
 	public static function exists(fields:Array<TField>, name:String):Bool {
-		var result = fields.exists( function(field):Bool {
-			return (field.name == name) ? true : false;
-		} );
+		var result = false;
+		
+		for (field in fields) {
+			if (field.name == name) {
+				result = true;
+				break;
+			}
+		}
 		
 		return result;
 	}

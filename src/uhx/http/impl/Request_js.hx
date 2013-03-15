@@ -1,6 +1,7 @@
 package uhx.http.impl;
 
 import uhx.core.Klas;
+import uhx.http.impl.i.ERequest;
 import uhx.http.impl.t.TRequest;
 import uhx.web.URI;
 import msignal.Signal;
@@ -21,7 +22,7 @@ using uhx.http.util.RequestTools;
  * @author Skial Bainn
  */
 
-@:implements(TRequest)
+@:implements(ERequest, TRequest)
 class Request_js implements IRequest implements Klas {
 	
 	@:noCompletion public var xhr:XMLHttpRequest;

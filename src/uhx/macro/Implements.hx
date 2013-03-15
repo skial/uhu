@@ -1,5 +1,6 @@
 package uhx.macro;
 
+import haxe.macro.Printer;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -18,6 +19,7 @@ class Implements {
 	public static var meta_name:String = ':implements';
 	public static var cls:ClassType;
 	public static var fields:Array<Field>;
+	public static var blueprint:BaseType;
 
 	public static function handler(_cls:ClassType, _fields:Array<Field>):Array<Field> {
 		
@@ -28,10 +30,14 @@ class Implements {
 			
 			if (meta.name == meta_name) {
 				
-				var name = meta.params[0].toString();
-				var type = Context.getType( name );
-				
-				handleType( type );
+				for (param in meta.params) {
+					
+					var name = param.toString();
+					var type = Context.getType( name );
+					
+					handleType( type );
+					
+				}
 				
 			}
 			
@@ -42,57 +48,118 @@ class Implements {
 	
 	private static function handleType(type:Type) {
 		
-		trace( type );
-		
 		switch (type) {
 			case TType(t, _):
+				blueprint = t.get();
 				handleType( t.get().type );
 				
 			case TAnonymous(a):
-				checkFields( a.get().fields );
+				var new_fields:Array<ClassField> = [];
+				var new_statics:Array<ClassField> = [];
+				
+				for (field in a.get().fields) {
+					
+					if (field.meta.has(':static')) {
+						new_statics.push( field );
+					} else {
+						new_fields.push( field );
+					}
+					
+				}
+				
+				checkFields( new_fields, false );
+				checkFields( new_statics, true );
+				
+			case TInst(t, _):
+				blueprint = t.get();
+				checkFields( t.get().fields.get(), false );
+				checkFields( t.get().statics.get(), true );
 				
 			case _:
-				
+				trace( type );
 		}
 		
 	}
 	
-	private static function checkFields(impls:Array<ClassField>) {
+	private static function checkFields(impls:Array<ClassField>, isStatic:Bool) {
 		for (impl in impls) {
 			
 			if (fields.exists( impl.name )) {
 				
 				var field = fields.get( impl.name );
-				var field_type = null;
 				
-				var impl_type = impl.type;
-				
-				switch ([impl.kind.getName(), field.kind.getName()]) {
-					case ['FVar', 'FVar'] | ['FVar', 'FProp']:
+				switch (impl.type) {
+					case TFun(args, ret):
 						
-						switch(field.kind) {
-							case FVar(t, _) | FProp(_, _, t, _):
-								field_type = t.toType();
+						if (field.kind.getName() != 'FFun') {
+							Context.error('${cls.name}::${field.name} is meant to be a function', field.pos);
+						}
+						
+						var method:Function = field.kind.getParameters()[0];
+						
+						for (arg in args) {
+							
+							if (method.args.exists( arg.name )) {
 								
-							case _:
+								var param = method.args.get( arg.name );
+								
+								if (param.name != arg.name) {
+									Context.error('Parameter ${param.name} should be called ${arg.name}', field.pos);
+								}
+								
+								if (param.opt != arg.opt) {
+									Context.error('Parameter ${param.name} should be optional', field.pos);
+								}
+								
+								if (param.type.toType().toString() != arg.t.toString()) {
+									Context.error('Parameter ${param.name} type should be ${arg.t.toString()}', field.pos);
+								}
+								
+							} else {
+								
+								Context.error('Parameter ${arg.name} is missing from ${cls.name}::${field.name}', field.pos);
+								
+							}
+							
+						}
+						
+						if (method.ret != null && method.ret.toType().toString() != ret.toString()) {
+							
+							Context.error('${field.name} return type should be ${ret.toString()}', field.pos);
+							
 						}
 						
 					case _:
 						
+						
 				}
 				
-				if (impl_type != null && field_type != null) {
-					
-					if (field_type.toString() != impl_type.toString()) {
-						trace('MISMATCH!');
-						trace(impl_type);
-						trace(field_type);
-					}
-					
-				}
 			} else {
 				
-				Context.error('${cls.name} is missing field ${impl.name}', cls.pos);
+				var is_method = false;
+				var output = '';
+				
+				switch (impl.type) {
+					case TFun(args, ret):
+						is_method = true;
+						
+						output += '${impl.name}(';
+						
+						output += args.map( function(arg: { t:Type, opt:Bool, name:String } ) {
+							return '${arg.name}:${arg.t.toString()}';
+						} ).join(', ');
+						
+						output += '):${ret.toString()} { ... }';
+						
+					case TInst(_, _) | TMono(_) | TEnum(_, _) | TType(_, _) | TAbstract(_, _):
+						
+						var t = impl.type.getParameters()[0];
+						output += '${impl.name}:${t.get().name}';
+						
+					case _:
+				}
+				
+				Context.error('${cls.name} is missing a ${isStatic?"static ":""}${is_method?"function":"var"} $output', cls.pos);
 				
 			}
 			
