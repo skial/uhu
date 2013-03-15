@@ -1,7 +1,11 @@
 package uhx.http.impl;
 
+import uhx.http.impl.t.TResponse;
+import uhx.http.impl.t.TRequest;
+import uhx.http.Request;
 import uhx.web.URI;
 import haxe.io.Bytes;
+import uhx.core.Klas;
 import uhx.http.Status;
 import haxe.ds.StringMap;
 import js.html.XMLHttpRequest;
@@ -13,9 +17,10 @@ import uhx.http.impl.i.IResponse;
  * @author Skial Bainn
  */
 
-class Response_js implements IResponse {
+@:implements(TResponse)
+class Response_js implements Klas/* implements IResponse*/ {
 	
-	public var request(default, null):IRequest;
+	public var request(default, null):Request;
 	public var url(get, null):URI;
 	public var text(get, null):String;
 	public var status(get, null):Status;
@@ -27,7 +32,7 @@ class Response_js implements IResponse {
 	
 	@:noCompletion public var xhr:XMLHttpRequest;
 
-	public function new(r:IRequest) {
+	public function new(r:Request) {
 		request = r;
 		
 		xhr = untyped request.xhr;

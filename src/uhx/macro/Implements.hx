@@ -111,9 +111,9 @@ class Implements {
 									Context.error('Parameter ${param.name} should be optional', field.pos);
 								}
 								
-								if (param.type.toType().toString() != arg.t.toString()) {
+								/*if (param.type.toType().toString() != arg.t.toString()) {
 									Context.error('Parameter ${param.name} type should be ${arg.t.toString()}', field.pos);
-								}
+								}*/
 								
 							} else {
 								

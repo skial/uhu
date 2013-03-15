@@ -1,5 +1,7 @@
 package uhx.http.impl.t;
 
+import uhx.http.Request;
+import uhx.http.Response;
 import uhx.web.URI;
 import msignal.Signal;
 import uhx.http.Method;
@@ -12,8 +14,8 @@ import uhx.http.impl.i.IResponse;
  */
 
 typedef TRequest = {
-	var onError:Signal1<IResponse>;
-	var onSuccess:Signal1<IResponse>;
+	var onError:Signal1<TResponse>;
+	var onSuccess:Signal1<TResponse>;
 	var headers(default, null):StringMap<String>;
 	
 	function new(url:URI, method:Method):TRequest;

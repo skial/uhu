@@ -34,13 +34,13 @@ class RequestSpec extends TestCase {
 		request.send();
 	}
 	
-	public function GET_onSuccess(r:IResponse) {
+	public function GET_onSuccess(r:Response) {
 		trace('SUCCESS!');
 		trace(r.status_code);
 		trace(r.text);
 	}
 	
-	public function GET_onError(r:IResponse) {
+	public function GET_onError(r:Response) {
 		trace('ERROR!');
 		trace(r.status_code);
 		trace(r.text);
