@@ -44,6 +44,10 @@ class TypeTools {
 		return type.getName() == 'TAbstract';
 	}
 	
+	public static inline function isDynamic(type:Type):Bool {
+		return type.getName() == 'TDynamic';
+	}
+	
 	public static function getName(type:Type):String {
 		switch (type) {
 			case TInst(t, _):

@@ -67,4 +67,10 @@ class TypeToolsSpecs extends TestCase {
 		assertTrue( type.isStructure() );
 	}
 	
+	public function testIfDynamic() {
+		expr = macro : Dynamic;
+		type = expr.toType();
+		assertTrue( type.isDynamic() );
+	}
+	
 }
