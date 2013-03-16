@@ -17,7 +17,7 @@ class FieldTools {
 		return Printer.printField( f );
 	}
 	
-	public static function toType(f:Field):TComplexString {
+	public static function toComplexString(f:Field):TComplexString {
 		var result = null;
 		
 		switch (f.kind) {
@@ -25,17 +25,17 @@ class FieldTools {
 				
 				if (t != null) {
 					
-					result = ComplexTypeTools.toType( t );
+					result = ComplexTypeTools.toComplexString( t );
 					
 				} else if (e != null) {
 					
-					result = ExprTools.toType( e );
+					result = ExprTools.toComplexString( e );
 					
 				}
 				
 			case FFun(m):
 				
-				result = FunctionTools.toType( m );
+				result = FunctionTools.toComplexString( m );
 		}
 		
 		return result;

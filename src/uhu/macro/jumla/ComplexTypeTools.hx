@@ -17,13 +17,13 @@ class ComplexTypeTools {
 		return Printer.printComplexType( c );
 	}
 	
-	public static function toType(c:ComplexType):TComplexString {
+	public static function toComplexString(c:ComplexType):TComplexString {
 		var result = null;
 		
 		switch (c) {
 			case TPath(p):
 				
-				result = TypePathTools.toType( p );
+				result = TypePathTools.toComplexString( p );
 				
 			case TFunction(a, r):
 				
@@ -31,28 +31,28 @@ class ComplexTypeTools {
 				var names = [];
 				
 				for (i in a) {
-					names.push( toType( i ) );
+					names.push( toComplexString( i ) );
 				}
 				
-				names.push( toType( r ) );
+				names.push( toComplexString( r ) );
 				
 				result.name = names.join( '->' );
 				
 			case TAnonymous(f):
 				
-				result = FieldTools.toType( f[0] );
+				result = FieldTools.toComplexString( f[0] );
 				
 			case TParent(t):
 				
-				result = toType( t );
+				result = toComplexString( t );
 				
 			case TExtend(p, _):
 				
-				result = TypePathTools.toType( p );
+				result = TypePathTools.toComplexString( p );
 				
 			case TOptional(t):
 				
-				result = toType( t );
+				result = toComplexString( t );
 		}
 		
 		return result;

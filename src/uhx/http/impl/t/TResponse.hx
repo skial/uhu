@@ -1,7 +1,5 @@
 package uhx.http.impl.t;
 
-import uhx.http.Request;
-import uhx.http.Response;
 import uhx.web.URI;
 import haxe.io.Bytes;
 import uhx.http.Status;

@@ -14,7 +14,7 @@ class ConstantTools {
 		return Printer.printConstant( c );
 	}
 	
-	public static function toType(c:Constant):TComplexString {
+	public static function toComplexString(c:Constant):TComplexString {
 		var result:TComplexString = null;
 		
 		switch (c) {

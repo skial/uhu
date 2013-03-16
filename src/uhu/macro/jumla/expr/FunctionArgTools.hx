@@ -13,14 +13,14 @@ class FunctionArgTools {
 		return Printer.printFunctionArg( a );
 	}
 	
-	public static function toType(a:FunctionArg):TComplexString {
+	public static function toComplexString(a:FunctionArg):TComplexString {
 		return if (a.type != null) {
 			
-			ComplexTypeTools.toType( a.type );
+			ComplexTypeTools.toComplexString( a.type );
 			
 		} else if (a.value != null) {
 			
-			ExprTools.toType( a.value );
+			ExprTools.toComplexString( a.value );
 			
 		} else {
 			

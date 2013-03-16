@@ -14,17 +14,17 @@ class FunctionTools {
 		return Printer.printFunction( f );
 	}
 	
-	public static function toType(f:Function):TComplexString {
+	public static function toComplexString(f:Function):TComplexString {
 		var result = null;
 		
 		var names = [];
 		
 		for (a in f.args) {
-			names.push( ComplexStringTools.toString( FunctionArgTools.toType( a ) ) );
+			names.push( ComplexStringTools.toString( FunctionArgTools.toComplexString( a ) ) );
 		}
 		
 		if (f.ret != null) {
-			names.push( ComplexStringTools.toString( ComplexTypeTools.toType( f.ret ) ) );
+			names.push( ComplexStringTools.toString( ComplexTypeTools.toComplexString( f.ret ) ) );
 		}
 		
 		result = { name: names.join( '->' ), params:[] }; 	//	add f.params to params array

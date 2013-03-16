@@ -36,6 +36,7 @@ import uhx.crypto.MD5Spec;
  * @author Skial Bainn
  */
 
+@:build( MacroTests.run() )
 class AllTests {
 
 	public static function main() {

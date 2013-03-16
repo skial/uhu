@@ -15,7 +15,7 @@ class ExprTools {
 		return Printer.printExpr( e );
 	}
 	
-	public static function toType(e:Expr):TComplexString {
+	public static function toComplexString(e:Expr):TComplexString {
 		var result = null;
 		
 		switch (e.expr) {
@@ -23,10 +23,10 @@ class ExprTools {
 				result = { name:'Array', params:[] };
 				
 			case EConst(c):
-				result = ConstantTools.toType( c );
+				result = ConstantTools.toComplexString( c );
 				
 			case ENew(t, _):
-				result = TypePathTools.toType( t );
+				result = TypePathTools.toComplexString( t );
 				
 			case EObjectDecl(_):
 				result = { name:'Typedef', params:[] };

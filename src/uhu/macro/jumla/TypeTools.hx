@@ -25,7 +25,7 @@ class TypeTools {
 	}
 	
 	public static inline function isClass(type:Type):Bool {
-		return type.getName() = 'TInst';
+		return type.getName() == 'TInst';
 	}
 	
 	public static inline function isTypedef(type:Type):Bool {

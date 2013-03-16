@@ -12,14 +12,14 @@ class TypeParamTools {
 		return Printer.printTypeParam( t );
 	}
 
-	public static function toType(t:TypeParam):TComplexString {
+	public static function toComplexString(t:TypeParam):TComplexString {
 		var result = null;
 		
 		switch (t) {
 			case TPType(c):
-				result = ComplexTypeTools.toType( c );
+				result = ComplexTypeTools.toComplexString( c );
 			case TPExpr(e):
-				result = ExprTools.toType( e );
+				result = ExprTools.toComplexString( e );
 		}
 		
 		return result;

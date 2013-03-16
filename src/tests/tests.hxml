@@ -4,5 +4,5 @@
 -cp ../../../thx/src
 -lib polygonal
 -lib msignal
--js bin/tests.n
+-neko bin/tests.n
 -main AllTests
