@@ -1,5 +1,6 @@
 package uhu.macro.jumla;
 
+import haxe.ds.StringMap;
 import Map;
 import haxe.macro.Expr;
 import haxe.macro.Context;

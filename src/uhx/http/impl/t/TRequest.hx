@@ -12,10 +12,11 @@ import uhx.http.impl.i.IResponse;
  */
 
 typedef TRequest = {
-	var onError:Signal1<TResponse>;
-	var onSuccess:Signal1<TResponse>;
-	var headers(default, null):StringMap<String>;
+	public var onError:Signal1<TResponse>;
+	public var onSuccess:Signal1<TResponse>;
+	public var headers(default, null):StringMap<String>;
 	
-	function new(url:URI, method:Method):TRequest;
-	function send():Void;
+	public function new(url:URI, method:Method):TRequest;
+	public function init():Void;
+	public function send():Void;
 }
