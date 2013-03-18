@@ -31,12 +31,16 @@ import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
 import uhx.crypto.MD5Spec;
 
+import uhx.fmt.ASCII;
+
 /**
  * ...
  * @author Skial Bainn
  */
 
+#if !disable_macro_tests
 @:build( MacroTests.run() )
+#end
 class AllTests {
 
 	public static function main() {

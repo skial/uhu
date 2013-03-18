@@ -1,11 +1,11 @@
-package uhx.http;
+package uhx.http.impl.e;
 
 /**
  * ...
  * @author Skial Bainn
  */
 
-enum Header {
+enum EHeader {
 	Access_Control_Allow_Origin;
 	Accept;
 	Accept_Charset;

@@ -9,12 +9,8 @@ import haxe.ds.StringMap;
 import uhx.http.impl.t.TData;
 import js.html.XMLHttpRequest;
 import uhx.http.impl.t.TRequest;
-import uhx.http.impl.i.IResponse;
-//import uhx.http.impl.i.IRequest;
-import uhx.http.impl.i.IRequestUtil;
 
 using haxe.EnumTools;
-using uhx.http.util.RequestTools;
 
 /**
  * ...

@@ -1,11 +1,11 @@
-package uhx.http;
+package uhx.http.impl.e;
 
 /**
  * ...
  * @author Skial Bainn
  */
 
-enum Method {
+enum EMethod {
 	GET;
 	HEAD;
 	POST;

@@ -2,8 +2,8 @@ package uhx.http.impl.t;
 
 import uhx.web.URI;
 import haxe.io.Bytes;
-import uhx.http.Status;
 import haxe.ds.StringMap;
+import uhx.http.impl.e.EStatus;
 
 /**
  * ...
@@ -14,7 +14,7 @@ typedef TResponse = {
 	public var request(default, null):TRequest;
 	public var url(get, null):URI;
 	public var text(get, null):String;
-	public var status(get, null):Status;
+	public var status(get, null):EStatus;
 	public var content(get, null):Bytes;
 	public var encoding(get, null):String;
 	public var status_code(get, null):Int;
@@ -24,7 +24,7 @@ typedef TResponse = {
 	public function new(r:TRequest):TResponse;
 	private function get_url():URI;
 	private function get_text():String;
-	private function get_status():Status;
+	private function get_status():EStatus;
 	private function get_content():Bytes;
 	private function get_encoding():String;
 	private function get_status_code():Int;

@@ -1,9 +1,9 @@
 package uhx.oauth.spec1_0a;
 
 import haxe.Http;
-import uhx.http.Method;
-import haxe.ds.StringMap;
 import uhx.web.URI;
+import haxe.ds.StringMap;
+import uhx.http.impl.e.EMethod;
 import uhx.oauth.spec1_0a.i.IRequest;
 
 using Lambda;
@@ -21,7 +21,7 @@ class Request implements IRequest {
 	public var http(default, null):Http;
 	public var base(get, null):String;
 	public var url(default, set):URI;
-	public var method(default, null):Method;
+	public var method(default, null):EMethod;
 	public var params(default, null):StringMap<String>;
 	
 	public var realm:String;

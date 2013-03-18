@@ -5,4 +5,5 @@
 -lib polygonal
 -lib msignal
 -neko bin/tests.n
+-D disable_macro_tests
 -main AllTests
