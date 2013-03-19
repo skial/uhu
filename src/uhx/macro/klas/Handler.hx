@@ -27,7 +27,7 @@ class Handler {
 		':toString' => ToType.handler,
 	];
 	
-	public static var FIELD_META:StringMap < ClassType-> Field->Field > = [
+	public static var FIELD_META:StringMap < ClassType-> Field->Array<Field> > = [
 		':alias' => Alias.handler,
 	];
 
@@ -77,14 +77,14 @@ class Handler {
 		 */
 		
 		var new_fields:Array<Field> = [];
-		 
+		
 		for (field in fields) {
 			
 			for (key in FIELD_META.keys()) {
 				
 				if (field.meta.exists( key )) {
 					
-					new_fields.push( FIELD_META.get( key )(cls, field) );
+					new_fields = new_fields.concat( FIELD_META.get( key )(cls, field) );
 					
 				} else {
 					
