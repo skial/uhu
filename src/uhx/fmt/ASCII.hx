@@ -1,4 +1,5 @@
 package uhx.fmt;
+
 import uhx.core.Klas;
 
 /**

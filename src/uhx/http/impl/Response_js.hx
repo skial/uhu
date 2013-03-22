@@ -1,15 +1,15 @@
 package uhx.http.impl;
 
-import uhx.http.impl.t.TResponse;
-import uhx.http.impl.t.TRequest;
-import uhx.http.Request;
 import uhx.web.URI;
 import haxe.io.Bytes;
 import uhx.core.Klas;
-import uhx.http.Status;
+import uhx.http.Request;
 import haxe.ds.StringMap;
 import js.html.XMLHttpRequest;
+import uhx.http.impl.e.EStatus;
+import uhx.http.impl.t.TRequest;
 import uhx.http.impl.i.IRequest;
+import uhx.http.impl.t.TResponse;
 import uhx.http.impl.i.IResponse;
 
 /**
@@ -23,7 +23,7 @@ class Response_js implements Klas/* implements IResponse*/ {
 	public var request(default, null):Request;
 	public var url(get, null):URI;
 	public var text(get, null):String;
-	public var status(get, null):Status;
+	public var status(get, null):EStatus;
 	public var content(get, null):Bytes;
 	public var encoding(get, null):String;
 	public var status_code(get, null):Int;
@@ -46,7 +46,7 @@ class Response_js implements Klas/* implements IResponse*/ {
 		return xhr.responseText;
 	}
 	
-	private function get_status():Status {
+	private function get_status():EStatus {
 		return OK;
 	}
 	

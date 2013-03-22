@@ -3,11 +3,11 @@ package uhx.http.impl;
 import uhx.web.URI;
 import uhx.core.Klas;
 import msignal.Signal;
-import uhx.http.Method;
 import uhx.http.Response;
 import haxe.ds.StringMap;
 import uhx.http.impl.t.TData;
 import js.html.XMLHttpRequest;
+import uhx.http.impl.e.EMethod;
 import uhx.http.impl.t.TRequest;
 
 using haxe.EnumTools;
@@ -26,7 +26,7 @@ class Request_js implements Klas {
 	public var onError:Signal1<Response>;
 	public var onSuccess:Signal1<Response>;
 
-	public function new(url:URI, method:Method) {
+	public function new(url:URI, method:EMethod) {
 		xhr = new XMLHttpRequest();
 		headers = new StringMap<String>();
 		

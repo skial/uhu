@@ -11,5 +11,7 @@
 -main AllTests
 -js bin/tests.js
 
+#-dce full
+
 #-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes
 -cmd nekotools server -p 80

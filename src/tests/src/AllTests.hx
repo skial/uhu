@@ -39,12 +39,15 @@ import uhx.fmt.ASCII;
  */
 
 #if !disable_macro_tests
-@:build( MacroTests.run() )
+//@:build( MacroTests.run() )
 #end
 class AllTests {
 
 	public static function main() {
 		
+		trace( ASCII.PLUS );
+		trace( ''+ASCII.PLUS );
+		trace( Type.getClassFields( ASCII ) );
 		var runner = new TestRunner();
 		
 		runner.add( new Utf8Spec() );

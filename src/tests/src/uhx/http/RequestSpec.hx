@@ -2,7 +2,7 @@ package uhx.http;
 
 import haxe.unit.TestCase;
 import uhx.http.impl.i.IResponse;
-import uhx.http.Method;
+import uhx.http.impl.e.EMethod;
 
 using uhx.web.URL;
 

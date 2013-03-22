@@ -1,76 +1,76 @@
 package uhu.macro.jumla;
 
-import haxe.ds.StringMap;
 import Map;
 import haxe.macro.Expr;
+import haxe.macro.Type;
+import haxe.ds.StringMap;
 import haxe.macro.Context;
 import haxe.unit.TestCase;
+import uhx.http.impl.e.EMethod;
 import uhx.http.impl.t.TRequest;
-
-import haxe.macro.Type;
+import haxe.macro.ComplexTypeTools;
 
 using uhu.macro.Jumla;
-using haxe.macro.ComplexTypeTools;
 
 /**
  * ...
  * @author Skial Bainn
  */
-
+ 
 class TypeToolsSpecs extends TestCase {
 	
-	public var expr:ComplexType;
 	public var type:Type;
+	public var expr:ComplexType;
 
 	public function new() {
 		super();
 	}
 	
 	public function testIfEnum() {
-		expr = macro : uhx.http.Method;
-		type = expr.toType();
+		expr = macro : uhx.http.impl.e.EMethod;
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isEnum() );
 	}
 	
 	public function testIfTypedef() {
 		expr = macro : TRequest;
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isTypedef() );
 	}
 	
 	public function testIfAbstract() {
 		expr = macro : Map<String, String>;
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isAbstract() );
 	}
 	
 	public function testIfClass() {
-		expr = macro : StringTools;
-		type = expr.toType();
+		expr = macro : uhu.macro.jumla.TypeToolsSpecs;
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isClass() );
 	}
 	
 	public function testIfFunction() {
 		expr = macro : String->String->Int->Int->Void;
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isFunction() );
 	}
 	
 	public function testIfStructure() {
 		expr = macro : { name:String, age:Int };
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isStructure() );
 	}
 	
 	public function testIfStructure_alt() {
 		expr = macro : TRequest;
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isStructure() );
 	}
 	
 	public function testIfDynamic() {
 		expr = macro : Dynamic;
-		type = expr.toType();
+		type = ComplexTypeTools.toType( expr );
 		assertTrue( type.isDynamic() );
 	}
 	
