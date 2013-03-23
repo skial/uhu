@@ -7,10 +7,11 @@ import uhx.core.Klas;
  * @author Skial Bainn
  */
 
+
 class ASCII implements Klas {
 
+	@:to(s='\\0')
 	@:alias('NULL')
-	@:toString('\\0')
 	public static inline var NUL:Int = 0;
 	
 	@:alias('START_OF_HEADER')
@@ -31,31 +32,31 @@ class ASCII implements Klas {
 	@:alias('ACKNOWLEDGMENT')
 	public static inline var ACK:Int = 6;
 	
+	@:to(s='\\a')
 	@:alias('BELL')
-	@:toString('\\a')
 	public static inline var BEL:Int = 7;
 	
-	@:toString('\\b')
+	@:to(s='\\b')
 	@:alias('BACKSPACE')
 	public static inline var BS:Int = 8;
 	
-	@:toString('\\t')
+	@:to(s='\\t')
 	@:alias('HORIZONTAL_TAB')
 	public static inline var HT:Int = 9;
 	
-	@:toString('\\n')
+	@:to(s='\\n')
 	@:alias('LINE_FEED', 'NEW_LINE')
 	public static inline var LF:Int = 10;
 	
-	@:toString('\\v')
+	@:to(s='\\v')
 	@:alias('VERTICAL_TAB')
 	public static inline var VT:Int = 11;
 	
-	@:toString('\\f')
+	@:to(s='\\f')
 	@:alias('FORM_FEED')
 	public static inline var FF:Int = 12;
 	
-	@:toString('\\r')
+	@:to(s='\\r')
 	@:alias('CARRIAGE_RETURN')
 	public static inline var CR:Int = 13;
 	
@@ -98,7 +99,7 @@ class ASCII implements Klas {
 	@:alias('SUBSTITUTE')
 	public static inline var SUB:Int = 26;
 	
-	@:toString('\\e')
+	@:to(s='\\e')
 	@:alias('ESCAPE')
 	public static inline var ESC:Int = 27;
 	
@@ -117,300 +118,290 @@ class ASCII implements Klas {
 	@:alias('DELETE')
 	public static inline var DEL:Int = 127;
 	
-	@:toString('_')
+	@:to(s='_')
 	public static inline var SPACE:Int = 32;
 	
-	@:toString('!')
+	@:to(s='!')
 	public static inline var EXCLAMATION:Int = 33;
 	
-	@:toString('"')
+	@:to(s='"')
 	public static inline var QUOTATION:Int = 34;
 	
-	@:toString('#')
+	@:to(s='#')
 	@:alias('HASH')
 	public static inline var NUMBER:Int = 35;
 	
-	@:toString('$')
+	@:to(s='$')
 	public static inline var DOLLAR:Int = 36;
 	
-	@:toString('%')
+	@:to(s='%')
 	public static inline var PERCENT:Int = 37;
 	
-	@:toString('&')
+	@:to(s='&')
 	public static inline var AMPERSAND:Int = 38;
 	
-	@:toString("'")
+	@:to(s="'")
 	public static inline var APOSTROPHE:Int = 39;
 	
-	@:toString('(')
+	@:to(s='(')
 	public static inline var OPEN_PARENTHESE:Int = 40;
 	
-	@:toString(')')
+	@:to(s=')')
 	public static inline var CLOSE_PARENTHESE:Int = 41;
 	
-	@:toString('*')
+	@:to(s='*')
 	public static inline var ASTERISK:Int = 42;
 	
-	@:toString('+')
+	@:to(s='+')
 	public static inline var PLUS:Int = 43;
 	
-	@:toString(',')
+	@:to(s=',')
 	public static inline var COMMA:Int = 44;
 	
-	@:toString('-')
+	@:to(s='-')
 	public static inline var HYPHEN:Int = 45;
 	
-	@:toString('.')
+	@:to(s='.')
 	public static inline var FULL_STOP:Int = 46;
 	
-	@:toString('/')
+	@:to(s='/')
 	public static inline var SLASH:Int = 47;
 	
-	@:toInt(0)
-	@:toString('0')
+	@:to(s='0', i=0)
 	public static inline var ZERO:Int = 48;
 	
-	@:toInt(1)
-	@:toString('1')
+	@:to(s='1', i=1)
 	public static inline var ONE:Int = 49;
 	
-	@:toInt(2)
-	@:toString('2')
+	@:to(s='2', i=2)
 	public static inline var TWO:Int = 50;
 	
-	@:toInt(3)
-	@:toString('3')
+	@:to(s='3', i=3)
 	public static inline var THREE:Int = 51;
 	
-	@:toInt(4)
-	@:toString('4')
+	@:to(s='4', i=4)
 	public static inline var FOUR:Int = 52;
 	
-	@:toInt(5)
-	@:toString('5')
+	@:to(s='5', i=5)
 	public static inline var FIVE:Int = 53;
 	
-	@:toInt(6)
-	@:toString('6')
+	@:to(s='6', i=6)
 	public static inline var SIX:Int = 54;
 	
-	@:toInt(7)
-	@:toString('7')
+	@:to(s='7', i=7)
 	public static inline var SEVEN:Int = 55;
 	
-	@:toInt(8)
-	@:toString('8')
+	@:to(s='8', i=8)
 	public static inline var EIGHT:Int = 56;
 	
-	@:toInt(9)
-	@:toString('9')
+	@:to(s='9', i=9)
 	public static inline var NINE:Int = 57;
 	
-	@:toString(':')
+	@:to(s=':')
 	public static inline var COLON:Int = 58;
 	
-	@:toString(';')
+	@:to(s=';')
 	public static inline var SEMICOLON:Int = 59;
 	
-	@:toString('<')
+	@:to(s='<')
 	public static inline var LESS_THAN:Int = 60;
 	
-	@:toString('=')
+	@:to(s='=')
 	public static inline var EQUALS:Int = 61;
 	
-	@:toString('>')
+	@:to(s='>')
 	public static inline var GREATER_THAN:Int = 62;
 	
-	@:toString('?')
+	@:to(s='?')
 	public static inline var QUESTION_MARK:Int = 63;
 	
-	@:toString('@')
+	@:to(s='@')
 	public static inline var AT:Int = 64;
 	
-	@:toString
+	@:to(s)
 	public static inline var A:Int = 65;
 	
-	@:toString
+	@:to(s)
 	public static inline var B:Int = 66;
 	
-	@:toString
+	@:to(s)
 	public static inline var C:Int = 67;
 	
-	@:toString
+	@:to(s)
 	public static inline var D:Int = 68;
 	
-	@:toString
+	@:to(s)
 	public static inline var E:Int = 69;
 	
-	@:toString
+	@:to(s)
 	public static inline var F:Int = 70;
 	
-	@:toString
+	@:to(s)
 	public static inline var G:Int = 71;
 	
-	@:toString
+	@:to(s)
 	public static inline var H:Int = 72;
 	
-	@:toString
+	@:to(s)
 	public static inline var I:Int = 73;
 	
-	@:toString
+	@:to(s)
 	public static inline var J:Int = 74;
 	
-	@:toString
+	@:to(s)
 	public static inline var K:Int = 75;
 	
-	@:toString
+	@:to(s)
 	public static inline var L:Int = 76;
 	
-	@:toString
+	@:to(s)
 	public static inline var M:Int = 77;
 	
-	@:toString
+	@:to(s)
 	public static inline var N:Int = 78;
 	
-	@:toString
+	@:to(s)
 	public static inline var O:Int = 79;
 	
-	@:toString
+	@:to(s)
 	public static inline var P:Int = 80;
 	
-	@:toString
+	@:to(s)
 	public static inline var Q:Int = 81;
 	
-	@:toString
+	@:to(s)
 	public static inline var R:Int = 82;
 	
-	@:toString
+	@:to(s)
 	public static inline var S:Int = 83;
 	
-	@:toString
+	@:to(s)
 	public static inline var T:Int = 84;
 	
-	@:toString
+	@:to(s)
 	public static inline var U:Int = 85;
 	
-	@:toString
+	@:to(s)
 	public static inline var V:Int = 86;
 	
-	@:toString
+	@:to(s)
 	public static inline var W:Int = 87;
 	
-	@:toString
+	@:to(s)
 	public static inline var X:Int = 88;
 	
-	@:toString
+	@:to(s)
 	public static inline var Y:Int = 89;
 	
-	@:toString
+	@:to(s)
 	public static inline var Z:Int = 90;
 	
-	@:toString('[')
+	@:to(s='[')
 	public static inline var OPEN_SQUARE_BRACKET:Int = 91;
 	
-	@:toString('\\')
+	@:to(s='\\')
 	public static inline var BACKSLASH:Int = 92;
 	
-	@:toString(']')
+	@:to(s=']')
 	public static inline var CLOSE_SQUARE_BRACKET:Int = 93;
 	
-	@:toString('^')
+	@:to(s='^')
 	public static inline var CARET:Int = 94;
 	
-	@:toString('_')
+	@:to(s='_')
 	public static inline var UNDERSCORE:Int = 95;
 	
-	@:toString('`')
+	@:to(s='`')
 	public static inline var ACCENT:Int = 96;
 	
-	@:toString
+	@:to(s)
 	public static inline var a:Int = 97;
 	
-	@:toString
+	@:to(s)
 	public static inline var b:Int = 98;
 	
-	@:toString
+	@:to(s)
 	public static inline var c:Int = 99;
 	
-	@:toString
+	@:to(s)
 	public static inline var d:Int = 100;
 	
-	@:toString
+	@:to(s)
 	public static inline var e:Int = 101;
 	
-	@:toString
+	@:to(s)
 	public static inline var f:Int = 102;
 	
-	@:toString
+	@:to(s)
 	public static inline var g:Int = 103;
 	
-	@:toString
+	@:to(s)
 	public static inline var h:Int = 104;
 	
-	@:toString
+	@:to(s)
 	public static inline var i:Int = 105;
 	
-	@:toString
+	@:to(s)
 	public static inline var j:Int = 106;
 	
-	@:toString
+	@:to(s)
 	public static inline var k:Int = 107;
 	
-	@:toString
+	@:to(s)
 	public static inline var l:Int = 108;
 	
-	@:toString
+	@:to(s)
 	public static inline var m:Int = 109;
 	
-	@:toString
+	@:to(s)
 	public static inline var n:Int = 110;
 	
-	@:toString
+	@:to(s)
 	public static inline var o:Int = 111;
 	
-	@:toString
+	@:to(s)
 	public static inline var p:Int = 112;
 	
-	@:toString
+	@:to(s)
 	public static inline var q:Int = 113;
 	
-	@:toString
+	@:to(s)
 	public static inline var r:Int = 114;
 	
-	@:toString
+	@:to(s)
 	public static inline var s:Int = 115;
 	
-	@:toString
+	@:to(s)
 	public static inline var t:Int = 116;
 	
-	@:toString
+	@:to(s)
 	public static inline var u:Int = 117;
 	
-	@:toString
+	@:to(s)
 	public static inline var v:Int = 118;
 	
-	@:toString
+	@:to(s)
 	public static inline var w:Int = 119;
 	
-	@:toString
+	@:to(s)
 	public static inline var x:Int = 120;
 	
-	@:toString
+	@:to(s)
 	public static inline var y:Int = 121;
 	
-	@:toString
+	@:to(s)
 	public static inline var z:Int = 122;
 	
-	@:toString('{')
+	@:to(s='{')
 	public static inline var OPEN_CURLY_BRACKET:Int = 123;
 	
-	@:toString('|')
+	@:to(s='|')
 	public static inline var VERTICAL_BAR:Int = 124;
 	
-	@:toString('}')
+	@:to(s='}')
 	public static inline var CLOSE_CURLY_BRACKET:Int = 125;
 	
-	@:toString('~')
+	@:to(s='~')
 	public static inline var TILDE:Int = 126;
 	
 }

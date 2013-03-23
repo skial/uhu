@@ -8,6 +8,7 @@ import haxe.macro.Context;
 import haxe.macro.TypeTools;
 
 using Lambda;
+using StringTools;
 using uhu.macro.Jumla;
 
 /**
@@ -17,25 +18,31 @@ using uhu.macro.Jumla;
 
 class ToType {
 	
-	public static var META:Array<String> = [':toInt', ':toString'];
-	
-	public static function handler(cls:ClassType, field:Field):Field {
+	public static function handler(cls:ClassType, field:Field):Array<Field> {
+		var fields:Array<Field> = [];
 		var type = null;
 		var expr = null;
 		var name = '';
+		var meta = null;
 		
-		if (!field.meta.exists(':processed_by')) {
+		//if (!field.meta.exists( ':processed_by' )) {
 			
+			meta = field.meta.get( ':to' );
 			name = 'AbstractFor_${field.name}';
 			
 			switch (field.kind) {
-				case FVar(t, e) | FProp(_, _, t, e):
+				case FVar(t, e):
 					type = t;
 					expr = e;
 					
+				case FProp(_, _, _, _):
+					Context.error('@:to metadata only works on variables without getters or setters.', field.pos);
+					
 				case FFun(_):
-					Context.warning('@:to<Type> metadata only works on variables.', field.pos);
+					Context.error('@:to metadata only works on variables.', field.pos);
 			}
+			
+			field.kind = FProp('get', 'never', type);
 			
 			var new_type:TypeDefinition = {
 				pack: cls.pack,
@@ -44,54 +51,55 @@ class ToType {
 				meta: [],
 				params: [],
 				isExtern: false,
-				kind: TDAbstract( type, [type] ),
+				kind: TDAbstract( type ),
 				fields:	createFields( cls, field, type, expr ),
 			}
-			/*var p = new Printer();
-			trace( p.printTypeDefinition( new_type ) );
-			*/
+			
 			Context.defineType( new_type );
 			
 			if (field.access.indexOf( AInline ) != -1) {
 				field.access.remove( AInline );
-				field.meta.push( { name:':extern', params:[], pos:field.pos } );
+				//field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+				//field.meta.push( { name:':extern', params:[], pos:field.pos } );
 			}
-			//new_type.meta.push( { name:':coreType', params: [], pos:new_type.pos } );
-			//new_type.meta.push( { name:':runtimeValue', params: [], pos:new_type.pos } );
 			
-			//field.meta.push( { name:':extern', params: [], pos:field.pos } );
-			field.meta.push( { name:':processed_by', params: [ macro 'uhx.macro.ToType' ], pos:field.pos } );
+			//field.meta.push( { name:':processed_by', params: [ macro 'uhx.macro.ToType' ], pos:field.pos } );
+			
+			var access = [APrivate, AInline];
+			if (access.indexOf( AStatic ) == -1) {
+				access.push( AStatic );
+			}
 			
 			type = Context.toComplexType( Context.getType( name ) );
+			field.kind = FVar(type, expr);
 			
-			switch (field.kind) {
-				case FVar(_, e):
-					
-					//e = macro { function() { return new $name( $e ); }() };
-					e = macro { new $name( $e ); };
-					field.kind = FVar( type, e );
-					
-				case FProp(s, g, _, e):
-					
-					//e = macro { function() { return new $name( $e ); }() };
-					e = macro { new $name( $e ); };
-					field.kind = FProp(s, g, type, e );
-					
-				case FFun(_):
-					
-					Context.error('How the hell did it progress this far?!?!?!. Open a new issue at http://github.com/skial/uhu/issues with an example please!', field.pos);
-					
-			}
+			fields.push( {
+				name: 'get_${field.name}',
+				access: access,
+				kind: FFun( {
+					args: [],
+					ret: type,
+					expr: macro {
+						return new $name( $expr );
+					},
+					params:[]
+				} ),
+				pos: field.pos,
+				meta: []
+			} );
 			
-		}
+		//}
 		
-		return field;
+		fields.push( field );
+		
+		return fields;
 	}
 	
 	public static function createFields(cls:ClassType, field:Field, type:ComplexType, expr:Expr):Array<Field> {
 		var result:Array<Field> = [];
 		var to_field:Field = null;
 		var name = 'AbstractFor_${field.name}';
+		var meta = field.meta.get( ':to' );
 		
 		result.push( {
 			name: 'new',
@@ -134,33 +142,19 @@ class ToType {
 			meta: [ { name:':from', params:[], pos:field.pos } ]
 		} );
 		
-		for (meta in field.meta) {
+		for (param in meta.params) {
 			
-			var value = meta.params[0];
+			var id = param.toString();
+			var value = null;
 			
-			switch (meta.name) {
-				case ':toInt':
-					to_field = {
-						name: 'toInt',
-						access: [APublic, AInline],
-						kind: FFun( {
-							args: [],
-							ret: macro :Int,
-							expr: macro {
-								return $value;
-							},
-							params:[]
-						} ),
-						pos: field.pos,
-						meta: [ { name:':to', params: [], pos: field.pos } ]
-					}
-					
-				case ':toString':
-					
-					if (value == null) {
-						value = macro $v { field.name };
-					}
-					
+			if (id.indexOf('=') == -1) {
+				value = field.name;
+			} else {
+				value = id.split('=')[1].replace('"', '');
+			}
+			
+			switch (id.charAt(0)) {
+				case 's':
 					to_field = {
 						name: 'toString',
 						access: [APublic, AInline],
@@ -168,7 +162,23 @@ class ToType {
 							args: [],
 							ret: macro :String,
 							expr: macro {
-								return $value;
+								return $v{value};
+							},
+							params:[]
+						} ),
+						pos: field.pos,
+						meta: [ { name:':to', params: [], pos: field.pos } ]
+					}
+					
+				case 'i':
+					to_field = {
+						name: 'toInt',
+						access: [APublic, AInline],
+						kind: FFun( {
+							args: [],
+							ret: macro :Int,
+							expr: macro {
+								return $v{Std.parseInt(value)};
 							},
 							params:[]
 						} ),

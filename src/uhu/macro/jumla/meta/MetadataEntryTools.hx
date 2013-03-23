@@ -21,4 +21,17 @@ class MetadataEntryTools {
 		return result;
 	}
 	
+	public static function get(meta:Array<MetadataEntry>, name:String):MetadataEntry {
+		var result = null;
+		
+		for (m in meta) {
+			if (m.name == name) {
+				result = m;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 }
