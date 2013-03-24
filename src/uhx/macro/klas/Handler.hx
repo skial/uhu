@@ -1,12 +1,13 @@
 package uhx.macro.klas;
 
+import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhx.macro.Alias;
 import uhx.macro.Implements;
-import uhx.macro.ToType;
+import uhx.macro.To;
 
 using Lambda;
 using uhu.macro.Jumla;
@@ -22,9 +23,9 @@ class Handler {
 		':implements' => Implements.handler,
 	];
 	
-	public static var FIELD_META:StringMap < ClassType->Field->Array<Field> > = [
-		':to' => ToType.handler,
-		//':alias' => Alias.handler,
+	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
+		':to' => To.handler,
+		':alias' => Alias.handler,
 	];
 
 	public static function build():Array<Field> {
@@ -58,15 +59,16 @@ class Handler {
 				
 				if (field.meta.exists( key )) {
 					
-					new_fields = new_fields.concat( FIELD_META.get( key )(cls, field) );
-					
-				} else {
-					
-					new_fields.push( field );
+					var results = FIELD_META.get( key )(cls, field);
+					field = results.get( field.name );
+					results.remove( field );
+					new_fields = new_fields.concat( results );
 					
 				}
 				
 			}
+			
+			new_fields.push( field );
 			
 		}
 		

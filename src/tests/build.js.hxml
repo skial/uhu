@@ -1,5 +1,5 @@
 -D debug
-#-D dump=pretty
+-D dump=pretty
 
 -cp src
 -cp ..
@@ -12,7 +12,7 @@
 -main AllTests
 -js bin/tests.js
 
-#-dce full
+-dce full
 
 #-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes
 -cmd nekotools server -p 80

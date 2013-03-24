@@ -46,7 +46,7 @@ class Alias {
 						kind = FVar(t, macro $i{field.name});
 						
 					case FProp(_, _, t, _):
-						kind = FProp('get_$name', 'set_$name', t, null);
+						kind = FProp('get', 'set', t, null);
 						
 						fields.push( {
 							name:'get_$name',
