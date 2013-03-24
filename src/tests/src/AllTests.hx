@@ -46,9 +46,8 @@ class AllTests {
 	public static function main() {
 		
 		trace( ASCII.PLUS );
-		trace( ''+ASCII.PLUS );
-		trace( Type.getClassFields( ASCII ) );
-		var runner = new TestRunner();
+		trace( 'plus = '+ASCII.PLUS );
+		/*var runner = new TestRunner();
 		
 		runner.add( new Utf8Spec() );
 		
@@ -87,7 +86,7 @@ class AllTests {
 		// Github OAuth Tests
 		runner.add( new GithubSpec() );
 		
-		runner.run();
+		runner.run();*/
 		
 	}
 	

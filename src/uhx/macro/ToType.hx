@@ -22,75 +22,67 @@ class ToType {
 		var fields:Array<Field> = [];
 		var type = null;
 		var expr = null;
-		var name = '';
-		var meta = null;
+		var name = 'AbstractFor_${field.name}';
+		var meta = field.meta.get( ':to' );
 		
-		//if (!field.meta.exists( ':processed_by' )) {
-			
-			meta = field.meta.get( ':to' );
-			name = 'AbstractFor_${field.name}';
-			
-			switch (field.kind) {
-				case FVar(t, e):
-					type = t;
-					expr = e;
-					
-				case FProp(_, _, _, _):
-					Context.error('@:to metadata only works on variables without getters or setters.', field.pos);
-					
-				case FFun(_):
-					Context.error('@:to metadata only works on variables.', field.pos);
-			}
-			
-			field.kind = FProp('get', 'never', type);
-			
-			var new_type:TypeDefinition = {
-				pack: cls.pack,
-				name: name,
-				pos: cls.pos,
-				meta: [],
-				params: [],
-				isExtern: false,
-				kind: TDAbstract( type ),
-				fields:	createFields( cls, field, type, expr ),
-			}
-			
-			Context.defineType( new_type );
-			
-			if (field.access.indexOf( AInline ) != -1) {
-				field.access.remove( AInline );
-				//field.meta.push( { name:':isVar', params:[], pos:field.pos } );
-				//field.meta.push( { name:':extern', params:[], pos:field.pos } );
-			}
-			
-			//field.meta.push( { name:':processed_by', params: [ macro 'uhx.macro.ToType' ], pos:field.pos } );
-			
-			var access = [APrivate, AInline];
-			if (access.indexOf( AStatic ) == -1) {
-				access.push( AStatic );
-			}
-			
-			type = Context.toComplexType( Context.getType( name ) );
-			field.kind = FVar(type, expr);
-			
-			fields.push( {
-				name: 'get_${field.name}',
-				access: access,
-				kind: FFun( {
-					args: [],
-					ret: type,
-					expr: macro {
-						return new $name( $expr );
-					},
-					params:[]
-				} ),
-				pos: field.pos,
-				meta: []
-			} );
-			
-		//}
+		switch (field.kind) {
+			case FVar(t, e):
+				type = t;
+				expr = e;
+				
+			case FProp(_, _, _, _):
+				Context.error('@:to metadata only works on variables without getters or setters.', field.pos);
+				
+			case FFun(_):
+				Context.error('@:to metadata only works on variables.', field.pos);
+		}
+		
+		var pack = cls.pack;
+		
+		var new_type:TypeDefinition = {
+			pack: pack,
+			name: name,
+			pos: cls.pos,
+			meta: [],
+			params: [],
+			isExtern: false,
+			kind: TDAbstract( type ),
+			fields:	createFields( cls, field, type, expr ),
+		}
+		
+		Context.defineType( new_type );
+		
+		var access = [APrivate];
+		
+		if (access.indexOf( AStatic ) == -1) {
+			access.push( AStatic );
+		}
+		
+		if (field.access.indexOf( AInline ) != -1) {
+			field.access.remove( AInline );
+			access.push( AInline );
+		}
+		
+		var type = Context.toComplexType( Context.getType( name ) );
+		field.kind = FProp('get', 'never', type);
+		field.meta = [];
 		
 		fields.push( field );
+		
+		fields.push( {
+			name: 'get_${field.name}',
+			access: access,
+			kind: FFun( {
+				args: [],
+				ret: type,
+				expr: macro {
+					return new $name( $expr );
+				},
+				params:[]
+			} ),
+			pos: field.pos,
+			meta: []
+		} );
 		
 		return fields;
 	}
