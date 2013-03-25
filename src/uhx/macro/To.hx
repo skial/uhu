@@ -20,6 +20,11 @@ class To {
 	
 	public static function handler(cls:ClassType, field:Field):Array<Field> {
 		var fields:Array<Field> = [];
+		
+		if (Context.defined( 'display' )) {
+			return [ field ];
+		}
+		
 		var type = null;
 		var expr = null;
 		var name = 'AbstractFor_${field.name}';

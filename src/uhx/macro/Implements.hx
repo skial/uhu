@@ -23,6 +23,10 @@ class Implements {
 
 	public static function handler(_cls:ClassType, _fields:Array<Field>):Array<Field> {
 		
+		if (Context.defined( 'display' )) {
+			return _fields;
+		}
+		
 		cls = _cls;
 		fields = _fields;
 		

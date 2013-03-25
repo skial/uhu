@@ -1,5 +1,7 @@
 package uhx.macro.klas;
 
+import haxe.rtti.Meta;
+import Type in StdType;
 import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
@@ -35,6 +37,9 @@ class Handler {
 		/**
 		 * Loop through any class metadata and pass along 
 		 * the class and its fields to the matching handler.
+		 * -----
+		 * Each handler should decide if its needed to be run
+		 * while in IDE display mode, `-D display`.
 		 */
 		
 		for (key in CLASS_META.keys()) {
@@ -49,7 +54,12 @@ class Handler {
 		
 		/**
 		 * Now detect per field metadata.
-		 * The modified field MUST retain all the original metadata.
+		 * -----
+		 * The modified field MUST retain all the original 
+		 * metadata.
+		 * -----
+		 * Each handler should decide if its needed to be run
+		 * while in IDE display mode, `-D display`.
 		 */
 		
 		var new_fields:Array<Field> = [];
