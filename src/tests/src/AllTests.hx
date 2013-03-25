@@ -1,6 +1,7 @@
 package ;
 
 import haxe.Utf8Spec;
+import uhx.fmt.ASCIISpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
@@ -45,12 +46,9 @@ class AllTests {
 
 	public static function main() {
 		
-		trace( ASCII.PLUS );
-		trace( 'plus = ' + ASCII.PLUS );
-		trace( ASCII.NUL );
-		
 		var runner = new TestRunner();
 		
+		runner.add( new ASCIISpec() );
 		runner.add( new Utf8Spec() );
 		
 		runner.add( new Base64Spec() );

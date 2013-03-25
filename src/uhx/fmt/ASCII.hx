@@ -167,34 +167,34 @@ class ASCII implements Klas {
 	@:to(s='/')
 	public static inline var SLASH:Int = 47;
 	
-	@:to(s='0', i=0)
+	@:to(s='0')
 	public static inline var ZERO:Int = 48;
 	
-	@:to(s='1', i=1)
+	@:to(s='1')
 	public static inline var ONE:Int = 49;
 	
-	@:to(s='2', i=2)
+	@:to(s='2')
 	public static inline var TWO:Int = 50;
 	
-	@:to(s='3', i=3)
+	@:to(s='3')
 	public static inline var THREE:Int = 51;
 	
-	@:to(s='4', i=4)
+	@:to(s='4')
 	public static inline var FOUR:Int = 52;
 	
-	@:to(s='5', i=5)
+	@:to(s='5')
 	public static inline var FIVE:Int = 53;
 	
-	@:to(s='6', i=6)
+	@:to(s='6')
 	public static inline var SIX:Int = 54;
 	
-	@:to(s='7', i=7)
+	@:to(s='7')
 	public static inline var SEVEN:Int = 55;
 	
-	@:to(s='8', i=8)
+	@:to(s='8')
 	public static inline var EIGHT:Int = 56;
 	
-	@:to(s='9', i=9)
+	@:to(s='9')
 	public static inline var NINE:Int = 57;
 	
 	@:to(s=':')

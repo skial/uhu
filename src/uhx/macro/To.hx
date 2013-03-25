@@ -51,7 +51,7 @@ class To {
 			meta: [],
 			params: [],
 			isExtern: false,
-			kind: TDAbstract( type ),
+			kind: TDAbstract( type, [], [type] ),
 			fields:	createFields( cls, field, type, expr ),
 		}
 		
