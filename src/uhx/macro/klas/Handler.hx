@@ -1,5 +1,7 @@
 package uhx.macro.klas;
 
+import haxe.ds.IntMap;
+import haxe.macro.Printer;
 import haxe.rtti.Meta;
 import Type in StdType;
 import haxe.macro.Compiler;
@@ -8,6 +10,7 @@ import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhx.macro.Alias;
+import uhx.macro.Bind;
 import uhx.macro.Implements;
 import uhx.macro.To;
 
@@ -25,12 +28,20 @@ class Handler {
 		':implements' => Implements.handler,
 	];
 	
+	public static var FIELD_META_ORDER:IntMap<String> = [
+		0 => ':to',
+		1 => ':bind',
+		2 => ':alias',
+	];
+	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
 		':to' => To.handler,
+		':bind' => Bind.handler,
 		':alias' => Alias.handler,
 	];
 
 	public static function build():Array<Field> {
+		var p = new Printer();
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
@@ -60,11 +71,14 @@ class Handler {
 		 * -----
 		 * Each handler should decide if its needed to be run
 		 * while in IDE display mode, `-D display`.
+		 * -----
+		 * Assume that the field will be malformed by a previous
+		 * macro. So always cleanup.
 		 */
 		
 		var new_fields:Array<Field> = [];
 		
-		for (field in fields) {
+		/*for (field in fields) {
 			
 			for (key in FIELD_META.keys()) {
 				
@@ -80,6 +94,32 @@ class Handler {
 			}
 			
 			new_fields.push( field );
+			
+		}*/
+		
+		for (i in 0...FIELD_META.count()) {
+			
+			var key = FIELD_META_ORDER.get( i );
+			
+			for (field in fields) {
+				
+				if (new_fields.exists( field.name )) {
+					field = new_fields.get( field.name );
+					new_fields.remove( field );
+				}
+				
+				if (field.meta.exists( key )) {
+					
+					var results = FIELD_META.get( key )( cls, field );
+					new_fields = new_fields.concat( results );
+					
+				} else {
+					
+					new_fields.push( field );
+					
+				}
+				
+			}
 			
 		}
 		

@@ -1,6 +1,7 @@
 package ;
 
 import haxe.Utf8Spec;
+import uhx.core.Klas;
 import uhx.fmt.ASCIISpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;
@@ -38,11 +39,15 @@ import uhx.fmt.ASCII;
  * ...
  * @author Skial Bainn
  */
-
+class Helper {
+	public static var thing:String = '';
+}
 #if !disable_macro_tests
 //@:build( MacroTests.run() )
 #end
-class AllTests {
+class AllTests implements Klas {
+	
+	@:bind(Helper.thing) public static var some:String = 'hello';
 
 	public static function main() {
 		

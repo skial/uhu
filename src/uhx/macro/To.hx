@@ -59,12 +59,14 @@ class To {
 		
 		var access = [APrivate];
 		
-		if (access.indexOf( AStatic ) == -1) {
+		if (field.access.indexOf( AStatic ) != -1) {
 			access.push( AStatic );
 		}
 		
 		if (field.access.indexOf( AInline ) != -1) {
-			field.access.remove( AInline );
+			for (i in 0...field.access.length) {
+				field.access.remove( AInline);
+			}
 			access.push( AInline );
 		}
 		
