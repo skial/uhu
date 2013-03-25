@@ -49,6 +49,7 @@ class Handler {
 		
 		/**
 		 * Now detect per field metadata.
+		 * The modified field MUST retain all the original metadata.
 		 */
 		
 		var new_fields:Array<Field> = [];

@@ -65,7 +65,7 @@ class To {
 		
 		var type = Context.toComplexType( Context.getType( name ) );
 		field.kind = FProp('get', 'never', type);
-		field.meta = [];
+		//field.meta = [];
 		
 		fields.push( field );
 		
