@@ -3,6 +3,7 @@ package uhu.macro.jumla;
 import haxe.macro.Expr;
 import uhu.macro.jumla.TypeParamTools;
 import uhu.macro.jumla.t.TComplexString;
+import uhu.macro.jumla.expr.ConstantTools;
 
 /**
  * ...

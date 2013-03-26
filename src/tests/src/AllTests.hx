@@ -39,15 +39,19 @@ import uhx.fmt.ASCII;
  * ...
  * @author Skial Bainn
  */
-class Helper {
-	public static var thing:String = '';
+class Helper implements Klas {
+	@:before(~/^([\w]+[\.])*([\w]+)$/i) public static function thing() {
+		trace('From Helper::thing');
+	}
 }
 #if !disable_macro_tests
 //@:build( MacroTests.run() )
 #end
-class AllTests implements Klas {
+class AllTests {
 	
-	@:bind(Helper.thing) public static var some:String = 'hello';
+	public static function some() {
+		return 'Hello World';
+	}
 
 	public static function main() {
 		

@@ -10,6 +10,7 @@ import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhx.macro.Alias;
+import uhx.macro.AOP;
 import uhx.macro.Bind;
 import uhx.macro.Implements;
 import uhx.macro.To;
@@ -32,12 +33,14 @@ class Handler {
 		0 => ':to',
 		1 => ':bind',
 		2 => ':alias',
+		3 => ':before',
 	];
 	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
 		':to' => To.handler,
 		':bind' => Bind.handler,
 		':alias' => Alias.handler,
+		':before' => AOP.before,
 	];
 
 	public static function build():Array<Field> {

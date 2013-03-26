@@ -8,16 +8,18 @@ import haxe.macro.Context;
 typedef TField = uhu.macro.jumla.t.TField;
 typedef JumlaTFieldTools = uhu.macro.jumla.TFieldTools;
 typedef JumlaPrinter = uhu.macro.jumla.Printer;
-typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
 typedef TComplexString = uhu.macro.jumla.t.TComplexString;
-typedef JumlaConstantTools = uhu.macro.jumla.ConstantTools;
-typedef JumlaTypePathTools = uhu.macro.jumla.TypePathTools;
-typedef JumlaTypeParamTools = uhu.macro.jumla.TypeParamTools;
 typedef JumlaComplexString = uhu.macro.jumla.ComplexStringTools;
 typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 
+typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
+typedef JumlaTypePathTools = uhu.macro.jumla.TypePathTools;
+typedef JumlaTypeParamTools = uhu.macro.jumla.TypeParamTools;
+typedef JumlaClassFieldTools = uhu.macro.jumla.type.ClassFieldTools;
+
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaEVarTools = uhu.macro.jumla.expr.EVarTools;
+typedef JumlaConstantTools = uhu.macro.jumla.expr.ConstantTools;
 typedef JumlaEFunctionTools = uhu.macro.jumla.expr.EFunctionTools;
 typedef JumlaFieldTools = uhu.macro.jumla.expr.FieldTools;
 typedef JumlaFunctionTools = uhu.macro.jumla.expr.FunctionTools;
