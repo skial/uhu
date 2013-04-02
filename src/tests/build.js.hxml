@@ -8,6 +8,7 @@
 
 -lib polygonal
 -lib msignal
+-lib mlib
 
 -main AllTests
 -js bin/tests.js

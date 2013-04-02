@@ -40,8 +40,8 @@ import uhx.fmt.ASCII;
  * @author Skial Bainn
  */
 class Helper implements Klas {
-	@:before(~/^([\w]+[\.])*([\w]+)$/i) public static function thing() {
-		trace('From Helper::thing');
+	@:before('AllTests') public static function some() {
+		trace('From Helper::some');
 	}
 }
 #if !disable_macro_tests

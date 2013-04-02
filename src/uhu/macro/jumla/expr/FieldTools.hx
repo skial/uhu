@@ -1,9 +1,11 @@
 package uhu.macro.jumla.expr;
 
+import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import uhu.macro.jumla.t.TField;
 import uhu.macro.jumla.t.TComplexString;
+import uhu.macro.jumla.type.ClassFieldTools;
 
 using Lambda;
 
@@ -132,6 +134,10 @@ class FieldTools {
 		}
 		
 		return result;
+	}
+	
+	public static inline function isStatic(field:Field, cls:ClassType):Bool {
+		return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );
 	}
 	
 	public static function toTField(field:Field):TField {

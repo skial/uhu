@@ -5,12 +5,15 @@ import haxe.macro.Type;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import uhx.io.File;
 //import massive.neko.io.File;
 //import massive.neko.io.FileSys;
 //import massive.neko.util.PathUtil;
 import sys.FileSystem;
 
 using StringTools;
+using uhx.util.Path;
+using uhu.macro.Jumla;
 
 /**
  * ...
@@ -20,7 +23,29 @@ using StringTools;
 // Haitian Creole for compiler
 class Du {
 	
-	macro public static function include(classes:Array<String>) {
+	public static function getClassPaths():Array<File> {
+		var paths:Array<File> = [];
+		
+		for (path in Context.getClassPath()) {
+			
+			path = path.cleanUpPath();
+			
+			if (path.endsWith('/')) {
+				path.substr(0, -1);
+			}
+			
+			if (path == '') {
+				path = '.';
+			}
+			
+			paths.push( File.create( FileSystem.fullPath( path ) ) );
+			
+		}
+		
+		return paths;
+	}
+	
+	public static macro function include(classes:Array<String>) {
 		for (cls in classes) {
 			//Context.getModule(cls);
 			Compiler.include(cls);
@@ -28,7 +53,7 @@ class Du {
 		return macro null;
 	}
 
-	macro public static function patchTypes(file:String) {
+	public static macro function patchTypes(file:String) {
 		var file = sys.io.File.read(Context.resolvePath(file), true);
 		try {
 			while (true) {

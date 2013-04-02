@@ -4,6 +4,7 @@
 -cp ../../../thx/src
 -lib polygonal
 -lib msignal
+-lib mlib
 -neko bin/tests.n
 -D disable_macro_tests
 -main AllTests
