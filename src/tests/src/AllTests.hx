@@ -54,7 +54,7 @@ class AllTests {
 	}
 
 	public static function main() {
-		
+		some();
 		var runner = new TestRunner();
 		
 		runner.add( new ASCIISpec() );

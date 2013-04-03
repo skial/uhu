@@ -30,7 +30,7 @@ class VarAccessTools {
 	}
 	
 	public static function is(access:VarAccess, what:EnumValue):Bool {
-		return (access.getName() == what.getName());
+		return (access != null && access.getName() == what.getName());
 	}
 	
 	public static inline function isInline(access:VarAccess):Bool {

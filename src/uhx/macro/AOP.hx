@@ -109,23 +109,44 @@ class AOP {
 		modules = null;
 		paths = null;
 		
+		var expr = null;
+		
+		switch (field.kind) {
+			case FFun(m):
+				expr = m.expr;
+			case FVar(_, e):
+				expr = e;
+			case FProp(_, _, _, e):
+				expr = e;
+		}
+		
 		for (type in types) {
 			
 			switch (type) {
 				case TInst(t, _):
 					var cls = t.get();
-					trace( cls.statics.get()[0].toField( true ) );
-					var typed:TypeDefinition = {
-						pack: cls.pack,
-						name: cls.name,
-						pos: cls.pos,
-						meta: cls.meta.get(),
-						params: cls.toTypeParamDecls(),
-						isExtern: cls.isExtern,
-						kind: cls.toTypeDefKind(),
-						fields: []
+					var retyped = cls.toTypeDefinition( 'RE_', '_UHU' );
+					var fullname = cls.pack.join('.') + (cls.pack.length > 0 ? '.' : '') + cls.name;
+					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
+					if (retyped.fields.exists( field.name )) {
+						var f = retyped.fields.get( field.name );
+						
+						switch (f.kind) {
+							case FFun(m):
+								m.expr = expr.concat( m.expr );
+								
+							case _:
+								
+						}
+						trace(f.printField());
 					}
 					
+					trace(retyped.pack);
+					trace(retyped.name);
+					trace(fullname);
+					//trace(retyped.pack.join('.') + (retyped.pack.length > 0 ? '.' : '') + retyped.name);
+					Compiler.exclude(fullname);
+					Context.defineType( retyped );
 					
 				case _:
 					trace( type );

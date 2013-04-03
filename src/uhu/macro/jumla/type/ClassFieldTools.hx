@@ -53,14 +53,15 @@ class ClassFieldTools {
 					result = FProp( read.toString(), write.toString(), type, expr );
 				}
 				
-			case FMethod(method_kind):
-				trace(field.params);
-				result = FFun( {
-					ret:type,
-					expr:expr,
-					params:[],
-					args:[]
-				} );
+			case FMethod(_):
+				
+				switch (expr.expr) {
+					case EFunction(_, f):
+						result = FFun( f );
+						
+					case _:
+						
+				}
 		}
 		
 		return result;

@@ -5,11 +5,38 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.TypeTools;
 
+using uhu.macro.Jumla;
+
 /**
  * ...
  * @author Skial Bainn
  */
 class ClassTypeTools {
+	
+	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
+		var fields = [];
+		
+		for (f in cls.fields.get()) {
+			fields.push( f.toField() );
+		}
+		
+		var statics = [];
+		
+		for (s in cls.statics.get()) {
+			statics.push( s.toField( true ) );
+		}
+		
+		return {
+			pack: cls.pack,
+			name: prefix + cls.name + suffix,
+			pos: cls.pos,
+			meta: cls.meta.get(),
+			params: cls.toTypeParamDecls(),
+			isExtern: cls.isExtern,
+			kind: cls.toTypeDefKind(),
+			fields: statics.concat( fields ),
+		};
+	}
 	
 	public static function toTypeParams(params:Array<{name:String, t:Type}>):Array<TypeParam> {
 		var result:Array<TypeParam> = [];
@@ -33,12 +60,13 @@ class ClassTypeTools {
 		return {
 			pack: cls.pack,
 			name: cls.name,
-			params: toTypeParams( cls.params )
+			params: toTypeParams( cls.params ),
+			sub: null
 		};
 	}
 	
 	public static function toTypeDefKind(cls:ClassType):TypeDefKind {
-		var sup = toTypePath( cls.superClass.t.get() );
+		var sup = cls.superClass != null ? toTypePath( cls.superClass.t.get() ) : null;
 		var interfaces = [];
 		
 		for (inter in cls.interfaces) {
