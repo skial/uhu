@@ -5,12 +5,128 @@ import uhu.macro.jumla.TypeParamTools;
 import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.expr.ConstantTools;
 
+using uhu.macro.Jumla;
+
 /**
  * ...
  * @author Skial Bainn
  */
 
 class ExprTools {
+	
+	public static function clean(e:Expr):Expr {
+		var result = e;
+		switch (e.expr) {
+			case EConst(c):
+				result = { expr:EConst( c.clean() ), pos:e.pos };
+			
+			case EArray(e1, e2):
+				result = { expr:EArray( e1.clean(), e2.clean() ), pos:e.pos };
+			
+			case EBinop(op, e1, e2):
+				result = { expr:EBinop( op, e1.clean(), e2.clean() ), pos:e.pos };
+			
+			case EField(e, field):
+				result = { expr:EField( e.clean(), field ), pos:e.pos };
+			
+			case EParenthesis(e):
+				result = { expr:EParenthesis( e.clean() ), pos:e.pos };
+			
+			case EObjectDecl(fields):
+				result = { expr:EObjectDecl( [for (f in fields) { field:f.field, expr:f.expr.clean() }] ), pos:e.pos };
+			
+			case EArrayDecl(values):
+				result = { expr:EArrayDecl( [for (value in values) value.clean()] ), pos:e.pos };
+			
+			case ECall(e, params):
+				result = { expr:ECall( e.clean(), [for (p in params) p.clean()] ), pos:e.pos };
+			
+			case ENew(t, params):
+				result = { expr:ENew( t.clean(), [for (p in params) p.clean()] ), pos:e.pos };
+			
+			case EUnop(op, p, e):
+				result = { expr:EUnop( op, p, e.clean() ), pos:e.pos };
+			
+			case EVars(vars):
+				var new_vars = [];
+				for (v in vars) {
+					v.expr = v.expr.clean();
+					new_vars.push( v );
+				}
+				result = { expr:EVars( new_vars ), pos:e.pos };
+			
+			case EFunction(name, f):
+				result = { expr:EFunction( name, f.clean() ), pos:e.pos };
+			
+			case EBlock(values):
+				result = { expr:EBlock( [for (value in values) value.clean()] ), pos:e.pos };
+			
+			case EFor(it, e):
+				result = { expr:EFor( it.clean(), e.clean() ), pos:e.pos };
+			
+			case EIn(e1, e2):
+				result = { expr:EIn( e1.clean(), e2.clean() ), pos:e.pos };
+			
+			case EWhile(e1, e2, b):
+				result = { expr:EWhile( e1.clean(), e2.clean(), b ), pos:e.pos };
+			
+			case ESwitch(e, cases, ed):
+				var new_cases = [];
+				for (c in cases) {
+					c.expr = c.expr.clean();
+					new_cases.push( c );
+				}
+				result = { expr:ESwitch( e.clean(), new_cases, ed.clean() ), pos:e.pos };
+			
+			case ETry(e, catches):
+				var new_catches = [];
+				for (c in catches) {
+					c.expr = c.expr.clean();
+					new_catches.push( c );
+				}
+				result = { expr:ETry( e.clean(), new_catches ), pos:e.pos };
+			
+			case EReturn(e):
+				result = { expr:EReturn( e.clean() ), pos:e.pos };
+			
+			case EBreak:
+				
+			case EContinue:
+				
+			case EUntyped(e):
+				result = { expr:EUntyped( e.clean() ), pos:e.pos };
+			
+			case EThrow(e):
+				result = { expr:EThrow( e.clean() ), pos:e.pos };
+			
+			case ECast(e, t):
+				result = { expr:ECast( e.clean(), t ), pos:e.pos };
+			
+			case EDisplay(e, b):
+				result = { expr:EDisplay( e.clean(), b ), pos:e.pos };
+			
+			case EDisplayNew(t):
+				
+			case ETernary(e1, e2, e3):
+				result = { expr:ETernary( e1.clean(), e2.clean(), e3.clean() ), pos:e.pos };
+			
+			case ECheckType(e, t):
+				result = { expr:ECheckType( e.clean(), t ), pos:e.pos };
+			
+			case EMeta(s, e):
+				var new_params = [];
+				for (p in s.params) {
+					p = p.clean();
+					new_params.push( p );
+				}
+				result = { expr:EMeta( s, e.clean() ), pos:e.pos };
+				
+			case _:
+				
+		}
+		
+		return result;
+	}
 
 	public static inline function toString(e:Expr):String {
 		return Printer.printExpr( e );

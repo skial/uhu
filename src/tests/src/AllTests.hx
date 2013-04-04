@@ -50,7 +50,7 @@ class Helper implements Klas {
 class AllTests {
 	
 	public static function some() {
-		return 'Hello World';
+		trace('Hello World');
 	}
 
 	public static function main() {

@@ -34,6 +34,7 @@ class Handler {
 		1 => ':bind',
 		2 => ':alias',
 		3 => ':before',
+		4 => ':after',
 	];
 	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
@@ -41,6 +42,7 @@ class Handler {
 		':bind' => Bind.handler,
 		':alias' => Alias.handler,
 		':before' => AOP.before,
+		':after' => AOP.after,
 	];
 
 	public static function build():Array<Field> {

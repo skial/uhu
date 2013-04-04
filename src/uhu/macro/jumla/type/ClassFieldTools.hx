@@ -42,7 +42,7 @@ class ClassFieldTools {
 	public static function toFieldType(field:ClassField):FieldType {
 		var result:FieldType = null;
 		var type = TypeTools.toComplexType( field.type );
-		var expr = Context.getTypedExpr( field.expr() );
+		var expr = Context.getTypedExpr( field.expr() ).clean();
 		
 		switch( field.kind ) {
 			case FVar(read, write):

@@ -3,6 +3,7 @@ package uhu.macro.jumla.expr;
 import haxe.macro.Expr;
 import uhu.macro.jumla.t.TComplexString;
 
+using StringTools;
 using haxe.EnumTools;
 
 /**
@@ -11,6 +12,19 @@ using haxe.EnumTools;
  */
 
 class ConstantTools {
+	
+	public static function clean(c:Constant):Constant {
+		var result = c;
+		
+		switch (c) {
+			case CIdent(s):
+				result = CIdent( s.replace('`', '') );
+			case _:
+				
+		}
+		
+		return result;
+	}
 	
 	public static function getConst(e:Expr):Constant {
 		var result = null;

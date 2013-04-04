@@ -1,5 +1,5 @@
 -D debug
--D dump=pretty
+#-D dump=pretty
 
 -cp src
 

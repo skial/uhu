@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.getTypedExpr.Main
+-js bin/example.getTypedExpr.js
+
+#-dce full

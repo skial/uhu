@@ -9,6 +9,10 @@ import uhu.macro.jumla.t.TComplexString;
 
 class TypePathTools {
 	
+	public static function clean(t:TypePath):TypePath {
+		return t;
+	}
+	
 	@:extern public static inline function toString(t:TypePath):String {
 		return Printer.printTypePath( t );
 	}

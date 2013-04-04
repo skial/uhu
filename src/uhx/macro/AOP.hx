@@ -125,27 +125,38 @@ class AOP {
 			switch (type) {
 				case TInst(t, _):
 					var cls = t.get();
-					var retyped = cls.toTypeDefinition( 'RE_', '_UHU' );
+					var retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
 					var fullname = cls.pack.join('.') + (cls.pack.length > 0 ? '.' : '') + cls.name;
+					
 					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
+					
 					if (retyped.fields.exists( field.name )) {
 						var f = retyped.fields.get( field.name );
-						
+						trace(advice);
 						switch (f.kind) {
 							case FFun(m):
-								m.expr = expr.concat( m.expr );
+								
+								switch (advice) {
+									case After:
+										m.expr = m.expr.concat( expr );
+									case Before:
+										m.expr = expr.concat( m.expr );
+									case Around:
+										
+								}
 								
 							case _:
 								
 						}
+						
 						trace(f.printField());
+						
 					}
 					
-					trace(retyped.pack);
-					trace(retyped.name);
-					trace(fullname);
-					//trace(retyped.pack.join('.') + (retyped.pack.length > 0 ? '.' : '') + retyped.name);
+					// first remove the original class
 					Compiler.exclude(fullname);
+					
+					// then add the newly redefined class.
 					Context.defineType( retyped );
 					
 				case _:
