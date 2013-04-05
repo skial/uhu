@@ -1,6 +1,7 @@
 package uhx.macro;
 
 import haxe.ds.StringMap;
+import haxe.ds.StringMap;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -23,8 +24,8 @@ using uhu.macro.Jumla;
  * ...
  * @author Skial Bainn
  */
-
-typedef TJoinPoint<TClass, TMethod> = {
+ 
+ typedef TJoinPoint<TClass, TMethod> = {
 	var cls:TClass;
 	var name:String;
 	var args:Array<{ name:String, opt:Bool, value:Null<Dynamic> }>;
@@ -42,17 +43,20 @@ class AOP {
 	
 	public static function before(cls:ClassType, field:Field):Array<Field> {
 		var meta = field.meta.get( ':before' );
-		return handle( cls, field, meta, Before );
+		var result = handle( cls, field, meta, Before );
+		return result;
 	}
 	
 	public static function after(cls:ClassType, field:Field):Array<Field> {
 		var meta = field.meta.get( ':after' );
-		return handle( cls, field, meta, After );
+		var result = handle( cls, field, meta, After );
+		return result;
 	}
 	
 	public static function around(cls:ClassType, field:Field):Array<Field> {
 		var meta = field.meta.get( ':around' );
-		return handle( cls, field, meta, Around );
+		var result = handle( cls, field, meta, Around );
+		return result;
 	}
 	
 	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice):Array<Field> {
@@ -102,22 +106,32 @@ class AOP {
 					.replace( File.seperator, '.' );
 				types.push( Context.getType( path ) );
 			} catch (e:Dynamic) {
-				
+				// i dont care
 			}
 		}
 		
+		// kill these two
 		modules = null;
 		paths = null;
 		
 		var expr = null;
 		
-		switch (field.kind) {
-			case FFun(m):
-				expr = m.expr;
-			case FVar(_, e):
-				expr = e;
-			case FProp(_, _, _, e):
-				expr = e;
+		if (field.isInline()) {
+			switch (field.kind) {
+				case FFun(m):
+					expr = m.expr;
+					
+				case FVar(_, e):
+					expr = e;
+					
+				case FProp(_, _, _, e):
+					expr = e;
+					
+			}
+		} else {
+			expr = macro $i { '${cls.path()}.${field.name}' }();
+			//expr = Context.parse( '${cls.path()}.${field.name}()' , field.pos);
+			//expr = Context.parseInlineString( '${cls.path()}.${field.name}()' , field.pos);
 		}
 		
 		for (type in types) {
@@ -126,13 +140,13 @@ class AOP {
 				case TInst(t, _):
 					var cls = t.get();
 					var retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
-					var fullname = cls.pack.join('.') + (cls.pack.length > 0 ? '.' : '') + cls.name;
+					var fullname = cls.path();
 					
 					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
 					
 					if (retyped.fields.exists( field.name )) {
 						var f = retyped.fields.get( field.name );
-						trace(advice);
+						
 						switch (f.kind) {
 							case FFun(m):
 								
@@ -149,14 +163,15 @@ class AOP {
 								
 						}
 						
-						trace(f.printField());
+						trace( f.printField() );
 						
 					}
 					
-					// first remove the original class
-					Compiler.exclude(fullname);
+					// first remove the original class from compiling
+					Compiler.exclude(fullname, false);
 					
-					// then add the newly redefined class.
+					// then add the newly redefined class which has
+					// `:native("original class name")` meta
 					Context.defineType( retyped );
 					
 				case _:

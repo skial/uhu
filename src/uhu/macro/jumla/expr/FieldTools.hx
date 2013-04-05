@@ -140,6 +140,10 @@ class FieldTools {
 		return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );
 	}
 	
+	public static inline function isInline(field:Field):Bool {
+		return field.access.has( AInline );
+	}
+	
 	public static function toTField(field:Field):TField {
 		var result = {
 			name:'',

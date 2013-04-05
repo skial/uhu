@@ -39,11 +39,7 @@ import uhx.fmt.ASCII;
  * ...
  * @author Skial Bainn
  */
-class Helper implements Klas {
-	@:before('AllTests') public static function some() {
-		trace('From Helper::some');
-	}
-}
+
 #if !disable_macro_tests
 //@:build( MacroTests.run() )
 #end
@@ -51,10 +47,12 @@ class AllTests {
 	
 	public static function some() {
 		trace('Hello World');
+		Stub.some();
 	}
 
 	public static function main() {
-		some();
+		AllTests.some();
+		
 		var runner = new TestRunner();
 		
 		runner.add( new ASCIISpec() );

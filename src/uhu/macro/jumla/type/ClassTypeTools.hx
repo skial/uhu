@@ -13,6 +13,10 @@ using uhu.macro.Jumla;
  */
 class ClassTypeTools {
 	
+	public static inline function path(cls:ClassType):String {
+		return cls.pack.join( '.' ) + (cls.module != cls.name ? '${cls.module}.' : '') + (cls.pack.length > 0 ? '.' : '') + cls.name;
+	}
+	
 	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
 		var fields = [];
 		
@@ -67,15 +71,8 @@ class ClassTypeTools {
 	
 	public static function toTypeDefKind(cls:ClassType):TypeDefKind {
 		var sup = cls.superClass != null ? toTypePath( cls.superClass.t.get() ) : null;
-		var interfaces = [];
-		
-		for (inter in cls.interfaces) {
-			interfaces.push( toTypePath( inter.t.get() ) );
-		}
-		
-		var result:TypeDefKind = TDClass( sup, interfaces, cls.isInterface );
-		
-		return result;
+		var interfaces = [for (i in cls.interfaces) i.t.get().toTypePath() ];
+		return TDClass( sup, interfaces, cls.isInterface );
 	}
 	
 	public static function toTypeParamDecls(cls:ClassType):Array<TypeParamDecl> {

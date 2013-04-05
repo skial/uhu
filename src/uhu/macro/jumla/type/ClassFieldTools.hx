@@ -1,9 +1,12 @@
 package uhu.macro.jumla.type;
 
+import haxe.ds.StringMap;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
+import sys.FileSystem;
+import sys.io.File;
 
 using uhu.macro.Jumla;
 
@@ -12,6 +15,8 @@ using uhu.macro.Jumla;
  * @author Skial Bainn
  */
 class ClassFieldTools {
+	
+	private static var _cache:StringMap<String> = new StringMap<String>();
 
 	public static function exists(fields:Array<ClassField>, name:String):Bool {
 		var result = false;
@@ -42,7 +47,36 @@ class ClassFieldTools {
 	public static function toFieldType(field:ClassField):FieldType {
 		var result:FieldType = null;
 		var type = TypeTools.toComplexType( field.type );
-		var expr = Context.getTypedExpr( field.expr() ).clean();
+		var expr = null;
+		
+		if (field.expr() != null ) {
+			
+			expr = Context.getTypedExpr( field.expr() ).clean();
+			
+		} else {
+			// monster mode
+			
+			var pos = Context.getPosInfos( field.pos );
+			var content = null;
+			
+			if (_cache.exists( pos.file )) {
+				content = _cache.get( pos.file );
+			} else {
+				content = File.getContent( FileSystem.fullPath( pos.file ) );
+				_cache.set( pos.file, content );
+			}
+			
+			var code = null;
+			var key = pos.file + '::' + field.name;
+			
+			if (_cache.exists( key )) {
+				code = _cache.get( key );
+			} else {
+				code = content.substr( pos.min, pos.max - pos.min );
+				trace( code );
+			}
+			
+		}
 		
 		switch( field.kind ) {
 			case FVar(read, write):

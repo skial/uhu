@@ -105,7 +105,7 @@ class ExprTools {
 			case EDisplay(e, b):
 				result = { expr:EDisplay( e.clean(), b ), pos:e.pos };
 			
-			case EDisplayNew(t):
+			case EDisplayNew(_):
 				
 			case ETernary(e1, e2, e3):
 				result = { expr:ETernary( e1.clean(), e2.clean(), e3.clean() ), pos:e.pos };
@@ -169,6 +169,9 @@ class ExprTools {
 			case [EBlock( b1 ), EBlock( b2 )]:
 				result = EBlock( b1.concat( b2 ) );
 				
+			case [EBlock( b1), _]:
+				result = EBlock( b1.concat( [ expr2 ] ) );
+				
 			case [EFunction( n1, m1 ), EFunction( _, m2 )]:
 				if (m1.expr == null && m2.expr == null) {
 					throw 'One or both of the functions bodies are empty or null.';
@@ -186,7 +189,8 @@ class ExprTools {
 				result = EVars( v1.concat( v2 ) );
 				
 			case _:
-				throw 'Both expressions need to be of type [EArrayDecl, EBlock, EFunction, EObjectDecl or EVars].';
+				result = EBlock( [expr1, expr2] );
+				//throw 'Both expressions need to be of type [EArrayDecl, EBlock, EFunction, EObjectDecl or EVars].';
 		}
 		
 		return { expr:result, pos:expr1.pos };
