@@ -45,9 +45,14 @@ import uhx.fmt.ASCII;
 #end
 class AllTests {
 	
+	public static function thing() {
+		trace('Hello Universe');
+	}
+	
 	public static function some() {
 		trace('Hello World');
 		Stub.some();
+		AllTests.thing();
 	}
 
 	public static function main() {

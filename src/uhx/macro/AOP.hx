@@ -41,7 +41,44 @@ private enum EAdvice {
  
 class AOP {
 	
-	public static function before(cls:ClassType, field:Field):Array<Field> {
+	private static var redefined:StringMap<TypeDefinition>;
+	
+	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
+		
+		if (Context.defined( 'display' )) {
+			return fields;
+		}
+		
+		redefined = new StringMap<TypeDefinition>();
+		
+		for (field in fields) {
+			
+			if (field.meta.exists( ':before' )) {
+				
+				handle( cls, field, field.meta.get( ':before' ), Before );
+				
+			} else if (field.meta.exists( ':after' )) {
+				
+				handle( cls, field, field.meta.get( ':after' ), After );
+				
+			} else if (field.meta.exists( ':around' )) {
+				
+				handle( cls, field, field.meta.get( ':around' ), Around );
+				
+			}
+			
+		}
+		
+		for (key in redefined.keys()) {
+			Context.defineType( redefined.get( key ) );
+		}
+		
+		redefined = null;
+		
+		return fields;
+	}
+	
+	/*public static function before(cls:ClassType, field:Field):Array<Field> {
 		var meta = field.meta.get( ':before' );
 		var result = handle( cls, field, meta, Before );
 		return result;
@@ -57,15 +94,14 @@ class AOP {
 		var meta = field.meta.get( ':around' );
 		var result = handle( cls, field, meta, Around );
 		return result;
-	}
+	}*/
 	
-	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice):Array<Field> {
-		var fields = [ field ];
-		var isStatic = field.isStatic( cls );
+	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice)/*:Array<Field>*/ {
+		//var fields = [ field ];
 		
-		if (Context.defined( 'display' ) || meta.params.length == 0) {
+		/*if (Context.defined( 'display' ) || meta.params.length == 0) {
 			return fields;
-		}
+		}*/
 		
 		var const = meta.params[0].getConst();
 		var allowed = const.isString() || const.isEReg();
@@ -82,7 +118,7 @@ class AOP {
 			ereg = const.value();
 		}
 		
-		var paths:Array<File> = Du.getClassPaths();
+		var paths:Array<File> = Du.classPaths;
 		var modules:Array<{ path:File, file:File}> = [];
 		
 		for (path in paths) {
@@ -116,7 +152,7 @@ class AOP {
 		
 		var expr = null;
 		
-		if (field.isInline()) {
+		/*if (field.isInline()) {
 			
 			switch (field.kind) {
 				case FFun(m):
@@ -130,19 +166,26 @@ class AOP {
 					
 			}
 			
-		} else {
+		} else {*/
 			
 			expr = Context.parse( '${cls.path()}.${field.name}()' , field.pos);
 			
-		}
+		//}
 		
 		for (type in types) {
 			
 			switch (type) {
 				case TInst(t, _):
 					var cls = t.get();
-					var retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
 					var fullname = cls.path();
+					var retyped:TypeDefinition = null;
+					
+					if (redefined.exists( fullname )) {
+						retyped = redefined.get( fullname );
+					} else {
+						retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
+						redefined.set( fullname, retyped );
+					}
 					
 					retyped.meta.push( { name:':keep', params:[], pos:cls.pos } );
 					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
@@ -175,7 +218,10 @@ class AOP {
 					
 					// then add the newly redefined class which has
 					// `:native("original class name")` meta
-					Context.defineType( retyped );
+					//Context.defineType( retyped );
+					
+					// Set
+					//redefined.set( fullname, retyped );
 					
 				case _:
 					trace( type );
@@ -183,7 +229,7 @@ class AOP {
 			
 		}
 		
-		return fields;
+		//return fields;
 	}
 	
 }

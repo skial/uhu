@@ -27,22 +27,29 @@ class Handler {
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		':implements' => Implements.handler,
+		':aop' => AOP.handler,
 	];
 	
 	public static var FIELD_META_ORDER:IntMap<String> = [
 		0 => ':to',
 		1 => ':bind',
 		2 => ':alias',
-		3 => ':before',
-		4 => ':after',
+		/*3 => ':before',
+		4 => ':after',*/
 	];
 	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
 		':to' => To.handler,
 		':bind' => Bind.handler,
 		':alias' => Alias.handler,
-		':before' => AOP.before,
-		':after' => AOP.after,
+		/*':before' => AOP.before,
+		':after' => AOP.after,*/
+	];
+	
+	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
+		':before' => ':aop',
+		':after' => ':aop',
+		':around' => ':aop',
 	];
 
 	public static function build():Array<Field> {
@@ -65,6 +72,27 @@ class Handler {
 				fields = CLASS_META.get( key )( cls, fields );
 				
 			}
+			
+		}
+		
+		var matched = null;
+		
+		for (key in CLASS_HAS_FIELD_META.keys()) {
+			
+			for (f in fields) {
+				
+				if (f.meta.exists( key )) {
+					matched = CLASS_HAS_FIELD_META.get( key );
+					break;
+				}
+				
+			}
+			
+		}
+		
+		if (matched != null) {
+			
+			fields = CLASS_META.get( matched )(cls, fields);
 			
 		}
 		

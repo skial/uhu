@@ -12,7 +12,9 @@ import uhx.io.File;
 import sys.FileSystem;
 
 using StringTools;
+using uhx.io.File;
 using uhx.util.Path;
+using uhx.io.FileSys;
 using uhu.macro.Jumla;
 
 /**
@@ -23,26 +25,30 @@ using uhu.macro.Jumla;
 // Haitian Creole for compiler
 class Du {
 	
-	public static function getClassPaths():Array<File> {
-		var paths:Array<File> = [];
-		
-		for (path in Context.getClassPath()) {
+	@:isVar public static var classPaths(get, null):Array<File>;
+	
+	private static function get_classPaths():Array<File> {
+		if (classPaths == null) {
+			classPaths = [];
 			
-			path = path.cleanUpPath();
-			
-			if (path.endsWith('/')) {
-				path.substr(0, -1);
+			for (path in Context.getClassPath()) {
+				
+				path = path.cleanUpPath();
+				
+				if (path.endsWith('/')) {
+					path.substr(0, -1);
+				}
+				
+				if (path == '') {
+					path = '.';
+				}
+				
+				classPaths.push( File.create( FileSystem.fullPath( path ) ) );
+				
 			}
-			
-			if (path == '') {
-				path = '.';
-			}
-			
-			paths.push( File.create( FileSystem.fullPath( path ) ) );
-			
 		}
 		
-		return paths;
+		return classPaths;
 	}
 	
 	public static macro function include(classes:Array<String>) {

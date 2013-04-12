@@ -11,4 +11,8 @@ class Stub implements Klas {
 		trace('From Stub::some');
 	}
 	
+	@:after('AllTests') public static function thing() {
+		trace('From Stub::thing');
+	}
+	
 }
