@@ -54,7 +54,7 @@ class ClassFieldTools {
 			expr = Context.getTypedExpr( field.expr() ).clean();
 			
 		} else {
-			// monster mode
+			// danger mode
 			
 			var pos = Context.getPosInfos( field.pos );
 			var content = null;
@@ -73,8 +73,9 @@ class ClassFieldTools {
 				code = _cache.get( key );
 			} else {
 				code = content.substr( pos.min, pos.max - pos.min );
-				trace( code );
 			}
+			
+			expr = Context.parse( code, field.pos );
 			
 		}
 		

@@ -38,7 +38,7 @@ class ClassTypeTools {
 			params: cls.toTypeParamDecls(),
 			isExtern: cls.isExtern,
 			kind: cls.toTypeDefKind(),
-			fields: statics.concat( fields ),
+			fields: fields.concat( statics ),
 		};
 	}
 	

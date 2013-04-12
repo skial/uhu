@@ -117,6 +117,7 @@ class AOP {
 		var expr = null;
 		
 		if (field.isInline()) {
+			
 			switch (field.kind) {
 				case FFun(m):
 					expr = m.expr;
@@ -128,10 +129,11 @@ class AOP {
 					expr = e;
 					
 			}
+			
 		} else {
-			expr = macro $i { '${cls.path()}.${field.name}' }();
-			//expr = Context.parse( '${cls.path()}.${field.name}()' , field.pos);
-			//expr = Context.parseInlineString( '${cls.path()}.${field.name}()' , field.pos);
+			
+			expr = Context.parse( '${cls.path()}.${field.name}()' , field.pos);
+			
 		}
 		
 		for (type in types) {
@@ -142,6 +144,7 @@ class AOP {
 					var retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
 					var fullname = cls.path();
 					
+					retyped.meta.push( { name:':keep', params:[], pos:cls.pos } );
 					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
 					
 					if (retyped.fields.exists( field.name )) {
@@ -163,7 +166,7 @@ class AOP {
 								
 						}
 						
-						trace( f.printField() );
+						//trace( f.printField() );
 						
 					}
 					
