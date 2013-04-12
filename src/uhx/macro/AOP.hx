@@ -41,6 +41,7 @@ private enum EAdvice {
  
 class AOP {
 	
+	private static var allTypes:Array<Type>;
 	private static var redefined:StringMap<TypeDefinition>;
 	
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
@@ -96,6 +97,45 @@ class AOP {
 		return result;
 	}*/
 	
+	private static function getAllTypes(ereg:EReg):Array<Type> {
+		
+		if (allTypes == null) {
+			var paths:Array<File> = Du.classPaths;
+			var modules:Array<{ path:File, file:File}> = [];
+			
+			for (path in paths) {
+				var uls = path.getRecursiveDirectoryListing( ~/.hx$/ );
+				
+				for (ul in uls) {
+					if (ereg.match( ul.nativePath.replace( path.nativePath, '' ) )) {
+						modules.push( { path:path, file:ul } );
+					}
+				}
+				
+			}
+			
+			allTypes = [];
+			
+			for (module in modules) {
+				try {
+					var path = module.file.nativePath
+						.replace( module.path.nativePath, '' )
+						.replace( '.hx', '' )
+						.replace( File.seperator, '.' );
+					allTypes.push( Context.getType( path ) );
+				} catch (e:Dynamic) {
+					// i dont care
+				}
+			}
+			
+			// kill these two
+			modules = null;
+			paths = null;
+		}
+		
+		return allTypes;
+	}
+	
 	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice)/*:Array<Field>*/ {
 		//var fields = [ field ];
 		
@@ -118,37 +158,7 @@ class AOP {
 			ereg = const.value();
 		}
 		
-		var paths:Array<File> = Du.classPaths;
-		var modules:Array<{ path:File, file:File}> = [];
-		
-		for (path in paths) {
-			var uls = path.getRecursiveDirectoryListing( ~/.hx$/ );
-			
-			for (ul in uls) {
-				if (ereg.match( ul.nativePath.replace( path.nativePath, '' ) )) {
-					modules.push( { path:path, file:ul } );
-				}
-			}
-			
-		}
-		
-		var types:Array<Type> = [];
-		
-		for (module in modules) {
-			try {
-				var path = module.file.nativePath
-					.replace( module.path.nativePath, '' )
-					.replace( '.hx', '' )
-					.replace( File.seperator, '.' );
-				types.push( Context.getType( path ) );
-			} catch (e:Dynamic) {
-				// i dont care
-			}
-		}
-		
-		// kill these two
-		modules = null;
-		paths = null;
+		var types = getAllTypes( ereg );
 		
 		var expr = null;
 		
