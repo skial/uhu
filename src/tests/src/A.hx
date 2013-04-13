@@ -5,14 +5,14 @@ import uhx.core.Klas;
  * ...
  * @author Skial Bainn
  */
-class Stub implements Klas {
+class A implements Klas {
 
 	@:after('AllTests') public static function some() {
-		trace('From Stub::some');
+		trace('From A::some');
 	}
 	
 	@:after('AllTests') public static function thing() {
-		trace('From Stub::thing');
+		trace('From A::thing');
 	}
 	
 }

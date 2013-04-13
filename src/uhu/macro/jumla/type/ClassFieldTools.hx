@@ -3,6 +3,7 @@ package uhu.macro.jumla.type;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Printer;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 import sys.FileSystem;

@@ -51,7 +51,8 @@ class AllTests {
 	
 	public static function some() {
 		trace('Hello World');
-		Stub.some();
+		A.some();
+		B.thing();
 		AllTests.thing();
 	}
 

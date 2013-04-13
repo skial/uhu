@@ -2,6 +2,7 @@ package uhx.macro;
 
 import haxe.ds.StringMap;
 import haxe.ds.StringMap;
+import haxe.macro.Printer;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -43,6 +44,7 @@ class AOP {
 	
 	private static var allTypes:Array<Type>;
 	private static var redefined:StringMap<TypeDefinition>;
+	private static var archive:StringMap<Bool> = new StringMap<Bool>();
 	
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
@@ -72,6 +74,7 @@ class AOP {
 		
 		for (key in redefined.keys()) {
 			Context.defineType( redefined.get( key ) );
+			archive.set( redefined.get( key ).path(), true );
 		}
 		
 		redefined = null;
@@ -190,6 +193,16 @@ class AOP {
 					var fullname = cls.path();
 					var retyped:TypeDefinition = null;
 					
+					if (archive.exists( 'RE_' + fullname + '_UHX' )) {
+						switch ( Context.getType( 'RE_' + fullname + '_UHX' ) ) {
+							case TInst(tt, _):
+								cls = tt.get();
+								fullname = cls.path();
+							case _:
+								
+						}
+					}
+					
 					if (redefined.exists( fullname )) {
 						retyped = redefined.get( fullname );
 					} else {
@@ -197,8 +210,15 @@ class AOP {
 						redefined.set( fullname, retyped );
 					}
 					
-					retyped.meta.push( { name:':keep', params:[], pos:cls.pos } );
-					retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
+					if (!retyped.meta.exists( ':keep' )) {
+						retyped.meta.push( { name:':keep', params:[], pos:cls.pos } );
+					}
+					
+					if (!retyped.meta.exists( ':native')) {
+						retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
+					}
+					
+					trace( fullname );
 					
 					if (retyped.fields.exists( field.name )) {
 						var f = retyped.fields.get( field.name );
@@ -219,7 +239,7 @@ class AOP {
 								
 						}
 						
-						//trace( f.printField() );
+						trace( f.printField() );
 						
 					}
 					
