@@ -47,7 +47,8 @@ class ClassFieldTools {
 	
 	public static function toFieldType(field:ClassField):FieldType {
 		var result:FieldType = null;
-		var type = TypeTools.toComplexType( field.type );
+		var type = Context.follow( field.type );
+		var ctype = TypeTools.toComplexType( type );
 		var expr = null;
 		
 		if (field.expr() != null ) {
@@ -74,6 +75,7 @@ class ClassFieldTools {
 				code = _cache.get( key );
 			} else {
 				code = content.substr( pos.min, pos.max - pos.min );
+				_cache.set( key, code );
 			}
 			
 			expr = Context.parse( code, field.pos );
@@ -84,9 +86,9 @@ class ClassFieldTools {
 			case FVar(read, write):
 				
 				if (read == AccNormal && write == AccNormal) {
-					result = FVar( type, expr );
+					result = FVar( ctype, expr );
 				} else {
-					result = FProp( read.toString(), write.toString(), type, expr );
+					result = FProp( read.toString(), write.toString(), ctype, expr );
 				}
 				
 			case FMethod(_):

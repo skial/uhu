@@ -44,7 +44,6 @@ class AOP {
 	
 	private static var allTypes:Array<Type>;
 	private static var redefined:StringMap<TypeDefinition>;
-	private static var archive:StringMap<Bool> = new StringMap<Bool>();
 	
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
@@ -73,32 +72,15 @@ class AOP {
 		}
 		
 		for (key in redefined.keys()) {
-			Context.defineType( redefined.get( key ) );
-			archive.set( redefined.get( key ).path(), true );
+			var re = redefined.get( key );
+			Context.defineType( re );
+			allTypes.push( Context.getType( re.path() ) );
 		}
 		
 		redefined = null;
 		
 		return fields;
 	}
-	
-	/*public static function before(cls:ClassType, field:Field):Array<Field> {
-		var meta = field.meta.get( ':before' );
-		var result = handle( cls, field, meta, Before );
-		return result;
-	}
-	
-	public static function after(cls:ClassType, field:Field):Array<Field> {
-		var meta = field.meta.get( ':after' );
-		var result = handle( cls, field, meta, After );
-		return result;
-	}
-	
-	public static function around(cls:ClassType, field:Field):Array<Field> {
-		var meta = field.meta.get( ':around' );
-		var result = handle( cls, field, meta, Around );
-		return result;
-	}*/
 	
 	private static function getAllTypes(ereg:EReg):Array<Type> {
 		
@@ -125,7 +107,10 @@ class AOP {
 						.replace( module.path.nativePath, '' )
 						.replace( '.hx', '' )
 						.replace( File.seperator, '.' );
-					allTypes.push( Context.getType( path ) );
+					
+					var type = Context.getType( path );
+					type = Context.follow( type );
+					allTypes.push( type );
 				} catch (e:Dynamic) {
 					// i dont care
 				}
@@ -140,12 +125,6 @@ class AOP {
 	}
 	
 	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice)/*:Array<Field>*/ {
-		//var fields = [ field ];
-		
-		/*if (Context.defined( 'display' ) || meta.params.length == 0) {
-			return fields;
-		}*/
-		
 		var const = meta.params[0].getConst();
 		var allowed = const.isString() || const.isEReg();
 		
@@ -162,46 +141,16 @@ class AOP {
 		}
 		
 		var types = getAllTypes( ereg );
+		var expr = Context.parse( '${cls.path()}.${field.name}()', field.pos );
+		var clone = types.copy();
 		
-		var expr = null;
-		
-		/*if (field.isInline()) {
-			
-			switch (field.kind) {
-				case FFun(m):
-					expr = m.expr;
-					
-				case FVar(_, e):
-					expr = e;
-					
-				case FProp(_, _, _, e):
-					expr = e;
-					
-			}
-			
-		} else {*/
-			
-			expr = Context.parse( '${cls.path()}.${field.name}()' , field.pos);
-			
-		//}
-		
-		for (type in types) {
+		for (type in clone) {
 			
 			switch (type) {
 				case TInst(t, _):
 					var cls = t.get();
 					var fullname = cls.path();
 					var retyped:TypeDefinition = null;
-					
-					if (archive.exists( 'RE_' + fullname + '_UHX' )) {
-						switch ( Context.getType( 'RE_' + fullname + '_UHX' ) ) {
-							case TInst(tt, _):
-								cls = tt.get();
-								fullname = cls.path();
-							case _:
-								
-						}
-					}
 					
 					if (redefined.exists( fullname )) {
 						retyped = redefined.get( fullname );
@@ -217,8 +166,6 @@ class AOP {
 					if (!retyped.meta.exists( ':native')) {
 						retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
 					}
-					
-					trace( fullname );
 					
 					if (retyped.fields.exists( field.name )) {
 						var f = retyped.fields.get( field.name );
@@ -239,19 +186,11 @@ class AOP {
 								
 						}
 						
-						trace( f.printField() );
-						
 					}
 					
-					// first remove the original class from compiling
+					// remove the original class from compiling
 					Compiler.exclude(fullname, false);
-					
-					// then add the newly redefined class which has
-					// `:native("original class name")` meta
-					//Context.defineType( retyped );
-					
-					// Set
-					//redefined.set( fullname, retyped );
+					allTypes.remove( type );
 					
 				case _:
 					trace( type );
@@ -259,7 +198,6 @@ class AOP {
 			
 		}
 		
-		//return fields;
 	}
 	
 }

@@ -1,6 +1,7 @@
 package uhu.macro.jumla.type;
 
 import haxe.macro.ComplexTypeTools;
+import haxe.macro.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.TypeTools;
@@ -14,7 +15,7 @@ using uhu.macro.Jumla;
 class ClassTypeTools {
 	
 	public static inline function path(cls:ClassType):String {
-		return cls.pack.join( '.' ) + (cls.module != cls.name ? '${cls.module}.' : '') + (cls.pack.length > 0 ? '.' : '') + cls.name;
+		return cls.pack.join( '.' ) + (cls.pack.length > 0 ? '.' : '') + cls.name;
 	}
 	
 	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
@@ -46,7 +47,7 @@ class ClassTypeTools {
 		var result:Array<TypeParam> = [];
 		
 		for (param in params) {
-			result.push( TPType( TypeTools.toComplexType( param.t ) ) );
+			result.push( TPType( TypeTools.toComplexType( Context.follow( param.t ) ) ) );
 		}
 		
 		return result;
@@ -60,7 +61,7 @@ class ClassTypeTools {
 		return result;
 	}*/
 	
-	public static inline function toTypePath(cls:ClassType):TypePath {
+	public static function toTypePath(cls:ClassType):TypePath {
 		return {
 			pack: cls.pack,
 			name: cls.name,
@@ -79,7 +80,7 @@ class ClassTypeTools {
 		var result:Array<TypeParamDecl> = [];
 		
 		for (param in cls.params) {
-			result.push( { name:param.name, constraints:[TypeTools.toComplexType( param.t )] } );
+			result.push( { name:param.name, constraints:[TypeTools.toComplexType( Context.follow( param.t ) )] } );
 		}
 		
 		return result;

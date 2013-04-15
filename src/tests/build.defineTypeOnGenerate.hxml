@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.defineTypeOnGenerate.Main
+-js bin/example.defineTypeOnGenerate.js
+
+#-dce no
