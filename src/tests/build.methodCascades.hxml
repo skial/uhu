@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.methodCascades.Main
+-js bin/example.methodCascades.js
+-D no-copt
+#-dce full
