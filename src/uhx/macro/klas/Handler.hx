@@ -51,6 +51,10 @@ class Handler {
 		':after' => ':aop',
 		':around' => ':aop',
 	];
+	
+	public static function init() {
+		
+	}
 
 	public static function build():Array<Field> {
 		var p = new Printer();

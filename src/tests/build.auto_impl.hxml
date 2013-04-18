@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.auto_impl.Main
+-js bin/example.auto_impl.js
+
+#-dce full
