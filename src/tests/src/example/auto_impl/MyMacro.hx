@@ -3,6 +3,7 @@ package example.auto_impl;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import haxe.macro.Compiler;
 
 using StringTools;
 

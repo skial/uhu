@@ -25,6 +25,21 @@ using uhu.macro.Jumla;
 // Haitian Creole for compiler
 class Du {
 	
+	@:isVar public static var target(get, null):String;
+	
+	private static function get_target():String {
+		if (target == null) {
+			for (define in ['js', 'swf', 'as3', 'neko', 'php', 'cpp', 'cs', 'java']) {
+				if (Context.defined( define )) {
+					target = define;
+					break;
+				}
+			}
+		}
+		
+		return target;
+	}
+	
 	@:isVar public static var classPaths(get, null):Array<File>;
 	
 	private static function get_classPaths():Array<File> {
