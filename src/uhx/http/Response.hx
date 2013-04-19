@@ -5,10 +5,11 @@ package uhx.http;
  * @author Skial Bainn
  */
 
-#if display
+/*#if display
 typedef Response = uhx.http.impl.t.TResponse;
 #elseif sys
 typedef Response = uhx.http.impl.Response_sys;
 #else
 typedef Response = uhx.http.impl.Response_js;
-#end
+#end*/
+typedef Response = haxe.macro.MacroType<[Protocol.define()]>;

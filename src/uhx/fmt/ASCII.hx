@@ -1,7 +1,5 @@
 package uhx.fmt;
 
-import uhx.core.Klas;
-
 /**
  * ...
  * @author Skial Bainn

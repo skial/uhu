@@ -2,7 +2,6 @@ package uhx.http.impl;
 
 import uhx.web.URI;
 import haxe.io.Bytes;
-import uhx.core.Klas;
 import uhx.http.Request;
 import haxe.ds.StringMap;
 import js.html.XMLHttpRequest;

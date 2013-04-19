@@ -1,4 +1,4 @@
-package uhx.core;
+package ;
 
 /**
  * ...

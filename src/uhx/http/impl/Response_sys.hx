@@ -1,7 +1,6 @@
 package uhx.http.impl;
 
 import uhx.web.URI;
-import uhx.core.Klas;
 import haxe.io.Bytes;
 import uhx.http.Status;
 import haxe.ds.StringMap;

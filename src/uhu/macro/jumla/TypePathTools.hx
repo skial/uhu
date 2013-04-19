@@ -11,7 +11,6 @@ import uhu.macro.jumla.t.TComplexString;
 class TypePathTools {
 	
 	public static function qualify(t:TypePath):TypePath {
-		trace( path( t ) );
 		var type = Context.getType( path( t ) );
 		type = Context.follow( type );
 		var ctype = Context.toComplexType( type );

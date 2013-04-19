@@ -1,7 +1,6 @@
 package ;
 
 import haxe.Utf8Spec;
-import uhx.core.Klas;
 import uhx.fmt.ASCIISpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;

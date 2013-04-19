@@ -3,12 +3,14 @@ package uhx.macro.klas;
 import haxe.ds.IntMap;
 import haxe.macro.Printer;
 import haxe.rtti.Meta;
+import sys.FileSystem;
 import Type in StdType;
 import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
+import uhu.macro.Du;
 import uhx.macro.Alias;
 import uhx.macro.AOP;
 import uhx.macro.Bind;
@@ -16,6 +18,8 @@ import uhx.macro.Implements;
 import uhx.macro.To;
 
 using Lambda;
+using StringTools;
+using sys.FileSystem;
 using uhu.macro.Jumla;
 
 /**
@@ -52,9 +56,37 @@ class Handler {
 		':around' => ':aop',
 	];
 	
-	public static function init() {
-		
-	}
+	/**
+	 * First attempt at marking every class with my build macro.
+	 * Currently running into package restriction issues - 
+	 * sys access from js
+	 */
+	/*public static function init() {
+		for (path in Du.classPaths) {
+			
+			for (sub in path.readDirectory()) {
+				
+				try {
+					if (sub.endsWith('.hx')) {
+						var name = sub
+							.replace( path, '' )
+							.replace( '.hx', '' )
+							.replace( '\\', '.' );
+						
+						Compiler.addMetadata('@:build(uhx.macro.klas.Handler.init())', name);
+						
+						var type = Context.getType( name );
+						type = Context.follow( type );
+					}
+				} catch (e:Dynamic) {
+					
+				}
+				
+			}
+			
+		}
+		return  null;
+	}*/
 
 	public static function build():Array<Field> {
 		var p = new Printer();

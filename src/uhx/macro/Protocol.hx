@@ -40,6 +40,14 @@ class Protocol {
 			
 		}
 		
+		while (true) {
+			if (!~/[\w\d\s]+/.match( parts[0] )) {
+				parts.shift();
+			} else {
+				break;
+			}
+		}
+		
 		for (bad in ['src', 'source']) {
 			if (parts[0].trim() == bad) {
 				parts.shift();

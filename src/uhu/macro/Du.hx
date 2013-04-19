@@ -5,16 +5,10 @@ import haxe.macro.Type;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import uhx.io.File;
-//import massive.neko.io.File;
-//import massive.neko.io.FileSys;
-//import massive.neko.util.PathUtil;
 import sys.FileSystem;
 
 using StringTools;
-using uhx.io.File;
-using uhx.util.Path;
-using uhx.io.FileSys;
+using sys.FileSystem;
 using uhu.macro.Jumla;
 
 /**
@@ -25,11 +19,18 @@ using uhu.macro.Jumla;
 // Haitian Creole for compiler
 class Du {
 	
+	private static var defines:Array<String> = ['js', 'swf', 'as3', 'neko', 'php', 'cpp', 'cs', 'java'];
+	
+	public static macro function addDefine(name:String) {
+		defines.push( name );
+		return null;
+	}
+	
 	@:isVar public static var target(get, null):String;
 	
 	private static function get_target():String {
 		if (target == null) {
-			for (define in ['js', 'swf', 'as3', 'neko', 'php', 'cpp', 'cs', 'java']) {
+			for (define in defines) {
 				if (Context.defined( define )) {
 					target = define;
 					break;
@@ -40,15 +41,13 @@ class Du {
 		return target;
 	}
 	
-	@:isVar public static var classPaths(get, null):Array<File>;
+	@:isVar public static var classPaths(get, null):Array<String>;
 	
-	private static function get_classPaths():Array<File> {
+	private static function get_classPaths():Array<String> {
 		if (classPaths == null) {
 			classPaths = [];
 			
 			for (path in Context.getClassPath()) {
-				
-				path = path.cleanUpPath();
 				
 				if (path.endsWith('/')) {
 					path.substr(0, -1);
@@ -58,7 +57,9 @@ class Du {
 					path = '.';
 				}
 				
-				classPaths.push( File.create( FileSystem.fullPath( path ) ) );
+				path = path.fullPath();
+				
+				classPaths.push( path );
 				
 			}
 		}

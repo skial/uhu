@@ -1,5 +1,4 @@
 package ;
-import uhx.core.Klas;
 
 /**
  * ...

@@ -7,17 +7,11 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import haxe.macro.Compiler;
-import massive.sys.util.PathUtil;
 import sys.FileSystem;
 import uhu.macro.Du;
-import uhx.io.File;
-import uhx.io.FileSys;
-import uhx.util.Path;
 
 using StringTools;
-using uhx.io.File;
-using uhx.util.Path;
-using uhx.io.FileSys;
+using sys.FileSystem;
 using haxe.EnumTools;
 using uhu.macro.Jumla;
 
@@ -85,14 +79,14 @@ class AOP {
 	private static function getAllTypes(ereg:EReg):Array<Type> {
 		
 		if (allTypes == null) {
-			var paths:Array<File> = Du.classPaths;
-			var modules:Array<{ path:File, file:File}> = [];
+			var paths:Array<String> = Du.classPaths;
+			var modules:Array<{ path:String, file:String}> = [];
 			
 			for (path in paths) {
-				var uls = path.getRecursiveDirectoryListing( ~/.hx$/ );
+				var uls = path.readDirectory();
 				
 				for (ul in uls) {
-					if (ereg.match( ul.nativePath.replace( path.nativePath, '' ) )) {
+					if (ul.endsWith('.hx') && ereg.match( ul.replace( path, '' ) )) {
 						modules.push( { path:path, file:ul } );
 					}
 				}
@@ -103,10 +97,10 @@ class AOP {
 			
 			for (module in modules) {
 				try {
-					var path = module.file.nativePath
-						.replace( module.path.nativePath, '' )
+					var path = module.file
+						.replace( module.path, '' )
 						.replace( '.hx', '' )
-						.replace( File.seperator, '.' );
+						.replace( '\\', '.' );
 					
 					var type = Context.getType( path );
 					type = Context.follow( type );
