@@ -4,13 +4,13 @@ package ;
  * ...
  * @author Skial Bainn
  */
-class A implements Klas {
+class A /*implements Klas*/ {
 
-	@:after('AllTests') public static function some() {
+	@:after(~/C/) public static function some() {
 		trace('From A::some');
 	}
 	
-	@:after('AllTests') public static function thing() {
+	@:after(~/C/) public static function thing() {
 		trace('From A::thing');
 	}
 	

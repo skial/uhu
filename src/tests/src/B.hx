@@ -6,7 +6,7 @@ package ;
  */
 class B implements Klas {
 
-	@:after('AllTests') public static function thing() {
+	@:after(~/C/) public static function thing() {
 		trace('From B::thing');
 	}
 	

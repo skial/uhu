@@ -14,11 +14,13 @@ using uhu.macro.Jumla;
  */
 class ClassTypeTools {
 	
-	public static inline function path(cls:ClassType):String {
-		return cls.pack.join( '.' ) + (cls.pack.length > 0 ? '.' : '') + cls.name;
-	}
-	
 	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
+		var pack = cls.pack;
+		
+		if (cls.isPrivate) {
+			pack[0] = pack[0].substr( 1 );
+		}
+		
 		var fields = [];
 		
 		for (f in cls.fields.get()) {
@@ -74,16 +76,6 @@ class ClassTypeTools {
 		var sup = cls.superClass != null ? toTypePath( cls.superClass.t.get() ) : null;
 		var interfaces = [for (i in cls.interfaces) i.t.get().toTypePath() ];
 		return TDClass( sup, interfaces, cls.isInterface );
-	}
-	
-	public static function toTypeParamDecls(cls:ClassType):Array<TypeParamDecl> {
-		var result:Array<TypeParamDecl> = [];
-		
-		for (param in cls.params) {
-			result.push( { name:param.name, constraints:[TypeTools.toComplexType( Context.follow( param.t ) )] } );
-		}
-		
-		return result;
 	}
 	
 }

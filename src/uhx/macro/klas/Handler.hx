@@ -38,16 +38,12 @@ class Handler {
 		0 => ':to',
 		1 => ':bind',
 		2 => ':alias',
-		/*3 => ':before',
-		4 => ':after',*/
 	];
 	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
 		':to' => To.handler,
 		':bind' => Bind.handler,
 		':alias' => Alias.handler,
-		/*':before' => AOP.before,
-		':after' => AOP.after,*/
 	];
 	
 	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
@@ -87,7 +83,12 @@ class Handler {
 		}
 		return  null;
 	}*/
-
+	
+		public static function fragment() {
+			trace( Context.getLocalClass().get().name );
+			return Context.getBuildFields();
+		}
+	
 	public static function build():Array<Field> {
 		var p = new Printer();
 		var cls = Context.getLocalClass().get();

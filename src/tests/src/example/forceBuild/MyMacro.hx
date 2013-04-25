@@ -22,6 +22,15 @@ class MyMacro
 		trace('follow type to real type');
 		a = Context.follow( a );
 		trace('done!');
+		
+		trace('Lets try it again!');
+		trace('Adding @:build metadata');
+		Compiler.addMetadata('@:build(example.forceBuild.MyMacro.failer())', 'example.forceBuild.A');
+		trace('Getting type again');
+		a = Context.getType('example.forceBuild.A');
+		trace('Follow type');
+		a = Context.follow(a);
+		trace('Done! Should have failed adding third @:build');
 		return Context.getBuildFields();
 	}
 	
@@ -34,6 +43,11 @@ class MyMacro
 	
 	public static function helper() {
 		trace('MyMacro::helper');
+		return Context.getBuildFields();
+	}
+	
+	public static function failer() {
+		trace('MyMacro::failer');
 		return Context.getBuildFields();
 	}
 	

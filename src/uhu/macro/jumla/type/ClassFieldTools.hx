@@ -9,6 +9,7 @@ import haxe.macro.TypeTools;
 import sys.FileSystem;
 import sys.io.File;
 
+using StringTools;
 using uhu.macro.Jumla;
 
 /**
@@ -75,6 +76,7 @@ class ClassFieldTools {
 				code = _cache.get( key );
 			} else {
 				code = content.substr( pos.min, pos.max - pos.min );
+				if (code.endsWith(';')) code = code.substr( 0, code.length - 1 );
 				_cache.set( key, code );
 			}
 			
@@ -119,6 +121,14 @@ class ClassFieldTools {
 			kind: field.toFieldType()
 		}
 		
+		return result;
+	}
+	
+	public static function toFields(fields:Array<ClassField>, ?isStatic:Bool = false):Array<Field> {
+		var result:Array<Field> = [];
+		for (field in fields) {
+			result.push( field.toField( isStatic ) );
+		}
 		return result;
 	}
 	

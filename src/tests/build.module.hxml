@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.module.Main
+-js bin/example.module.js
+
+#-dce full

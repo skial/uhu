@@ -36,162 +36,159 @@ private enum EAdvice {
  
 class AOP {
 	
-	private static var allTypes:Array<Type>;
-	private static var redefined:StringMap<TypeDefinition>;
-	
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
 		if (Context.defined( 'display' )) {
 			return fields;
 		}
 		
-		redefined = new StringMap<TypeDefinition>();
+		init();
+		
+		trace('-----');
 		
 		for (field in fields) {
 			
-			if (field.meta.exists( ':before' )) {
+			for (id in [':before', ':after', ':around']) {
 				
-				handle( cls, field, field.meta.get( ':before' ), Before );
+				var key = cls.path() + '::' + field.name + '@' + id;
 				
-			} else if (field.meta.exists( ':after' )) {
-				
-				handle( cls, field, field.meta.get( ':after' ), After );
-				
-			} else if (field.meta.exists( ':around' )) {
-				
-				handle( cls, field, field.meta.get( ':around' ), Around );
+				if (field.meta.exists( id ) && !fieldCache.exists( key )) {
+					
+					//	Removes the colon.
+					var advice = id.substr( 1 );
+					//	Makes first character uppercase.
+					advice = advice.charAt( 0 ).toUpperCase() + id.substr( 2 );
+					
+					var meta = field.meta.get( id );
+					var set = { 
+						field: field, 
+						advice:EAdvice.createByName( advice ), 
+						path: meta.params[0].getConst().value(), 
+						method: meta.params.length > 1 ? meta.params[1].getConst().value() : null
+					};
+					
+					fieldCache.set( key, set );
+					
+				}
 				
 			}
 			
 		}
 		
-		for (key in redefined.keys()) {
-			var re = redefined.get( key );
-			Context.defineType( re );
-			allTypes.push( Context.getType( re.path() ) );
-		}
-		
-		redefined = null;
+		search();
 		
 		return fields;
 	}
 	
-	private static function getAllTypes(ereg:EReg):Array<Type> {
+	private static var boolean:Bool = false;
+	private static var fieldCache:StringMap<{ field:Field, advice:EAdvice, path:EReg, method:EReg }>;
+	private static var typeCache:StringMap<TypeDefinition>;
+	private static var nameCache:StringMap<String>;
+	
+	private static function init() {
 		
-		if (allTypes == null) {
-			var paths:Array<String> = Du.classPaths;
-			var modules:Array<{ path:String, file:String}> = [];
-			
-			for (path in paths) {
-				var uls = path.readDirectory();
-				
-				for (ul in uls) {
-					if (ul.endsWith('.hx') && ereg.match( ul.replace( path, '' ) )) {
-						modules.push( { path:path, file:ul } );
-					}
-				}
-				
-			}
-			
-			allTypes = [];
-			
-			for (module in modules) {
-				try {
-					var path = module.file
-						.replace( module.path, '' )
-						.replace( '.hx', '' )
-						.replace( '\\', '.' );
-					
-					var type = Context.getType( path );
-					type = Context.follow( type );
-					allTypes.push( type );
-				} catch (e:Dynamic) {
-					// i dont care
-				}
-			}
-			
-			// kill these two
-			modules = null;
-			paths = null;
-		}
+		if (fieldCache == null) fieldCache = new StringMap<{field:Field, advice:EAdvice, path:EReg, method:EReg}>();
+		if (typeCache == null) typeCache = new StringMap<TypeDefinition>();
+		if (nameCache == null) nameCache = new StringMap<String>();
 		
-		return allTypes;
 	}
 	
-	private static function handle(cls:ClassType, field:Field, meta:MetadataEntry, advice:EAdvice)/*:Array<Field>*/ {
-		var const = meta.params[0].getConst();
-		var allowed = const.isString() || const.isEReg();
+	private static function getAllTypes(ereg:EReg):Array<String> {
+		var all = [];
+		var paths:Array<String> = Du.classPaths;
+		var modules:Array<{ path:String, file:String}> = [];
 		
-		if (!allowed) {
-			Context.error( '${advice.getName()} metadata for ${cls.name}::${field.name} can only accept Strings & Regular Expressions', field.pos );
-		}
-		
-		var ereg:EReg = null;
-		
-		if (const.isString()) {
-			ereg = new EReg( Std.string( const.value() ), '' );
-		} else {
-			ereg = const.value();
-		}
-		
-		var types = getAllTypes( ereg );
-		var expr = Context.parse( '${cls.path()}.${field.name}()', field.pos );
-		var clone = types.copy();
-		
-		for (type in clone) {
+		for (path in paths) {
+			var uls = path.readDirectory();
 			
-			switch (type) {
-				case TInst(t, _):
-					var cls = t.get();
-					var fullname = cls.path();
-					var retyped:TypeDefinition = null;
+			for (ul in uls) {
+				if (ul.endsWith('.hx') && ereg.match( ul.replace( path, '' ) )) {
+					all.push( ul.replace( path, '' ).replace( '.hx', '' ).replace( '\\', '.' ) );
+				}
+			}
+			
+		}
+		
+		return all;
+	}
+	
+	private static function search() {
+		
+		for (key in fieldCache.keys()) {
+			
+			var set = fieldCache.get( key );
+			var ids = getAllTypes( set.path );
+			
+			for (id in ids) {
+				
+				var name = id;
+				var modules = Context.getModule( name );
+				
+				for (module in modules) {
+					var type:TypeDefinition = null;
 					
-					if (redefined.exists( fullname )) {
-						retyped = redefined.get( fullname );
-					} else {
-						retyped = cls.toTypeDefinition( 'RE_', '_UHX' );
-						redefined.set( fullname, retyped );
-					}
-					
-					if (!retyped.meta.exists( ':keep' )) {
-						retyped.meta.push( { name:':keep', params:[], pos:cls.pos } );
-					}
-					
-					if (!retyped.meta.exists( ':native')) {
-						retyped.meta.push( { name:':native', params:[macro '$fullname'], pos:cls.pos } );
-					}
-					
-					if (retyped.fields.exists( field.name )) {
-						var f = retyped.fields.get( field.name );
+					if (typeCache.exists( module.getName() )) {
 						
-						switch (f.kind) {
-							case FFun(m):
-								
-								switch (advice) {
-									case After:
-										m.expr = m.expr.concat( expr );
-									case Before:
-										m.expr = expr.concat( m.expr );
-									case Around:
-										
-								}
-								
-							case _:
-								
+						type = typeCache.get( module.getName() );
+						
+						Compiler.exclude( type.path() );
+						type.name = type.name + '_';
+						Context.defineType( type );
+						
+						typeCache.set( module.getName(), type );
+						
+					} else {
+						
+						type = retype( module );
+						
+						if (type != null) {
+							addNativeMeta( type, module.getName() );
+							Context.defineType( type );
+							typeCache.set( module.getName(), type );
 						}
 						
 					}
 					
-					// remove the original class from compiling
-					Compiler.exclude(fullname, false);
-					allTypes.remove( type );
-					
-				case _:
-					trace( type );
+				}
+				
 			}
 			
 		}
 		
+	}
+	
+	private static function retype(type:Type) {
+		var result:TypeDefinition = null;
+		var original:BaseType = null;
+		
+		switch (type) {
+			case TInst(t, _):
+				original = t.get();
+				result = t.get().toTypeDefinition('', '_');
+				t.get().exclude();
+				
+			case TEnum(t, _):
+				original = t.get();
+				result = t.get().toTypeDefinition('', '_');
+				t.get().exclude();
+				
+			case TType(t, _):
+				original = t.get();
+				result = t.get().toTypeDefinition('', '_');
+				t.get().exclude();
+				
+			case _:
+				
+		}
+		
+		return result;
+		
+	}
+	
+	private static function addNativeMeta(type:TypeDefinition, value:String) {
+		if (!type.meta.exists(':native')) {
+			type.meta.push( { name:':native', params:[macro $v { value } ], pos:type.pos } );
+		}
 	}
 	
 }

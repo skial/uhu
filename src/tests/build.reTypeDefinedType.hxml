@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.reTypeDefinedType.Main
+-js bin/example.reTypeDefinedType.js
+
+#-dce full

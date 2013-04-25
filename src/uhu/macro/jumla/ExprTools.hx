@@ -15,7 +15,10 @@ using uhu.macro.Jumla;
 class ExprTools {
 	
 	public static function clean(e:Expr):Expr {
+		if (e == null) return e;
+		
 		var result = e;
+		
 		switch (e.expr) {
 			case EConst(c):
 				result = { expr:EConst( c.clean() ), pos:e.pos };

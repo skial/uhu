@@ -52,6 +52,7 @@ class AllTests {
 		trace('Hello World');
 		A.some();
 		B.thing();
+		C.some();
 		AllTests.thing();
 	}
 
