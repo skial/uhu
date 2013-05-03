@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.printConstructor.Main
+-js bin/example.printConstructor.js
+
+#-dce full

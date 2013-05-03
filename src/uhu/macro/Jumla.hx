@@ -16,6 +16,7 @@ typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
 typedef JumlaTypePathTools = uhu.macro.jumla.TypePathTools;
 typedef JumlaTypeParamTools = uhu.macro.jumla.TypeParamTools;
 typedef JumlaBaseTypeTools = uhu.macro.jumla.type.BaseTypeTools;
+typedef JumlaAnonymousTools = uhu.macro.jumla.type.AnonymousTools;
 typedef JumlaClassTypeTools = uhu.macro.jumla.type.ClassTypeTools;
 typedef JumlaClassFieldTools = uhu.macro.jumla.type.ClassFieldTools;
 typedef JumlaEnumTypeTools = uhu.macro.jumla.type.EnumTypeTools;

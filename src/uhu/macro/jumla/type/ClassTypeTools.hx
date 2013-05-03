@@ -17,11 +17,24 @@ class ClassTypeTools {
 	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
 		var pack = cls.pack;
 		
-		if (cls.isPrivate) {
+		/*if (cls.isPrivate) {
 			pack[0] = pack[0].substr( 1 );
-		}
+		}*/
 		
 		var fields = [];
+		
+		if (cls.constructor != null) {
+			var _new = cls.constructor.get().toField();
+			switch (_new.kind) {
+				case FFun(method):
+					// dirty way to clean invalid returns from haxe.macro.Printer
+					// TODO
+					method.ret = null;
+					
+				case _:
+			}
+			fields.push( _new );
+		}
 		
 		for (f in cls.fields.get()) {
 			fields.push( f.toField() );

@@ -93,14 +93,14 @@ class TypeTools {
 						result.access.push( AInline );
 					case AccResolve:
 						result.access.push( ADynamic );
-					case AccCall( m ):
-						read = m;
+					case AccCall:
+						read = 'get_' + field.name;
 					case _:
 				}
 				
 				switch (w) {
-					case AccCall( m ):
-						write = m;
+					case AccCall:
+						write = 'set_' + field.name;
 					case _:
 				}
 				

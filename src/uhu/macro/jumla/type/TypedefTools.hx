@@ -20,9 +20,9 @@ class TypedefTools {
 	public static function toTypeDefinition(def:DefType, prefix:String = '', suffix:String = ''):TypeDefinition {
 		var pack = def.pack;
 		
-		if (def.isPrivate) {
+		/*if (def.isPrivate) {
 			pack[0] = pack[0].substr( 1 );
-		}
+		}*/
 		
 		var fields:Array<Field> = [];
 		

@@ -31,9 +31,9 @@ class EnumTypeTools {
 	public static function toTypeDefinition(e:EnumType, prefix:String = '', suffix:String = ''):TypeDefinition {
 		var pack = e.pack;
 		
-		if (e.isPrivate) {
+		/*if (e.isPrivate) {
 			pack[0] = pack[0].substr( 1 );
-		}
+		}*/
 		
 		return {
 			pack: pack,

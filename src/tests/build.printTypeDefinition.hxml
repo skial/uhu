@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.printTypeDefinition.Main
+-js bin/example.printTypeDefinition.js
+
+#-dce full

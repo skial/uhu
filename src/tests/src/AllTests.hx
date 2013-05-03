@@ -43,21 +43,8 @@ import uhx.fmt.ASCII;
 //@:build( MacroTests.run() )
 #end
 class AllTests {
-	
-	public static function thing() {
-		trace('Hello Universe');
-	}
-	
-	public static function some() {
-		trace('Hello World');
-		A.some();
-		B.thing();
-		C.some();
-		AllTests.thing();
-	}
 
 	public static function main() {
-		AllTests.some();
 		
 		var runner = new TestRunner();
 		

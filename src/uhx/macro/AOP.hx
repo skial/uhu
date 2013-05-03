@@ -139,7 +139,7 @@ class AOP {
 						
 					} else {
 						
-						type = retype( module );
+						type = retype( Context.follow( module ) );
 						
 						if (type != null) {
 							addNativeMeta( type, module.getName() );
@@ -157,7 +157,7 @@ class AOP {
 		
 	}
 	
-	private static function retype(type:Type) {
+	private static function retype(type:Type):TypeDefinition {
 		var result:TypeDefinition = null;
 		var original:BaseType = null;
 		
@@ -165,21 +165,20 @@ class AOP {
 			case TInst(t, _):
 				original = t.get();
 				result = t.get().toTypeDefinition('', '_');
-				t.get().exclude();
 				
 			case TEnum(t, _):
 				original = t.get();
 				result = t.get().toTypeDefinition('', '_');
-				t.get().exclude();
 				
 			case TType(t, _):
 				original = t.get();
 				result = t.get().toTypeDefinition('', '_');
-				t.get().exclude();
 				
 			case _:
 				
 		}
+		
+		if (original != null) original.exclude();
 		
 		return result;
 		

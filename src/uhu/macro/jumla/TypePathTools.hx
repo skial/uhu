@@ -4,6 +4,8 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import uhu.macro.jumla.t.TComplexString;
 
+using uhu.macro.Jumla;
+
 /**
  * @author Skial Bainn
  */
@@ -11,15 +13,20 @@ import uhu.macro.jumla.t.TComplexString;
 class TypePathTools {
 	
 	public static function qualify(t:TypePath):TypePath {
+		var result = t;
 		var type = Context.getType( path( t ) );
 		type = Context.follow( type );
 		var ctype = Context.toComplexType( type );
 		
-		switch ( ctype ) {
-			case TPath( p ): return p;
-			case TExtend( p, _ ): return p;
-			case _: return t;
+		if (ctype != null) {
+			switch ( ctype ) {
+				case TPath( p ): result = p;
+				case TExtend( p, _ ): result = p;
+				case _:
+			}
 		}
+		
+		return result;
 	}
 	
 	public static inline function path(t:TypePath):String {

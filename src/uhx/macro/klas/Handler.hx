@@ -31,7 +31,7 @@ class Handler {
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		':implements' => Implements.handler,
-		':aop' => AOP.handler,
+		//':aop' => AOP.handler,	// doesnt work
 	];
 	
 	public static var FIELD_META_ORDER:IntMap<String> = [
@@ -118,7 +118,7 @@ class Handler {
 			
 			for (f in fields) {
 				
-				if (f.meta.exists( key )) {
+				if (f.meta.exists( key ) && CLASS_META.exists( CLASS_HAS_FIELD_META.get( key ) )) {
 					matched = CLASS_HAS_FIELD_META.get( key );
 					break;
 				}

@@ -12,6 +12,23 @@ using uhu.macro.Jumla;
 
 class EFunctionTools {
 	
+	public static function qualify(method:Function):Function {
+		var nargs:Array<FunctionArg> = [];
+		
+		for (arg in method.args) {
+			nargs.push( arg.qualify() );
+		}
+		
+		var result = {
+			args: nargs,
+			ret: method.ret.qualify(),
+			expr: method.expr,
+			params: []
+		}
+		
+		return result;
+	}
+	
 	public static function clean(method:Function):Function {
 		method.expr = method.expr.clean();
 		return method;

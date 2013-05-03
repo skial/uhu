@@ -1,0 +1,10 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+-cp ../
+
+-main example.jumlaModules.Main
+-js bin/example.jumlaModules.js
+
+#-dce full

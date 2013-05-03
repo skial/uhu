@@ -8,12 +8,25 @@ import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.type.ClassFieldTools;
 
 using Lambda;
+using uhu.macro.Jumla;
 
 /**
  * @author Skial Bainn
  */
 
 class FieldTools {
+	
+	public static function qualify(f:Field):Field {
+		switch( f.kind ) {
+			case FVar(t, e):
+				f.kind = FVar( t.qualify(), e );
+			case FFun(m):
+				f.kind = FFun( m.qualify() );
+			case FProp(g, s, t, e):
+				f.kind = FProp(g, s, t.qualify(), e );
+		}
+		return f;
+	}
 	
 	@:extern public static inline function toString(f:Field):String {
 		return Printer.printField( f );
@@ -116,9 +129,14 @@ class FieldTools {
 	}
 	
 	public static function exists(fields:Array<Field>, name:String):Bool {
-		var result = fields.exists( function(field):Bool {
-			return (field.name == name) ? true : false;
-		} );
+		var result = false;
+		
+		for (field in fields) {
+			if (field.name == name) {
+				result = true;
+				break;
+			}
+		}
 		
 		return result;
 	}

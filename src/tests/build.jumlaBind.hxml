@@ -1,0 +1,12 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+-cp ../
+
+-lib msignal
+
+-main example.jumlaBind.Main
+-js bin/example.jumlaBind.js
+
+#-dce full

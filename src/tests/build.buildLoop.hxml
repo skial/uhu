@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.buildLoop.Main
+-js bin/example.buildLoop.js
+
+#-dce full

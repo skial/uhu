@@ -20,8 +20,8 @@ class VarAccessTools {
 				'null';
 			case AccNever:
 				'never';
-			case AccCall(method):
-				method;
+			case AccCall:
+				'call';
 			case _:
 				'never';
 		}
