@@ -1,5 +1,6 @@
 package uhx.macro;
 
+import haxe.ds.StringMap;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Printer;
 import haxe.macro.Type;
@@ -18,78 +19,158 @@ using uhu.macro.Jumla;
 
 class To {
 	
-	public static function handler(cls:ClassType, field:Field):Array<Field> {
-		var fields:Array<Field> = [];
+	private static var abstractCache:StringMap<Bool> = new StringMap<Bool>();
+	
+	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
+		
 		
 		if (Context.defined( 'display' )) {
-			return [ field ];
+			return fields;
 		}
 		
-		var type = null;
-		var expr = null;
-		var name = 'AbstractFor_${field.name}';
-		var meta = field.meta.get( ':to' );
-		
-		switch (field.kind) {
-			case FVar(t, e):
-				type = t;
-				expr = e;
+		for (field in fields) {
+			
+			if (field.meta.exists(':to')) {
+			
+				var type = null;
+				var expr = null;
+				var name = 'AbstractFor_${field.name}';
+				var meta = field.meta.get( ':to' );
 				
-			case FProp(_, _, _, _):
-				Context.error('@:to metadata only works on variables without getters or setters.', field.pos);
+				if (meta == null) continue;
 				
-			case FFun(_):
-				Context.error('@:to metadata only works on variables.', field.pos);
-		}
-		
-		var pack = cls.pack;
-		
-		var new_type:TypeDefinition = {
-			pack: pack,
-			name: name,
-			pos: cls.pos,
-			meta: [],
-			params: [],
-			isExtern: false,
-			kind: TDAbstract( type, [], [type] ),
-			fields:	createFields( cls, field, type, expr ),
-		}
-		
-		Context.defineType( new_type );
-		
-		var access = [APrivate];
-		
-		if (field.access.indexOf( AStatic ) != -1) {
-			access.push( AStatic );
-		}
-		
-		if (field.access.indexOf( AInline ) != -1) {
-			for (i in 0...field.access.length) {
-				field.access.remove( AInline);
+				switch (field.kind) {
+					case FVar(t, e):
+						type = t;
+						expr = e;
+						
+					case FProp(g, s, t, e):
+						type = t;
+						expr = e;
+						
+					case FFun(_):
+						Context.error('@:to metadata only works on variables. ${cls.path()}::${field.name}', field.pos);
+				}
+				
+				var pack = cls.pack;
+				
+				var new_type:TypeDefinition = {
+					pack: pack,
+					name: name,
+					pos: cls.pos,
+					meta: [],
+					params: [],
+					isExtern: false,
+					kind: TDAbstract( type, [], [type] ),
+					fields:	createFields( cls, field, type, expr ),
+				}
+				
+				if (!abstractCache.exists( new_type.path() )) {
+					
+					abstractCache.set( new_type.path(), true );
+					Context.defineType( new_type );
+					
+				}
+				
+				var access = [APrivate];
+				
+				if (field.access.indexOf( AStatic ) != -1) {
+					access.push( AStatic );
+				}
+				
+				if (field.access.indexOf( AInline ) != -1) {
+					for (i in 0...field.access.length) {
+						field.access.remove( AInline);
+					}
+					access.push( AInline );
+				}
+				
+				// Get newly defined abstract type
+				var type = Context.toComplexType( Context.getType( name ) );
+				
+				switch (field.kind) {
+					case FVar(t, _):
+						field.kind = FProp('get', 'never', type);
+						
+						fields.push( {
+							name: 'get_${field.name}',
+							access: access,
+							kind: FFun( {
+								args: [],
+								ret: type,
+								expr: macro {
+									return new $name( $expr );
+								},
+								params:[]
+							} ),
+							pos: field.pos,
+							meta: []
+						} );
+						
+					case FProp(g, s, t, _):
+						field.kind = FProp(g, s, type);
+						
+						var getter = fields.get(g + '_${field.name}');
+						
+						if (getter != null) {
+							
+							switch (getter.kind) {
+								case FFun(method):
+									method.ret = type;
+									
+								case _:
+							}
+							
+						} else {
+							
+							fields.push( {
+								name: 'get_${field.name}',
+								access: access,
+								kind: FFun( {
+									args: [],
+									ret: type,
+									expr: macro {
+										return new $name( $expr );
+									},
+									params:[]
+								} ),
+								pos: field.pos,
+								meta: []
+							} );
+							
+						}
+						
+					case _:
+				}
+				
+				// If field has @:alias metadata, fetch the alias
+				// and its getter and modify their types.
+				if (field.meta.exists(':alias')) {
+					
+					var meta = field.meta.get(':alias');
+					var value = meta.params[0].printExpr().replace('"', '');
+					var _field = fields.get(value);
+					
+					switch (_field.kind) {
+						case FProp(g, s, t, e):
+							_field.kind = FProp(g, s, type, e);
+							
+						case _:
+					}
+					
+					var _get = fields.get('get_${_field.name}');
+					
+					switch (_get.kind) {
+						case FFun(method):
+							method.ret = type;
+							
+						case _:
+					}
+				}
+				
 			}
-			access.push( AInline );
+			
 		}
-		
-		var type = Context.toComplexType( Context.getType( name ) );
-		field.kind = FProp('get', 'never', type);
-		//field.meta = [];
-		
-		fields.push( field );
-		
-		fields.push( {
-			name: 'get_${field.name}',
-			access: access,
-			kind: FFun( {
-				args: [],
-				ret: type,
-				expr: macro {
-					return new $name( $expr );
-				},
-				params:[]
-			} ),
-			pos: field.pos,
-			meta: []
-		} );
 		
 		return fields;
 	}

@@ -2,7 +2,7 @@ package ;
 
 import haxe.Utf8Spec;
 import uhx.fmt.ASCIISpec;
-import uhx.metadata.BindSpec;
+import uhx.metadata.PubSubSpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
@@ -53,9 +53,9 @@ class AllTests {
 		something = 666;
 		var runner = new TestRunner();
 		
-		runner.add( new BindSpec() );
+		runner.add( new PubSubSpec() );
 		
-		//runner.add( new ASCIISpec() );
+		runner.add( new ASCIISpec() );
 		runner.add( new Utf8Spec() );
 		
 		runner.add( new Base64Spec() );

@@ -14,6 +14,18 @@ using uhu.macro.Jumla;
  */
 class ClassTypeTools {
 	
+	public static function hasInterface(cls:ClassType, path:String):Bool {
+		var result = false;
+		
+		for (inter in cls.interfaces) {
+			
+			if (inter.t.get().path() == path) result = true;
+			
+		}
+		
+		return result;
+	}
+	
 	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
 		var pack = cls.pack;
 		
