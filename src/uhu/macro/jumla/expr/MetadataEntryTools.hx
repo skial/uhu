@@ -11,10 +11,12 @@ class MetadataEntryTools {
 	public static function exists(meta:Array<MetadataEntry>, key:String):Bool {
 		var result = false;
 		
-		for (m in meta) {
-			if (m.name == key) {
-				result = true;
-				break;
+		if (meta != null && meta.length > 0) {
+			for (m in meta) {
+				if (m.name == key) {
+					result = true;
+					break;
+				}
 			}
 		}
 		
@@ -24,10 +26,12 @@ class MetadataEntryTools {
 	public static function get(meta:Array<MetadataEntry>, key:String):MetadataEntry {
 		var result = null;
 		
-		for (m in meta) {
-			if (m.name == key) {
-				result = m;
-				break;
+		if (meta != null && meta.length > 0) {
+			for (m in meta) {
+				if (m.name == key) {
+					result = m;
+					break;
+				}
 			}
 		}
 		
@@ -38,9 +42,11 @@ class MetadataEntryTools {
 		var result = false;
 		var target = null;
 		
-		for (m in meta) {
-			if (m.name == key) {
-				target = m;
+		if (meta != null && meta.length > 0) {
+			for (m in meta) {
+				if (m.name == key) {
+					target = m;
+				}
 			}
 		}
 		

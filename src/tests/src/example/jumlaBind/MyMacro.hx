@@ -29,6 +29,10 @@ class MyMacro {
 		
 		for (field in fields) {
 			
+			if (field.name != 'new') {
+				//field.meta.push( { name:':uhx_dispatcher', params:[], pos:field.pos } );
+			}
+			
 			if (field.meta.exists(':bind')) {
 				var meta = field.meta.get(':bind');
 				
@@ -50,40 +54,45 @@ class MyMacro {
 					if (!force.exists( parts.join('.') )) {
 						force.set( parts.join('.'), true );
 					}
-					Compiler.addMetadata('@:uhx_dispatcher', parts.join('.'), fname, isStatic);
+					//Compiler.addMetadata('@:uhx_dispatcher', parts.join('.'), fname, isStatic);
 					
-					field.kind = FProp('default', 'set', macro:String);
-					if (!field.meta.exists(':isVar')) {
-						field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+					switch(field.kind) {
+						case FVar(t, e):
+							field.kind = FProp('default', 'set', t, e);
+							
+							if (!field.meta.exists(':isVar')) {
+								field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+							}
+							
+							if (!fields.exists('set_' + field.name)) {
+								fields.push( {
+									name:'set_' + field.name,
+									doc:null,
+									access:field.access,
+									kind:FFun( {
+										args:[ {
+											name:'v',
+											opt:false,
+											type:t
+										}],
+										ret:t,
+										expr:macro {
+											$i { field.name } = v;
+											return v;
+										},
+										params:[]
+									} ),
+									pos:field.pos,
+									meta:[]
+								} );
+							}
+							
+						case _:
 					}
-					fields.push( {
-						name:'set_' + field.name,
-						doc:null,
-						access:field.access,
-						kind:FFun( {
-							args:[ {
-								name:'v',
-								opt:false,
-								type:macro:String
-						}],
-						ret:macro:String,
-						expr:macro {
-							$i { field.name } = v;
-							return v;
-						},
-							params:[]
-						} ),
-						pos:field.pos,
-						meta:[]
-					} );
 					
 					exprs.push(Context.parse(parts.join('.') + '.SignalFor_' + fname + '.add(set_' + field.name + ')', field.pos));
 					
 				}
-			}
-			
-			if (field.meta.exists(':bound')) {
-				
 			}
 			
 		}
@@ -104,52 +113,104 @@ class MyMacro {
 				
 		}
 		
+		fields = secondRound( cls, fields ) ;
+		
 		return fields;
 	}
 	
 	public static function modify() {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
-		
+		return secondRound( cls , fields );
+	}
+	
+	private static function secondRound(cls:ClassType, fields:Array<Field>):Array<Field> {
 		for (field in fields) {
 			
-			if (field.meta.exists(':uhx_dispatcher')) {
+			if (field.name != 'new' && !field.meta.exists(':uhx_mark')) {
 				
-				field.kind = FProp('default', 'set', macro:String);
-				if (!field.meta.exists(':isVar')) {
-					field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+				var type = null;
+				var expr = null;
+				
+				switch(field.kind) {
+					case FVar(t, e):
+						type = t;
+						expr = e;
+						trace(field.name);
+						field.kind = FProp('default', 'set', t, e);
+						
+						if (!field.meta.exists(':isVar')) {
+							field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+						}
+						field.meta.push( { name:':uhx_mark', params:[], pos:field.pos } );
+						
+						if (!fields.exists('set_' + field.name)) {
+							fields.push( {
+								name:'set_' + field.name,
+								doc:null,
+								access:field.access,
+								kind:FFun( {
+									args:[ {
+										name:'v',
+										opt:false,
+										type:t
+									}],
+									ret:t,
+									expr:macro {
+										$i { field.name } = v;
+										$i { 'SignalFor_' + field.name }.dispatch( v );
+										return v;
+									},
+									params:[]
+								} ),
+								pos:field.pos,
+								meta:[ { name:':uhx_mark', params:[], pos:field.pos } ]
+							} );
+						}
+						
+						if (!fields.exists('SignalFor_' + field.name)) {
+							fields.push( {
+								name:'SignalFor_' + field.name,
+								doc:null,
+								access:[AStatic, APublic],
+								kind: FVar(macro :msignal.Signal.Signal1<$type>, macro new msignal.Signal.Signal1<$type>()),
+								pos:field.pos,
+								meta:[ { name:':uhx_mark', params:[], pos:field.pos } ]
+							} );
+						}
+						
+					case FProp(g, s, t, e):
+						type = t;
+						expr = e;
+						
+						if (!field.meta.exists(':isVar')) {
+							field.meta.push( { name:':isVar', params:[], pos:field.pos } );
+						}
+						
+						var _set = fields.get(s + '_' + field.name);
+						switch (_set.kind) {
+							case FFun(method):
+								var expr = macro {
+									$i { 'SignalFor_' + field.name } .dispatch( v );
+								}
+								method.expr = expr.concat( method.expr );
+								
+							case _:
+						}
+						
+						if (!fields.exists('SignalFor_' + field.name)) {
+							fields.push( {
+								name:'SignalFor_' + field.name,
+								doc:null,
+								access:[AStatic, APublic],
+								kind: FVar(macro :msignal.Signal.Signal1<$type>, macro new msignal.Signal.Signal1<$type>()),
+								pos:field.pos,
+								meta:[ { name:':uhx_mark', params:[], pos:field.pos } ]
+							} );
+						}
+						
+					case _:
 				}
-				
-				fields.push( {
-					name:'SignalFor_' + field.name,
-					doc:null,
-					access:[AStatic, APublic],
-					kind: FVar(macro :msignal.Signal.Signal1<String>, macro new msignal.Signal.Signal1<String>()),
-					pos:field.pos,
-					meta:[]
-				} );
-				
-				fields.push( {
-					name:'set_' + field.name,
-					doc:null,
-					access:field.access,
-					kind:FFun( {
-						args:[ {
-							name:'v',
-							opt:false,
-							type:macro:String
-						}],
-						ret:macro:String,
-						expr:macro {
-							$i { field.name } = v;
-							$i { 'SignalFor_' + field.name } .dispatch( v );
-							return v;
-						},
-						params:[]
-					} ),
-					pos:field.pos,
-					meta:[]
-				} );
 				
 			}
 			

@@ -1,7 +1,5 @@
 package example.jumlaBind;
 
-import msignal.Signal;
-
 /**
  * ...
  * @author Skial Bainn
@@ -9,6 +7,10 @@ import msignal.Signal;
 class B {
 	
 	public var b:String;
+	
+	public var bb:String;
+	public var bbb:String;
+	public var bbbb:String;
 
 	public function new() {
 		

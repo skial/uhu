@@ -15,7 +15,7 @@
 
 #--macro uhx.macro.klas.Handler.init()
 
-#-dce full
+-dce full
 
 #-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes
 -cmd nekotools server -p 80

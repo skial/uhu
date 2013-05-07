@@ -154,8 +154,9 @@ class FieldTools {
 		return result;
 	}
 	
-	public static inline function isStatic(field:Field, cls:ClassType):Bool {
-		return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );
+	public static inline function isStatic(field:Field, ?cls:ClassType):Bool {
+		//return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );
+		return field.access.has( AStatic );
 	}
 	
 	public static inline function isInline(field:Field):Bool {

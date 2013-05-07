@@ -29,27 +29,31 @@ using uhu.macro.Jumla;
 
 class Handler {
 	
+	public static var CLASS_MANDATORY:StringMap<String> = [
+		':bind' => ':uhx_bind',
+	];
+	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		':implements' => Implements.handler,
 		//':aop' => AOP.handler,	// doesnt work
+		':uhx_bind' => Bind.handler,
 	];
 	
 	public static var FIELD_META_ORDER:IntMap<String> = [
 		0 => ':to',
-		1 => ':bind',
-		2 => ':alias',
+		1 => ':alias',
 	];
 	
 	public static var FIELD_META:StringMap< ClassType->Field->Array<Field> > = [
 		':to' => To.handler,
-		':bind' => Bind.handler,
 		':alias' => Alias.handler,
 	];
 	
 	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
-		':before' => ':aop',
-		':after' => ':aop',
-		':around' => ':aop',
+		//':before' => ':aop',
+		//':after' => ':aop',
+		//':around' => ':aop',
+		':bind' => ':uhx_bind',
 	];
 	
 	/**
@@ -84,11 +88,6 @@ class Handler {
 		return  null;
 	}*/
 	
-		public static function fragment() {
-			trace( Context.getLocalClass().get().name );
-			return Context.getBuildFields();
-		}
-	
 	public static function build():Array<Field> {
 		var p = new Printer();
 		var cls = Context.getLocalClass().get();
@@ -102,14 +101,28 @@ class Handler {
 		 * while in IDE display mode, `-D display`.
 		 */
 		
+		if (Context.defined('debug')) {
+			trace('-----');
+			trace('Running class handlers');
+		}
+		
 		for (key in CLASS_META.keys()) {
 			
 			if (cls.meta.has( key )) {
+				
+				if (Context.defined('debug')) {
+					trace('${cls.path()} - $key');
+				}
 				
 				fields = CLASS_META.get( key )( cls, fields );
 				
 			}
 			
+		}
+		
+		if (Context.defined('debug')) {
+			trace('-----');
+			trace('Running class fields handlers');
 		}
 		
 		var matched = null;
@@ -119,8 +132,10 @@ class Handler {
 			for (f in fields) {
 				
 				if (f.meta.exists( key ) && CLASS_META.exists( CLASS_HAS_FIELD_META.get( key ) )) {
+					
 					matched = CLASS_HAS_FIELD_META.get( key );
 					break;
+					
 				}
 				
 			}
@@ -128,6 +143,10 @@ class Handler {
 		}
 		
 		if (matched != null) {
+			
+			if (Context.defined('debug')) {
+				trace('${cls.path()} - $matched');
+			}
 			
 			fields = CLASS_META.get( matched )(cls, fields);
 			
@@ -167,6 +186,11 @@ class Handler {
 			
 		}*/
 		
+		if (Context.defined('debug')) {
+			trace('-----');
+			trace('Running field handlers');
+		}
+		
 		for (i in 0...FIELD_META.count()) {
 			
 			var key = FIELD_META_ORDER.get( i );
@@ -179,6 +203,10 @@ class Handler {
 				}
 				
 				if (field.meta.exists( key )) {
+					
+					if (Context.defined('debug')) {
+						trace('${cls.path()}::${field.name} - $key');
+					}
 					
 					var results = FIELD_META.get( key )( cls, field );
 					new_fields = new_fields.concat( results );
@@ -194,6 +222,27 @@ class Handler {
 		}
 		
 		fields = new_fields;
+		
+		if (Context.defined('debug')) {
+			trace('-----');
+			trace('Running mandatory handlers');
+		}
+		
+		// Force mandatory handlers to be run.
+		for (key in CLASS_MANDATORY.keys()) {
+			key = CLASS_MANDATORY.get( key );
+			
+			if (CLASS_META.exists( key )) {
+				
+				if (Context.defined('debug')) {
+					trace('${cls.path()} - $key');
+				}
+				
+				fields = CLASS_META.get( key )( cls, fields );
+				
+			}
+			
+		}
 		
 		return fields;
 	}

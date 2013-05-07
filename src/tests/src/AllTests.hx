@@ -2,6 +2,7 @@ package ;
 
 import haxe.Utf8Spec;
 import uhx.fmt.ASCIISpec;
+import uhx.metadata.BindSpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
@@ -32,8 +33,6 @@ import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
 import uhx.crypto.MD5Spec;
 
-import uhx.fmt.ASCII;
-
 /**
  * ...
  * @author Skial Bainn
@@ -43,12 +42,20 @@ import uhx.fmt.ASCII;
 //@:build( MacroTests.run() )
 #end
 class AllTests {
+	
+	@:isVar public static var something(default, set):Int = 666;
+	private static function set_something(v:Int):Int {
+		something = v;
+		return v;
+	}
 
 	public static function main() {
-		
+		something = 666;
 		var runner = new TestRunner();
 		
-		runner.add( new ASCIISpec() );
+		runner.add( new BindSpec() );
+		
+		//runner.add( new ASCIISpec() );
 		runner.add( new Utf8Spec() );
 		
 		runner.add( new Base64Spec() );
