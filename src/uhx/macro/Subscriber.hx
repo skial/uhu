@@ -1,5 +1,6 @@
 package uhx.macro;
 
+import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -54,12 +55,20 @@ class Subscriber {
 					// Check the target class and field
 					// to see if it implements Klas and
 					// the field has @:pub metadata.
-					var pubType = parts.join('.').getType().follow();
+					// DISABLED AS SOME TYPES CANT BE FORCE TYPED
+					// SO THE WARNINGS AND CHECKS ARE POINTLESS
+					/*var pubType = parts.join('.').getType().follow();
 					
 					switch( pubType ) {
 						case TInst(t, _):
 							var _cls = t.get();
 							var _field = isStatic ? _cls.statics.get().get(fname) : _cls.fields.get().get(fname);
+							
+							if (_field == null) {
+								trace('${_cls.path()}::$fname does not seem to exist.');
+								Context.warning('${_cls.path()}::$fname does not seem to exist.', _cls.pos);
+								continue;
+							}
 							
 							if (!_cls.hasInterface( 'Klas' )) {
 								trace('${_cls.path()} does not implement Klas, unfortuantly this is required.');
@@ -74,7 +83,7 @@ class Subscriber {
 							}
 							
 						case _:
-					}
+					}*/
 					
 					// Now modify the field
 					switch (field.kind) {

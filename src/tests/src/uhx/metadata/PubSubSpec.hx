@@ -2,6 +2,7 @@ package uhx.metadata;
 import haxe.unit.TestCase;
 import help.metadata.pubsub.A;
 import help.metadata.pubsub.B;
+import help.metadata.pubsub.C;
 
 /**
  * ...
@@ -35,6 +36,16 @@ class PubSubSpec extends TestCase {
 		b.c = { name:'Skial' };
 		
 		this.assertEquals('Skial', a.c.name);
+	}
+	
+	public function testTriangle() {
+		var a = new A();
+		var b = new B();
+		var c = new C();
+		
+		c.start = 'Hello Tri Universe';
+		
+		this.assertEquals('Hello Tri Universe', a.end);
 	}
 	
 }

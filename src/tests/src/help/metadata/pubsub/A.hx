@@ -12,6 +12,8 @@ class A implements Klas {
 	
 	@:sub('help.metadata.pubsub.B::c') public var c: { name:String };
 	
+	@:sub('help.metadata.pubsub.B::middle') public var end:String;
+	
 	public function new() {
 		
 	}

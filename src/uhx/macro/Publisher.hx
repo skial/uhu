@@ -37,6 +37,9 @@ class Publisher {
 							initExprs.push( macro $i{'UhxSignalFor_${field.name}'} = new msignal.Signal.Signal1<$t>() );
 						}
 						
+					case FProp(g, s, t, e):
+						trace(field.name);
+						
 					case _:
 				}
 				

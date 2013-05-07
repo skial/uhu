@@ -11,6 +11,10 @@ class B implements Klas {
 	@:pub public var b:String;
 	
 	@:pub public var c: { name:String };
+	
+	@:pub 
+	@:sub('help.metadata.pubsub.C::start') 
+	public var middle:String;
 
 	public function new() {
 		
