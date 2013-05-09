@@ -20,7 +20,7 @@ class Subscriber {
 
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
-		if (Context.defined('display')) return fields;
+		if ('display'.defined()) return fields;
 		
 		var newExprs:Array<Expr> = [];
 		var initExprs:Array<Expr> = [];
@@ -34,13 +34,13 @@ class Subscriber {
 				
 				for (meta in field.meta.getAll(':sub')) {
 					
-					if (meta == null) continue;
-					
 					if (meta.params.length > 0) {
 						
+						// Break apart the string
 						var value = meta.params[0].printExpr().replace('"', '');
 						var parts = value.split('.');
-						var fname = parts[parts.length-1];
+						var fname = parts[parts.length - 1];
+						// Determine if the field is static
 						var isStatic = (fname.indexOf('::') == -1);
 						
 						if (!isStatic) {
@@ -55,45 +55,15 @@ class Subscriber {
 							
 						}
 						
-						// Check the target class and field
-						// to see if it implements Klas and
-						// the field has @:pub metadata.
-						// DISABLED AS SOME TYPES CANT BE FORCE TYPED
-						// SO THE WARNINGS AND CHECKS ARE POINTLESS
-						/*var pubType = parts.join('.').getType().follow();
-						
-						switch( pubType ) {
-							case TInst(t, _):
-								var _cls = t.get();
-								var _field = isStatic ? _cls.statics.get().get(fname) : _cls.fields.get().get(fname);
-								
-								if (_field == null) {
-									trace('${_cls.path()}::$fname does not seem to exist.');
-									Context.warning('${_cls.path()}::$fname does not seem to exist.', _cls.pos);
-									continue;
-								}
-								
-								if (!_cls.hasInterface( 'Klas' )) {
-									trace('${_cls.path()} does not implement Klas, unfortuantly this is required.');
-									Context.warning('${_cls.path()} does not implement Klas, unfortuantly this is required.', _cls.pos);
-									continue;
-								}
-								
-								if (!_field.meta.has( ':pub' )) {
-									trace('${_cls.path()}::${_field.name} does not have @:pub metadata.');
-									Context.warning('${_cls.path()}::${_field.name} does not have @:pub metadata.', _field.pos);
-									continue;
-								}
-								
-							case _:
-						}*/
-						
 						// Now modify the field
 						switch (field.kind) {
 							case FVar(t, e):
 								field.kind = FProp('default', 'set', t, e);
 								
-								fields.push( createSetter( field, t ) );
+								fields.push( field._setter( macro {
+									$i { field.name } = v;
+									return v;
+								} ) );
 								
 							case FProp(g, s, t, e):
 								var set = fields.get(s + '_${field.name}');
@@ -101,18 +71,22 @@ class Subscriber {
 								field.kind = FProp(g, set == null ? 'set' : s, t, e);
 								
 								if (set == null) {
-									fields.push( createSetter( field, t ) );
+									fields.push( field._setter( macro {
+										$i { field.name } = v;
+										return v;
+									} ) );
 								}
 								
 							case _:
 						}
 						
-						if (!subCache.exists('${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})')) {
+						var key = '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})';
+						if (!subCache.exists( key )) {
 							
 							var _arr = field.isStatic() ? initExprs : newExprs;
-							_arr.push( Context.parse('${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})', field.pos) );
+							_arr.push( key.parse( field.pos ) );
 							
-							subCache.set( '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})', true );
+							subCache.set( key, true );
 							
 						}
 						
@@ -163,31 +137,6 @@ class Subscriber {
 		}
 		
 		return fields;
-	}
-	
-	private static function createSetter(field:Field, ctype:ComplexType):Field {
-		return {
-			doc: null,
-			pos: field.pos,
-			access: field.access,
-			name: 'set_${field.name}',
-			meta: [],
-			kind: FFun( {
-				ret: ctype,
-				args: [
-					{
-						name: 'v',
-						opt: false,
-						type: ctype
-					}
-				],
-				params: [],
-				expr: macro {
-					$i { field.name } = v;
-					return v;
-				}
-			} )
-		};
 	}
 	
 }

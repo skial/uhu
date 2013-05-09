@@ -72,60 +72,86 @@ class FieldTools {
 	
 	public static function createGetter(variable:Field, expression:Expr):Field {
 		var result:Field = null;
+		var type = null;
 		
 		switch (variable.kind) {
-			case FProp( g, _, t, _ ):
+			case FVar(t, _):
+				type = t;
 				
-				result = {
-					name:g,
-					doc:null,
-					access:variable.access,
-					kind:FFun( {
-						args:[],
-						ret:t,
-						expr:expression,
-						params:[]
-					} ),
-					pos:variable.pos,
-					meta:null
-				}
+			case FProp( g, _, t, _ ):
+				type = t;
 				
 			case _:
-				throw '"${variable.name} field kind is not of type "FieldType::FProp". Use toFProp before calling this method.';
+				throw '"${variable.name} field kind is not of type "FieldType::FProp".';
+		}
+		
+		if (type != null) {
+			
+			result = {
+				name:'get_${variable.name}',
+				doc:null,
+				access:variable.access,
+				kind:FFun( {
+					args:[],
+					ret:type,
+					expr:expression,
+					params:[]
+				} ),
+				pos:variable.pos,
+				meta:null
+			}
+			
 		}
 		
 		return result;
 	}
 	
+	@:extern public static inline function _getter(variable:Field, expr:Expr):Field {
+		return createGetter( variable, expr );
+	}
+	
 	public static function createSetter(variable:Field, expression:Expr):Field {
 		var result:Field = null;
+		var type = null;
 		
 		switch (variable.kind) {
-			case FProp( _, s, t, _ ):
+			case FVar(t, _):
+				type = t;
 				
-				result = {
-					name:s,
-					doc:null,
-					access:variable.access,
-					kind:FFun( {
-						args:[ {
-							name:'v',
-							opt:false,
-							type:t,
-						} ],
-						ret:t,
-						expr:expression,
-						params:[]
-					} ),
-					pos:variable.pos,
-					meta:null
-				}
+			case FProp( _, _, t, _ ):
+				type = t;
 				
 			case _:
-				throw '"${variable.name} field kind is not of type "FieldType::FProp". Use toFProp before calling this method.';
+				throw '"${variable.name} field kind is not of type "FieldType::FProp".';
+		}
+		
+		if (type != null) {
+			
+			result = {
+				name:'set_${variable.name}',
+				doc:null,
+				access:variable.access,
+				kind:FFun( {
+					args:[ {
+						name:'v',
+						opt:false,
+						type:type,
+					} ],
+					ret:type,
+					expr:expression,
+					params:[]
+				} ),
+				pos:variable.pos,
+				meta:null
+			};
+			
 		}
 		
 		return result;
+	}
+	
+	@:extern public static inline function _setter(variable:Field, expr:Expr):Field {
+		return createSetter( variable, expr );
 	}
 	
 	/*public static function exists(fields:Array<Field>, name:String):Bool {

@@ -2,7 +2,7 @@ package ;
 
 import haxe.Utf8Spec;
 import uhx.fmt.ASCIISpec;
-import uhx.metadata.PubSubSpec;
+import uhx.macro.PubSubSpec;
 import uhx.web.URISpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;

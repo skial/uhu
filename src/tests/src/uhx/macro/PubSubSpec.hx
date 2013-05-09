@@ -1,4 +1,5 @@
-package uhx.metadata;
+package uhx.macro;
+
 import haxe.unit.TestCase;
 import help.metadata.pubsub.A;
 import help.metadata.pubsub.B;
@@ -33,7 +34,7 @@ class PubSubSpec extends TestCase {
 		var a = new A();
 		var b = new B();
 		
-		b.c = { name:'Skial' };
+		b.c = { name:'Skial', a:1, b:2 };
 		
 		this.assertEquals('Skial', a.c.name);
 	}
@@ -59,9 +60,13 @@ class PubSubSpec extends TestCase {
 		
 		var c = new C();
 		
-		c.commencer = 'Hello Universe';
+		c.commencer = 'Hello Tri Verse';
 		
-		this.assertEquals('Hello Universe', a.fin);
+		// a => instance
+		// b => static
+		// c => instance
+		
+		this.assertEquals('Hello Tri Verse', a.fin);
 	}
 	
 }

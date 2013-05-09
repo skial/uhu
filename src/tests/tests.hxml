@@ -2,7 +2,7 @@
 -cp ..
 -cp ../../../../../jonas/src
 -cp ../../../thx/src
--lib polygonal
+-lib polygonal-core
 -lib msignal
 -lib mlib
 -neko bin/tests.n

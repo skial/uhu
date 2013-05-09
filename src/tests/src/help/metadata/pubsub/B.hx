@@ -10,7 +10,7 @@ class B implements Klas {
 	
 	@:pub public var b:String;
 	
-	@:pub public var c: { name:String };
+	@:pub public var c: { name:String, a:Int, b:Int };
 	
 	@:pub 
 	@:sub('help.metadata.pubsub.C::start') 

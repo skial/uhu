@@ -7,6 +7,7 @@ import haxe.macro.Context;
 
 using StringTools;
 using uhu.macro.Jumla;
+using haxe.macro.Context;
 
 /**
  * ...
@@ -18,7 +19,7 @@ class Publisher {
 
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
-		if (Context.defined('display')) return fields;
+		if ('display'.defined()) return fields;
 		
 		var initExprs:Array<Expr> = [];
 		
@@ -33,18 +34,24 @@ class Publisher {
 					case FVar(t, e):
 						field.kind = FProp('default', 'set', t, e);
 						
-						fields.push( createSetter( field, t ) );
+						var fname = 'UhxSignalFor_${field.name}';
 						
-						if (!fields.exists('UhxSignalFor_${field.name}')) {
+						fields.push( field._setter( macro {
+							$i { field.name } = v;
+							$i { fname } .dispatch( v );
+							return v;
+						} ) );
+						
+						if (!fields.exists( fname )) {
 							
 							fields.push( createUhxSignalFor( field, t ) );
 							
 						}
 						
-						if (!pubCache.exists('UhxSignalFor_${field.name}')) {
+						if (!pubCache.exists( fname )) {
 							
-							initExprs.push( macro $i { 'UhxSignalFor_${field.name}' } = new msignal.Signal.Signal1<$t>() );
-							pubCache.set( 'UhxSignalFor_${field.name}', true );
+							initExprs.push( macro $i { fname } = new msignal.Signal.Signal1<$t>() );
+							pubCache.set( fname, true );
 							
 						}
 						
@@ -79,32 +86,6 @@ class Publisher {
 		}
 		
 		return fields;
-	}
-	
-	private static function createSetter(field:Field, ctype:ComplexType):Field {
-		return {
-			doc: null,
-			pos: field.pos,
-			access: field.access,
-			name: 'set_${field.name}',
-			meta: [],
-			kind: FFun( {
-				ret: ctype,
-				args: [
-					{
-						name: 'v',
-						opt: false,
-						type: ctype
-					}
-				],
-				params: [],
-				expr: macro {
-					$i { field.name } = v;
-					$i { 'UhxSignalFor_${field.name}' } .dispatch( v );
-					return v;
-				}
-			} )
-		};
 	}
 	
 	private static function createUhxSignalFor(field:Field, ctype:ComplexType):Field {
