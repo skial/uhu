@@ -1,0 +1,7 @@
+-debug
+-cp src/example/jsCompare
+
+-main Simple
+-js bin/example.jsCompare.js
+
+-dce full

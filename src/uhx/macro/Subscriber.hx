@@ -1,5 +1,6 @@
 package uhx.macro;
 
+import haxe.ds.StringMap;
 import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
@@ -14,6 +15,8 @@ using haxe.macro.Context;
  * @author Skial Bainn
  */
 class Subscriber {
+	
+	private static var subCache:StringMap<Bool> = new StringMap<Bool>();
 
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
@@ -29,83 +32,91 @@ class Subscriber {
 			
 			if (field.meta.exists(':sub')) {
 				
-				var meta = field.meta.get(':sub');
-				
-				if (meta == null) continue;
-				
-				if (meta.params.length > 0) {
+				for (meta in field.meta.getAll(':sub')) {
 					
-					var value = meta.params[0].printExpr().replace('"', '');
-					var parts = value.split('.');
-					var fname = parts[parts.length-1];
-					var isStatic = (fname.indexOf('::') == -1);
+					if (meta == null) continue;
 					
-					if (!isStatic) {
+					if (meta.params.length > 0) {
 						
-						var bits = parts.pop().split('::');
-						parts.push( bits.shift() );
-						fname = bits[0];
+						var value = meta.params[0].printExpr().replace('"', '');
+						var parts = value.split('.');
+						var fname = parts[parts.length-1];
+						var isStatic = (fname.indexOf('::') == -1);
 						
-					} else {
+						if (!isStatic) {
+							
+							var bits = parts.pop().split('::');
+							parts.push( bits.shift() );
+							fname = bits[0];
+							
+						} else {
+							
+							fname = parts.pop();
+							
+						}
 						
-						fname = parts.pop();
+						// Check the target class and field
+						// to see if it implements Klas and
+						// the field has @:pub metadata.
+						// DISABLED AS SOME TYPES CANT BE FORCE TYPED
+						// SO THE WARNINGS AND CHECKS ARE POINTLESS
+						/*var pubType = parts.join('.').getType().follow();
 						
-					}
-					
-					// Check the target class and field
-					// to see if it implements Klas and
-					// the field has @:pub metadata.
-					// DISABLED AS SOME TYPES CANT BE FORCE TYPED
-					// SO THE WARNINGS AND CHECKS ARE POINTLESS
-					/*var pubType = parts.join('.').getType().follow();
-					
-					switch( pubType ) {
-						case TInst(t, _):
-							var _cls = t.get();
-							var _field = isStatic ? _cls.statics.get().get(fname) : _cls.fields.get().get(fname);
-							
-							if (_field == null) {
-								trace('${_cls.path()}::$fname does not seem to exist.');
-								Context.warning('${_cls.path()}::$fname does not seem to exist.', _cls.pos);
-								continue;
-							}
-							
-							if (!_cls.hasInterface( 'Klas' )) {
-								trace('${_cls.path()} does not implement Klas, unfortuantly this is required.');
-								Context.warning('${_cls.path()} does not implement Klas, unfortuantly this is required.', _cls.pos);
-								continue;
-							}
-							
-							if (!_field.meta.has( ':pub' )) {
-								trace('${_cls.path()}::${_field.name} does not have @:pub metadata.');
-								Context.warning('${_cls.path()}::${_field.name} does not have @:pub metadata.', _field.pos);
-								continue;
-							}
-							
-						case _:
-					}*/
-					
-					// Now modify the field
-					switch (field.kind) {
-						case FVar(t, e):
-							field.kind = FProp('default', 'set', t, e);
-							
-							fields.push( createSetter( field, t ) );
-							
-						case FProp(g, s, t, e):
-							var set = fields.get(s + '_${field.name}');
-							
-							field.kind = FProp(g, set == null ? 'set' : s, t, e);
-							
-							if (set == null) {
+						switch( pubType ) {
+							case TInst(t, _):
+								var _cls = t.get();
+								var _field = isStatic ? _cls.statics.get().get(fname) : _cls.fields.get().get(fname);
+								
+								if (_field == null) {
+									trace('${_cls.path()}::$fname does not seem to exist.');
+									Context.warning('${_cls.path()}::$fname does not seem to exist.', _cls.pos);
+									continue;
+								}
+								
+								if (!_cls.hasInterface( 'Klas' )) {
+									trace('${_cls.path()} does not implement Klas, unfortuantly this is required.');
+									Context.warning('${_cls.path()} does not implement Klas, unfortuantly this is required.', _cls.pos);
+									continue;
+								}
+								
+								if (!_field.meta.has( ':pub' )) {
+									trace('${_cls.path()}::${_field.name} does not have @:pub metadata.');
+									Context.warning('${_cls.path()}::${_field.name} does not have @:pub metadata.', _field.pos);
+									continue;
+								}
+								
+							case _:
+						}*/
+						
+						// Now modify the field
+						switch (field.kind) {
+							case FVar(t, e):
+								field.kind = FProp('default', 'set', t, e);
+								
 								fields.push( createSetter( field, t ) );
-							}
+								
+							case FProp(g, s, t, e):
+								var set = fields.get(s + '_${field.name}');
+								
+								field.kind = FProp(g, set == null ? 'set' : s, t, e);
+								
+								if (set == null) {
+									fields.push( createSetter( field, t ) );
+								}
+								
+							case _:
+						}
+						
+						if (!subCache.exists('${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})')) {
 							
-						case _:
+							var _arr = field.isStatic() ? initExprs : newExprs;
+							_arr.push( Context.parse('${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})', field.pos) );
+							
+							subCache.set( '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})', true );
+							
+						}
+						
 					}
-					
-					var _arr = isStatic ? initExprs : newExprs;
-					_arr.push( Context.parse('${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})', field.pos) );
 					
 				}
 				

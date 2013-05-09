@@ -128,7 +128,7 @@ class FieldTools {
 		return result;
 	}
 	
-	public static function exists(fields:Array<Field>, name:String):Bool {
+	/*public static function exists(fields:Array<Field>, name:String):Bool {
 		var result = false;
 		
 		for (field in fields) {
@@ -139,9 +139,9 @@ class FieldTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
-	public static function get(fields:Array<Field>, name:String):Field {
+	/*public static function get(fields:Array<Field>, name:String):Field {
 		var result = null;
 		
 		for (field in fields) {
@@ -152,7 +152,7 @@ class FieldTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
 	public static inline function isStatic(field:Field, ?cls:ClassType):Bool {
 		//return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );

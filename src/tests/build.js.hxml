@@ -6,7 +6,7 @@
 -cp ../../../../../jonas/src
 -cp ../../../thx/src
 
--lib polygonal
+-lib polygonal-core
 -lib msignal
 -lib mlib
 
@@ -16,6 +16,7 @@
 #--macro uhx.macro.klas.Handler.init()
 
 -dce full
+#-dce no
 
 #-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes
 -cmd nekotools server -p 80

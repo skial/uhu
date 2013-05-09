@@ -38,14 +38,30 @@ class PubSubSpec extends TestCase {
 		this.assertEquals('Skial', a.c.name);
 	}
 	
-	public function testTriangle() {
+	public function testInstanceTriangle() {
 		var a = new A();
 		var b = new B();
 		var c = new C();
 		
-		c.start = 'Hello Tri Universe';
+		c.start = 'Hello Instance Tri Universe';
 		
-		this.assertEquals('Hello Tri Universe', a.end);
+		this.assertEquals('Hello Instance Tri Universe', a.end);
+	}
+	
+	public function testStaticTriangle() {
+		C._start = 'Hello Static Tri Universe';
+		
+		this.assertEquals('Hello Static Tri Universe', A._end);
+	}
+	
+	public function testMixedTriangle() {
+		var a = new A();
+		
+		var c = new C();
+		
+		c.commencer = 'Hello Universe';
+		
+		this.assertEquals('Hello Universe', a.fin);
 	}
 	
 }

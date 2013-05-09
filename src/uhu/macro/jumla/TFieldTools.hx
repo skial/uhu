@@ -8,7 +8,7 @@ import uhu.macro.jumla.t.TField;
 
 class TFieldTools {
 	
-	public static function exists(fields:Array<TField>, name:String):Bool {
+	/*public static function exists(fields:Array<TField>, name:String):Bool {
 		var result = false;
 		
 		for (field in fields) {
@@ -19,9 +19,9 @@ class TFieldTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
-	public static function get(fields:Array<TField>, name:String):TField {
+	/*public static function get(fields:Array<TField>, name:String):TField {
 		var result = null;
 		
 		for (field in fields) {
@@ -32,6 +32,6 @@ class TFieldTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
 }

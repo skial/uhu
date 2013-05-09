@@ -1,5 +1,6 @@
 package uhx.macro;
 
+import haxe.ds.StringMap;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -12,6 +13,8 @@ using uhu.macro.Jumla;
  * @author Skial Bainn
  */
 class Publisher {
+	
+	private static var pubCache:StringMap<Bool> = new StringMap<Bool>();
 
 	public static function handler(cls:ClassType, fields:Array<Field>):Array<Field> {
 		
@@ -33,8 +36,16 @@ class Publisher {
 						fields.push( createSetter( field, t ) );
 						
 						if (!fields.exists('UhxSignalFor_${field.name}')) {
+							
 							fields.push( createUhxSignalFor( field, t ) );
-							initExprs.push( macro $i{'UhxSignalFor_${field.name}'} = new msignal.Signal.Signal1<$t>() );
+							
+						}
+						
+						if (!pubCache.exists('UhxSignalFor_${field.name}')) {
+							
+							initExprs.push( macro $i { 'UhxSignalFor_${field.name}' } = new msignal.Signal.Signal1<$t>() );
+							pubCache.set( 'UhxSignalFor_${field.name}', true );
+							
 						}
 						
 					case FProp(g, s, t, e):
@@ -103,7 +114,7 @@ class Publisher {
 			access: [APublic, AStatic],
 			name: 'UhxSignalFor_${field.name}',
 			meta: [],
-			kind: FVar(macro :msignal.Signal.Signal1<$ctype>, field.isStatic() ? null : macro new msignal.Signal.Signal1<$ctype>())
+			kind: FVar(macro :msignal.Signal.Signal1<$ctype>, null)
 		};
 	}
 	
