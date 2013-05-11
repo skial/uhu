@@ -42,7 +42,7 @@ import uhx.crypto.MD5Spec;
 //@:build( MacroTests.run() )
 #end
 class AllTests {
-
+	
 	public static function main() {
 		var runner = new TestRunner();
 		

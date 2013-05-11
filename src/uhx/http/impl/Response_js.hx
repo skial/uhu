@@ -16,7 +16,6 @@ import uhx.http.impl.i.IResponse;
  * @author Skial Bainn
  */
 
-@:implements(TResponse)
 class Response_js implements Klas/* implements IResponse*/ {
 	
 	public var request(default, null):Request;

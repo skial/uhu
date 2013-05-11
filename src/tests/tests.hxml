@@ -5,6 +5,8 @@
 -lib polygonal-core
 -lib msignal
 -lib mlib
+-lib thx-react
+-lib thx-core
 -neko bin/tests.n
 -D disable_macro_tests
 -main AllTests

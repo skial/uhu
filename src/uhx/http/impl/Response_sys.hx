@@ -12,7 +12,6 @@ import uhx.http.impl.t.TResponse;
  * @author Skial Bainn
  */
 
-@:implements(TResponse)
 class Response_sys implements Klas {
 	
 	public var request(default, null):TRequest;

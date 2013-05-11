@@ -14,7 +14,6 @@ import uhx.http.impl.t.TResponse;
  * @author Skial Bainn
  */
 
-@:implements(TRequest)
 class Request_sys implements Klas {
 	
 	public var onError:Signal1<TResponse>;

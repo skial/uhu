@@ -16,7 +16,6 @@ using haxe.EnumTools;
  * @author Skial Bainn
  */
 
-@:implements(TRequest)
 class Request_js implements Klas {
 	
 	@:noCompletion public var xhr:XMLHttpRequest;

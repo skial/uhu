@@ -9,6 +9,8 @@
 -lib polygonal-core
 -lib msignal
 -lib mlib
+-lib thx-react
+-lib thx-core
 
 -main AllTests
 -js bin/tests.js

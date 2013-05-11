@@ -55,9 +55,13 @@ class Subscriber {
 							
 						}
 						
+						var type = null;
+						
 						// Now modify the field
 						switch (field.kind) {
 							case FVar(t, e):
+								type = t;
+								
 								field.kind = FProp('default', 'set', t, e);
 								
 								fields.push( field._setter( macro {
@@ -66,6 +70,8 @@ class Subscriber {
 								} ) );
 								
 							case FProp(g, s, t, e):
+								type = t;
+								
 								var set = fields.get(s + '_${field.name}');
 								
 								field.kind = FProp(g, set == null ? 'set' : s, t, e);
@@ -81,6 +87,7 @@ class Subscriber {
 						}
 						
 						var key = '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})';
+						//var key = '${parts.join(".")}.UhxSignalFor_$fname.on(set_${field.name})';
 						if (!subCache.exists( key )) {
 							
 							var _arr = field.isStatic() ? initExprs : newExprs;

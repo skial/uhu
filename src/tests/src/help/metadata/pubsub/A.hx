@@ -10,7 +10,7 @@ class A implements Klas {
 
 	@:sub('help.metadata.pubsub.B::b') public var a:String;
 	
-	@:sub('help.metadata.pubsub.B::c') public var c: { name:String };
+	@:sub('help.metadata.pubsub.B::c') public var c: { name:String, a:Int, b:Int };
 	
 	@:sub('help.metadata.pubsub.B::middle') public var end:String;
 	
