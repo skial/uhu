@@ -8,19 +8,20 @@ package example.inlineMeta;
 class Main {
 	
 	public static function main() {
-		new Main();
-	}
-
-	public function new() {
-		@:yield a();
+		var a:Int, b:Int, c:Int;
+		@:wait( success1, _ ) foo( 'Hello ' );
+		trace( success1 );
+		
+		var d:Int, e:Int, f:Int;
+		
+		@:wait( success2, _ ) foo( 'World' );
+		
+		success1 += success2;
+		trace( success1 );
 	}
 	
-	public function a() {
-		b();
-	}
-	
-	public function b() {
-		@:yeild var _a = 1;
+	public static function foo(value:String, cb:String->String->Void) {
+		return cb( value, 'b' );
 	}
 	
 }

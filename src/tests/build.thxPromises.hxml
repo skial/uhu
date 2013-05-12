@@ -1,0 +1,12 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-lib thx-core
+-lib thx-react
+
+-main example.thxPromises.Main
+-js bin/example.thxPromises.js
+
+-dce full

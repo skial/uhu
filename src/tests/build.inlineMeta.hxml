@@ -2,6 +2,7 @@
 #-D dump=pretty
 
 -cp src
+-cp ../
 
 -main example.inlineMeta.Main
 -js bin/example.inlineMeta.js
