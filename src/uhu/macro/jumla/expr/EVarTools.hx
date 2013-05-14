@@ -2,17 +2,12 @@ package uhu.macro.jumla.expr;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import uhu.macro.jumla.t.TComplexString;
 
 /**
  * @author Skial Bainn
  */
 
 class EVarTools {
-	
-	/*@:extern public static inline function toString(variable:Var):String {
-		return ComplexString.toString( toType( variable ) );
-	}*/
 	
 	public static function toString(variable:Var):String {
 		var result:String = null;

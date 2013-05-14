@@ -1,7 +1,6 @@
 package uhu.macro.jumla.expr;
 
 import haxe.macro.Expr;
-import uhu.macro.jumla.t.TComplexString;
 
 using StringTools;
 using haxe.EnumTools;
@@ -41,27 +40,6 @@ class ConstantTools {
 	
 	@:extern public static inline function toString(c:Constant):String {
 		return Printer.printConstant( c );
-	}
-	
-	public static function toComplexString(c:Constant):TComplexString {
-		var result:TComplexString = null;
-		
-		switch (c) {
-			case CInt(_):
-				result = { name:'Int', params:[] };
-			case CFloat(_):
-				result = { name:'Float', params:[] };
-			case CString(_):
-				result = { name:'String', params:[] };
-			case CIdent(s):
-				trace('ident');
-				trace(s);
-				result = { name:s, params:[] };
-			case CRegexp(_, _):
-				result = { name:'EReg', params:[] };
-		}
-		
-		return result;
 	}
 	
 	public static function get(c:Constant) {

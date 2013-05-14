@@ -1,7 +1,6 @@
 package uhu.macro.jumla.expr;
 
 import haxe.macro.Expr;
-import uhu.macro.jumla.t.TComplexString;
 
 using uhu.macro.Jumla;
 
@@ -26,23 +25,7 @@ class FunctionArgTools {
 		return Printer.printFunctionArg( a );
 	}
 	
-	public static function toComplexString(a:FunctionArg):TComplexString {
-		return if (a.type != null) {
-			
-			ComplexTypeTools.toComplexString( a.type );
-			
-		} else if (a.value != null) {
-			
-			ExprTools.toComplexString( a.value );
-			
-		} else {
-			
-			null;
-			
-		}
-	}
-	
-	public static function exists(args:Array<FunctionArg>, name:String):Bool {
+	/*public static function exists(args:Array<FunctionArg>, name:String):Bool {
 		var result = false;
 		
 		for (arg in args) {
@@ -66,6 +49,6 @@ class FunctionArgTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
 }

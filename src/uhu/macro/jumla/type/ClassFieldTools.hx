@@ -19,32 +19,6 @@ using uhu.macro.Jumla;
 class ClassFieldTools {
 	
 	private static var _cache:StringMap<String> = new StringMap<String>();
-
-	/*public static function exists(fields:Array<ClassField>, name:String):Bool {
-		var result = false;
-		
-		for (field in fields) {
-			if (field.name == name) {
-				result = true;
-				break;
-			}
-		}
-		
-		return result;
-	}*/
-	
-	/*public static function get(fields:Array<ClassField>, name:String):ClassField {
-		var result = null;
-		
-		for (field in fields) {
-			if (field.name == name) {
-				result = field;
-				break;
-			}
-		}
-		
-		return result;
-	}*/
 	
 	public static function toFieldType(field:ClassField):FieldType {
 		var result:FieldType = null;

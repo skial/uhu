@@ -2,7 +2,6 @@ package uhu.macro.jumla;
 
 import haxe.macro.Expr;
 import uhu.macro.jumla.TypeParamTools;
-import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.expr.ConstantTools;
 
 using uhu.macro.Jumla;
@@ -133,29 +132,6 @@ class ExprTools {
 
 	public static inline function toString(e:Expr):String {
 		return Printer.printExpr( e );
-	}
-	
-	public static function toComplexString(e:Expr):TComplexString {
-		var result = null;
-		
-		switch (e.expr) {
-			case EArrayDecl(_) | EArray(_, _):
-				result = { name:'Array', params:[] };
-				
-			case EConst(c):
-				result = ConstantTools.toComplexString( c );
-				
-			case ENew(t, _):
-				result = TypePathTools.toComplexString( t );
-				
-			case EObjectDecl(_):
-				result = { name:'Typedef', params:[] };
-				
-			case _:
-				
-		}
-		
-		return result;
 	}
 	
 	@:extern public static inline function merge(expr1:Expr, expr2:Expr):Expr {

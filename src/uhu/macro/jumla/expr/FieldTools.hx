@@ -3,8 +3,6 @@ package uhu.macro.jumla.expr;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import uhu.macro.jumla.t.TField;
-import uhu.macro.jumla.t.TComplexString;
 import uhu.macro.jumla.type.ClassFieldTools;
 
 using Lambda;
@@ -30,30 +28,6 @@ class FieldTools {
 	
 	@:extern public static inline function toString(f:Field):String {
 		return Printer.printField( f );
-	}
-	
-	public static function toComplexString(f:Field):TComplexString {
-		var result = null;
-		
-		switch (f.kind) {
-			case FVar(t, e) | FProp(_, _, t, e):
-				
-				if (t != null) {
-					
-					result = ComplexTypeTools.toComplexString( t );
-					
-				} else if (e != null) {
-					
-					result = ExprTools.toComplexString( e );
-					
-				}
-				
-			case FFun(m):
-				
-				result = FunctionTools.toComplexString( m );
-		}
-		
-		return result;
 	}
 	
 	public static function toFProp(variable:Field):Field {
@@ -154,32 +128,6 @@ class FieldTools {
 		return createSetter( variable, expr );
 	}
 	
-	/*public static function exists(fields:Array<Field>, name:String):Bool {
-		var result = false;
-		
-		for (field in fields) {
-			if (field.name == name) {
-				result = true;
-				break;
-			}
-		}
-		
-		return result;
-	}*/
-	
-	/*public static function get(fields:Array<Field>, name:String):Field {
-		var result = null;
-		
-		for (field in fields) {
-			if (field.name == name) {
-				result = field;
-				break;
-			}
-		}
-		
-		return result;
-	}*/
-	
 	public static inline function isStatic(field:Field, ?cls:ClassType):Bool {
 		//return ClassFieldTools.exists( cls.fields.get(), field.name ) ? true : ClassFieldTools.exists( cls.statics.get(), field.name );
 		return field.access.has( AStatic );
@@ -187,32 +135,6 @@ class FieldTools {
 	
 	public static inline function isInline(field:Field):Bool {
 		return field.access.has( AInline );
-	}
-	
-	public static function toTField(field:Field):TField {
-		var result = {
-			name:'',
-			pos:null,
-			access:[],
-			kind:null,
-		}
-		
-		result.name = field.name;
-		result.pos = field.pos;
-		result.access = field.access;
-		result.kind = field.kind;
-		
-		return result;
-	}
-	
-	public static function toTFields(fields:Array<Field>):Array<TField> {
-		var result = [];
-		
-		for (field in fields) {
-			result.push( toTField( field ) );
-		}
-		
-		return result;
 	}
 	
 }
