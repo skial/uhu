@@ -3,6 +3,7 @@ package uhu.macro.jumla.expr;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import uhu.macro.jumla.Common;
 import uhu.macro.jumla.type.ClassFieldTools;
 
 using Lambda;
@@ -135,6 +136,24 @@ class FieldTools {
 	
 	public static inline function isInline(field:Field):Bool {
 		return field.access.has( AInline );
+	}
+	
+	// auto-completion helpers
+	
+	@:extern public static inline function remove(fields:Array<Field>, key:String):Bool {
+		return Common.remove(fields, key);
+	}
+	
+	@:extern public static inline function get(fields:Array<Field>, key:String):Field {
+		return Common.get(fields, key);
+	}
+	
+	@:extern public static inline function exists(fields:Array<Field>, key:String):Bool {
+		return Common.exists(fields, key);
+	}
+	
+	@:extern public static inline function getAll(fields:Array<Field>, key:String):Array<Field> {
+		return Common.getAll(fields, key);
 	}
 	
 }

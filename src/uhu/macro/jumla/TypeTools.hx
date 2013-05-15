@@ -3,6 +3,8 @@ package uhu.macro.jumla;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
+using uhu.macro.Jumla;
+
 /**
  * @author Skial Bainn
  */
@@ -61,6 +63,46 @@ class TypeTools {
 		}
 		
 		return '';
+	}
+	
+	public static function resolve(type:Type, calls:Array<String>):Field {
+		var result:Field = null;
+		
+		while (calls.length != 0) {
+			var id = calls.shift();
+			
+			switch( type ) {
+				case TInst(t, _):
+					var cls = t.get();
+					var isStatic = false;
+					var statics = cls.statics.get();
+					var fields = cls.fields.get();
+					var field = null;
+					
+					if (statics.exists( id )) {
+						
+						field = statics.get( id );
+						isStatic = true;
+						
+					} else if (fields.exists( id )) {
+						
+						field = fields.get( id );
+						
+					}
+					
+					if (field != null) {
+						
+						type = field.type;
+						result = field.toField( isStatic );
+						
+					}
+					
+				case _:
+			}
+			
+		}
+		
+		return result;
 	}
 	
 }

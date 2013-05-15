@@ -54,7 +54,11 @@ class ClassFieldTools {
 				_cache.set( key, code );
 			}
 			
-			expr = Context.parse( code, field.pos );
+			try {
+				expr = Context.parse( code, field.pos );
+			} catch (e:Dynamic) {
+				// the field is possibly part of an extern file
+			}
 			
 		}
 		
@@ -69,12 +73,22 @@ class ClassFieldTools {
 				
 			case FMethod(_):
 				
-				switch (expr.expr) {
-					case EFunction(_, f):
-						result = FFun( f );
-						
-					case _:
-						
+				if (expr != null) {
+					switch (expr.expr) {
+						case EFunction(_, f):
+							result = FFun( f );
+							
+						case _:
+							
+					}
+				} else {
+					switch (field.type) {
+						case TFun(args, ret):
+							result = type.toFFun();
+							
+						case _:
+							
+					}
 				}
 		}
 		
@@ -94,7 +108,7 @@ class ClassFieldTools {
 			pos: field.pos,
 			kind: field.toFieldType()
 		}
-		
+		//trace( field.name );
 		return result;
 	}
 	

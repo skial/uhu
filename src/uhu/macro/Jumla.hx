@@ -21,6 +21,7 @@ typedef JumlaTypedefTools = uhu.macro.jumla.type.TypedefTools;
 typedef JumlaFieldKindTools = uhu.macro.jumla.type.FieldKindTools;
 typedef JumlaVarAccessTools = uhu.macro.jumla.type.VarAccessTools;
 typedef JumlaMethodKindTools = uhu.macro.jumla.type.MethodKindTools;
+typedef JumlaTFunTools = uhu.macro.jumla.type.TFunTools;
 
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaEVarTools = uhu.macro.jumla.expr.EVarTools;
@@ -31,6 +32,8 @@ typedef JumlaFunctionTools = uhu.macro.jumla.expr.FunctionTools;
 typedef JumlaFunctionArgTools = uhu.macro.jumla.expr.FunctionArgTools;
 typedef JumlaTypeDefinitionTools = uhu.macro.jumla.expr.TypeDefinitionTools;
 typedef JumlaMetadataEntryTools = uhu.macro.jumla.expr.MetadataEntryTools;
+
+typedef JumlaCommon = uhu.macro.jumla.Common;
 
 /**
  * ...
@@ -48,87 +51,5 @@ class Jumla {
 		return Context.makeExpr(value, pos);
 	}
 	#end
-	
-	public static function remove< T: { name:String } >(obj:Array<T>, key:String):Bool {
-		var result = false;
-		var target = null;
-		
-		if (obj != null && obj.length > 0) {
-			
-			for (o in obj) {
-				
-				if (o.name == key) {
-					target = o;
-					break;
-				}
-				
-			}
-			
-			if (target != null) {
-				result = obj.remove( target );
-			}
-			
-		}
-		
-		return result;
-	}
-	
-	public static function get< T: { name:String } >(obj:Array<T>, key:String):T {
-		var result = null;
-		
-		if (obj != null && obj.length > 0) {
-			
-			for (o in obj) {
-				
-				if (o.name == key) {
-					result = o;
-					break;
-				}
-				
-			}
-			
-		}
-		
-		return result;
-	}
-	
-	public static function exists< T: { name:String } >(obj:Array<T>, key:String):Bool {
-		var result = false;
-		
-		if (obj != null && obj.length > 0) {
-			
-			for (o in obj) {
-				
-				if (o.name == key) {
-					
-					result = true;
-					break;
-					
-				}
-				
-			}
-			
-		}
-		
-		return result;
-	}
-	
-	public static function getAll< T: { name:String } >(obj:Array<T>, key:String):Array<T> {
-		var result:Array<T> = [];
-		
-		if (obj != null && obj.length > 0) {
-			
-			for (o in obj) {
-				
-				if (o.name == key) {
-					result.push( o );
-				}
-				
-			}
-			
-		}
-		
-		return result;
-	}
 	
 }

@@ -108,7 +108,7 @@ class Macro {
 		switch (e.expr) {
 			case ECall(e, p):
 				
-				find( printer.printExpr( e ) );
+				printer.printExpr( e ).follow();
 				
 				for (pair in pairs( params )) {
 					
@@ -156,7 +156,7 @@ class Macro {
 		
 	}
 	
-	private static function find(path:String) {
+	/*private static function find(path:String) {
 		
 		var parts = path.split( '.' );
 		var calls = [];
@@ -229,6 +229,6 @@ class Macro {
 		}
 		
 		return result;
-	}
+	}*/
 	
 }
