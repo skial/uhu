@@ -14,6 +14,10 @@ using uhu.macro.Jumla;
  
 class ComplexTypeTools {
 	
+	public static inline function toType(c:ComplexType):Type {
+		return haxe.macro.ComplexTypeTools.toType( c );
+	}
+	
 	public static function qualify(c:ComplexType):ComplexType {
 		var type = haxe.macro.ComplexTypeTools.toType( c );
 		type = Context.follow( type );

@@ -2,6 +2,8 @@ package uhu.macro.jumla;
 
 import haxe.macro.Type;
 import haxe.macro.Expr;
+import haxe.macro.Context;
+import haxe.macro.ComplexTypeTools;
 
 using uhu.macro.Jumla;
 
@@ -32,8 +34,34 @@ class TypeTools {
 		return type.getName() == 'TType';
 	}
 	
-	public static inline function isFunction(type:Type):Bool {
+	public static inline function isMethod(type:Type):Bool {
 		return type.getName() == 'TFun';
+	}
+	
+	public static function arity(type:Type):Int {
+		var result = 0;
+		
+		switch (type) {
+			case TFun(args, _):
+				result = args.length;
+				
+			case _:
+		}
+		
+		return result;
+	}
+	
+	public static function args(type:Type):Array<{ name : String, opt : Bool, t : Type }> {
+		var result = [];
+		
+		switch (type) {
+			case TFun(args, _):
+				result = args;
+				
+			case _:
+		}
+		
+		return result;
 	}
 	
 	public static inline function isStructure(type:Type):Bool {
@@ -65,8 +93,8 @@ class TypeTools {
 		return '';
 	}
 	
-	public static function resolve(type:Type, calls:Array<String>):Field {
-		var result:Field = null;
+	public static function resolve(type:Type, calls:Array<String>):Type {
+		var result:Type = type;
 		
 		while (calls.length != 0) {
 			var id = calls.shift();
@@ -92,14 +120,103 @@ class TypeTools {
 					
 					if (field != null) {
 						
-						type = field.type;
-						result = field.toField( isStatic );
+						result = type = field.type;
+						//result = field.toField( isStatic );
 						
 					}
 					
 				case _:
 			}
 			
+		}
+		
+		return result;
+	}
+	
+	public static function find(path:String):Type {
+		var result:Type = null;
+		var cls = Context.getLocalClass().get();
+		var fields = Context.getBuildFields();
+		var parts = path.split( '.' );
+		var calls = [];
+		
+		if (parts.length == 1 && fields.exists( parts[0] )) {
+			
+			result = fields.get( parts[0] ).typeof();
+			
+		}
+		
+		while (parts.length != 0) {
+			
+			var name = parts.pop();
+			
+			try {
+				
+				var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
+				if (calls.length > 1) calls.reverse();
+				
+				//var type:Type = ComplexTypeTools.toType( tpath );
+				var type:Type = Context.follow( tpath.toType() );
+				
+				result = type.resolve( calls );
+				
+				break;
+				
+			} catch (e:Dynamic) {
+				
+				calls.push( name );
+				
+			}
+			
+		}
+		
+		return result;
+	}
+	
+	public static function defaults(type:Type):Expr {
+		var result = macro null;
+		
+		switch (type) {
+			case TMono(t):
+				
+				if (t.get() != null) {
+					result = t.get().defaults();
+				}
+				
+			case TEnum(t, p):
+				
+			case TInst(t, p):
+				
+			case TType(t, p):
+				
+			case TFun(args, ret):
+				
+			case TAnonymous(a):
+				
+				for (field in a.get().fields) {
+					
+				}
+				
+			case TDynamic(t):
+				
+				if (t != null) result = t.defaults();
+				
+			case TLazy(f):
+				
+				result = f().defaults();
+				
+			case TAbstract(t, p):
+				
+				switch (t.get().name) {
+					case 'Bool':
+						result = macro true;
+					
+					case 'Void':
+						
+					case _:
+						trace(t.get().name);
+				}
+				
 		}
 		
 		return result;

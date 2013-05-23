@@ -175,4 +175,56 @@ class ExprTools {
 		return { expr:result, pos:expr1.pos };
 	}
 	
+	public static function split(exprs:Array<Expr>, delimiter:String):Array<Array<Expr>> {
+		var result:Array<Array<Expr>> = [];
+		
+		var copy = exprs.copy();
+		var previous = 0;
+		var counter = 0;
+		while (copy.length > 0) {
+			
+			var c = copy.shift();
+			
+			if (c != null) {
+				
+				var isSame = c.expr.getName() == delimiter;
+				var isEnd = counter == exprs.length - 1;
+				var call = (isSame && !isEnd) ? exprs.slice : exprs.splice;
+				
+				if (previous != null && (isSame || isEnd)) {
+					
+					var val = call( previous, counter );
+					if ( val.length > 0 ) result.push( val );
+					previous = null;
+					
+				}
+				
+				if (isSame && previous == null) previous = counter + 1;
+				
+			}
+			
+			++counter;
+			
+		}
+		
+		return result;
+	}
+	
+	public static function indexOf(exprs:Array<Expr>, name:String, ?startIndex:Int = 0):Int {
+		var result = -1;
+		
+		while (startIndex <= exprs.length - 1) {
+			
+			if (exprs[startIndex].expr.getName() == name) {
+				result = startIndex;
+				break;
+			}
+			
+			startIndex++;
+			
+		}
+		
+		return result;
+	}
+	
 }

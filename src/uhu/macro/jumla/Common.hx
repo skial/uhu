@@ -95,42 +95,4 @@ class Common {
 		return result;
 	}
 	
-	public static function follow(path:String) {
-		var cls = Context.getLocalClass().get();
-		var fields = Context.getBuildFields();
-		var parts = path.split( '.' );
-		var calls = [];
-		
-		while (parts.length != 0) {
-			
-			var name = parts.pop();
-			
-			if (parts.length == 0 && fields.exists( name )) {
-				
-				calls.push( name );
-				parts = cls.pack;
-				name = cls.name;
-				
-			}
-			
-			try {
-				
-				var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
-				if (calls.length > 1) calls.reverse();
-				
-				var type:Type = ComplexTypeTools.toType( tpath );
-				
-				trace( type.resolve( calls ) );
-				
-				break;
-				
-			} catch (e:Dynamic) {
-				
-				calls.push( name );
-				
-			}
-			
-		}
-	}
-	
 }

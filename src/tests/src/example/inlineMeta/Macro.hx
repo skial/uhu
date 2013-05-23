@@ -1,9 +1,7 @@
 package example.inlineMeta;
 
+import haxe.ds.Option;
 import haxe.ds.StringMap;
-import haxe.macro.ComplexTypeTools;
-import haxe.macro.Format;
-import haxe.macro.Printer;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -42,55 +40,161 @@ class Macro {
 		return fields;
 	}
 	
+	public static var STEP:Int = 0;
+	public static var DECLARTION:Array<Expr> = [];
+	public static var STATE:Option<Array<Expr>> = None;
+	
 	public static function loop(e:Expr, ?body:Array<Expr>) {
-		var pos = e.pos;
 		var result = e;
-		var printer = new Printer();
 		
 		switch(e.expr) {
-			case EMeta(s, e):
-				if (s.name == ':wait' && s.params.length > 0) {
-					
-					result = loop( modify( e , s.params, body ) );
-					
-				} else if (s.name == ':wait') {
-					trace( e );
+			case EMeta(m, e):
+				
+				if (m.params.length > 0) {
+					STATE = Some(m.params);
 				}
+				
+				result = loop( e, body );
+				
+				STATE = None;
 				
 			case EBlock(exprs):
 				
-				var i = 0;
+				// Get everything inbetween each @:wait found.
+				var chunks:Array<Array<Expr>> = exprs.split( 'EMeta' );
 				
-				for (expr in exprs) {
-					++i;
-					result = loop( expr, exprs.slice( i ) );
+				// Remove any expressions which appears before the first @:wait
+				// and store it in misfits.
+				var i = 0;
+				var index = exprs.indexOf( 'EMeta' );
+				var misfits:Array<Expr> = [];
+				while (i != exprs.indexOf( 'EMeta' ) && index != -1) {
 					
-					if ( printer.printExpr( result ) != printer.printExpr( expr ) ) {
-						break;
+					++i;
+					var val = chunks[0].shift();
+					if (val != null) misfits.push( val );
+					
+					if (chunks[0].length == 0) chunks.shift();
+					
+				}
+				
+				var nbody:Array<Expr> = [];
+				var ecopy = exprs.copy();
+				ecopy.reverse();
+				
+				var i = exprs.length - 1;
+				for (e in ecopy) {
+					
+					var isMeta = e.expr.getName() == 'EMeta';
+					
+					STEP = i+1;
+					
+					if (isMeta) {
+						
+						var chunk = isMeta ? chunks.pop() : [];
+						
+						if (nbody.length > 0) {
+							chunk = chunk.concat( nbody );
+							nbody = [];
+						}
+						
+						e = loop( e, (isMeta && chunk != null) ? chunk : [] );
+						
+						nbody = nbody.concat( DECLARTION );
+						nbody.push( e );
+						
+						DECLARTION = [];
 					}
 					
-				}
-				
-				if ( printer.printExpr( result ) != printer.printExpr( e ) ) {
-					exprs = exprs.slice(0, i);
-					
-					result = { expr:EBlock(exprs), pos:pos };
+					--i;
 					
 				}
 				
-			case ECall(e, p):
-				var params:Array<Expr> = [];
+				// Combine any expression before the first @:wait metadata with the newly
+				// constructed method body.
+				result = { expr: EBlock( misfits.concat( nbody ) ), pos: e.pos };
 				
-				for (pp in p) {
-					params.push( loop( pp ) );
+			case ECall(e, oparams):
+				
+				// KEY
+				// oparams -> original parameters
+				// mparams -> metadata parameters
+				
+				var type = e.printExpr().find();
+				var arity = type.arity();
+				var args = type.args();
+				
+				var matches:Array<{exprs:Array<Expr>, pos:Int}> = [];
+				
+				switch (STATE) {
+					case None:
+						// Look for array declerations eg. [suc]
+						
+						for (i in 0...oparams.length) {
+							
+							switch (oparams[i].expr) {
+								case EArrayDecl(values):
+									matches.push( { exprs: values, pos: i } );
+									
+								case _:
+									
+							}
+							
+						}
+						
+						olympias(e, oparams, matches, body);
+						
+					case Some(mparams):
+						// First look for wildcards eg. _
+						var wildcards:Array<Int> = [];
+						
+						for (i in 0...oparams.length) {
+							
+							if (oparams[i].getConst().isWildcard()) {
+								wildcards.push( i );
+							}
+							
+						}
+						
+						if (wildcards.length > 0) {
+							// Wildcards found
+							for (i in 0...mparams.length) {
+								
+								switch (mparams[i].expr) {
+									case EArrayDecl(values):
+										var val = (wildcards[0] == null) ? oparams.length + i : wildcards.shift();
+										matches.push( { exprs: values, pos: val } );
+										
+									case _:
+										
+								}
+								
+							}
+							
+							olympias(e, oparams, matches, body);
+							
+						} else {
+							// Just push modified mparams to end of oparams
+							
+							for (i in 0...mparams.length) {
+								
+								switch (mparams[i].expr) {
+									case EArrayDecl(values):
+										matches.push( { exprs: values, pos: oparams.length + i } );
+										
+									case _:
+										
+								}
+								
+							}
+							
+							olympias(e, oparams, matches, body);
+							
+						}
+						
 				}
 				
-				result = { expr:ECall( loop( e ), params ), pos:pos };
 				
-			case EFunction(n, f):
-				//trace( printer.printExpr( f.expr ) );
-				f.expr = loop( f.expr );
-				//trace( printer.printExpr( f.expr ) );
 			case _:
 				//trace( e );
 		}
@@ -98,137 +202,101 @@ class Macro {
 		return result;
 	}
 	
-	private static var cache:StringMap<String> = new StringMap<String>();
-	
-	public static function modify(e:Expr, params:Array<Expr>, body:Array<Expr>) {
-		var pos = e.pos;
-		var result = e;
-		var printer = new Printer();
-		
-		switch (e.expr) {
-			case ECall(e, p):
-				
-				printer.printExpr( e ).follow();
-				
-				for (pair in pairs( params )) {
-					
-					var method = Context.parse('function(${printer.printExpr( pair[0] )}, ${printer.printExpr( pair[1] )}) {}', e.pos);
-					method = modify( method, [], body );
-					
-					p.push( method );
-					
-				}
-				
-				result = { expr:ECall(e, p), pos:pos };
-				
-			case EFunction(n, f):
-				f.expr = { expr:EBlock( body ), pos:f.expr.pos };
-				
-				result = { expr:EFunction(n, f), pos:pos };
-				
-			case _:
-				
-		}
-		
-		return result;
-	}
-	
-	private static function pairs(params:Array<Expr>):Array<Array<Expr>> {
-		var result:Array<Array<Expr>> = [];
-		var pair:Array<Expr> = [];
-		var copy = params.copy();
-		
-		while (copy.length > 0) {
+	private static function olympias(e:Expr, oparams:Array<Expr>, matches:Array<{exprs:Array<Expr>, pos:Int}>, body:Array<Expr>) {
+		// More than one method needs to be creating, but each method needs to have
+		// access to each listed parameter. So they are created before the method call
+		// and the values are set in the method body, which calls a newly created private
+		// function.
+		/*
 			
-			pair = [copy.shift(), copy.shift()];
+			-----
+			BEFORE
+			-----
+			@:wait js.Browser.window.requestFileSystem(0, 0, [success], [error]);
+			// code, code, code
 			
-			for (i in 0...pair.length) {
-				
-				if (pair[i] == null) pair[i] = macro _;
-				
+			-----
+			AFTER
+			-----
+			var success, error;
+			var step1 = function() {
+				// code, code, code
 			}
 			
-			result.push( pair );
+			js.Browser.window.requestFileSystem(0, 0, function(_success){
+				success=_success;
+				step1();
+			}, function(_error){
+				error=_error;
+				step1();
+			});
 			
-		}
+		 */
 		
-		return result;
+		var vars:Array<Var> = [];
+		var otype:Type = e.printExpr().find();
+		var ret:Type = null;
 		
-	}
-	
-	/*private static function find(path:String) {
-		
-		var parts = path.split( '.' );
-		var calls = [];
-		
-		while (true) {
+		for (match in matches) {
 			
-			//trace(parts);
-			var name = parts.pop();
-			//trace(parts);
-			if (parts.length == 0 && fields.exists( name )) {
-				
-				calls.push( name );
-				parts = cls.pack;
-				name = cls.name;
-				
-			}
+			var ftype = Context.follow( otype.args()[match.pos].t );
 			
-			try {
-				
-				var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
-				if (calls.length > 1) calls.reverse();
-				
-				var type = ComplexTypeTools.toType( tpath );
-				
-				trace( type );
-				trace( calls );
-				
-				trace( follow( type, calls ) );
-				
-				break;
-				
-			} catch (e:Dynamic) {
-				
-				calls.push( name );
-				
-			}
-			
-		}
-		
-	}
-	
-	private static function follow(type:Type, path:Array<String>) {
-		var result = null;
-		
-		while (path.length != 0) {
-			var id = path.shift();
-			
-			switch( type ) {
-				case TInst(t, _):
-					var _cls = t.get();
-					var _isStatic = false;
-					var _field = null;
-					
-					if (_cls.statics.get().exists( id )) {
-						_field = _cls.statics.get().get( id );
-					} else if (_cls.fields.get().exists( id )) {
-						_field = _cls.fields.get().get( id );
-					}
-					
-					if (_field != null) {
-						
-						type = _field.type;
-						result = _field;
-						
-					}
+			switch (ftype) {
+				case TFun(_, _ret):
+					ret = _ret;
 					
 				case _:
 			}
 			
+			var args:Array<FunctionArg> = [];
+			var nbody:Array<Expr> = [];
+			
+			for (expr in match.exprs) {
+				
+				var name = expr.printExpr();
+				
+				vars.push( { name: name, type: null, expr: null } );
+				args.push( { name: '_$name', opt: false, type: null, value: null } );
+				nbody.push( macro $i { name } = $i { '_$name' } );
+				
+			}
+			
+			nbody = nbody
+				.concat( [macro $i { 'step$STEP' } () ] )	//	Call step#()
+				.concat( [macro return $e { ret.defaults() } ] );	// Add a return value, if needed
+			
+			// Replace matched params with real callback
+			oparams[match.pos] = { 
+				expr: EFunction( null, {
+					args: args,
+					ret: Context.toComplexType( ret ),
+					params: [],
+					expr: { 
+						expr: EBlock( nbody ), 
+						pos: e.pos }
+				} ), 
+				pos: e.pos 
+			};
+			
 		}
 		
-		return result;
-	}*/
+		DECLARTION.push( { expr: EVars( vars ), pos: e.pos } );
+		
+		DECLARTION.push( { 
+			expr: EVars( [ {
+				name: 'step$STEP', 
+				type: null, 
+				expr: { 
+					expr: EFunction( null, {
+						args: [],
+						ret: null,
+						params: [],
+						expr: { expr: EBlock( body ), pos: e.pos }
+					} ), 
+					pos: e.pos }
+				} ] ),
+			pos: e.pos
+		} );
+	}
 	
 }

@@ -38,8 +38,8 @@ class Publisher {
 						
 						fields.push( field._setter( macro {
 							$i { field.name } = v;
-							$i { fname } .dispatch( v );
-							//$i { fname } .trigger( v );
+							//$i { fname } .dispatch( v );
+							$i { fname } .trigger( v );
 							return v;
 						} ) );
 						
@@ -51,8 +51,8 @@ class Publisher {
 						
 						if (!pubCache.exists( fname )) {
 							
-							initExprs.push( macro $i { fname } = new msignal.Signal.Signal1<$t>() );
-							//initExprs.push( macro $i { fname } = new thx.react.Signal.Signal1<$t>() );
+							//initExprs.push( macro $i { fname } = new msignal.Signal.Signal1<$t>() );
+							initExprs.push( macro $i { fname } = new thx.react.Signal.Signal1<$t>() );
 							pubCache.set( fname, true );
 							
 						}
@@ -97,8 +97,8 @@ class Publisher {
 			access: [APublic, AStatic],
 			name: 'UhxSignalFor_${field.name}',
 			meta: [],
-			kind: FVar(macro :msignal.Signal.Signal1<$ctype>, null)
-			//kind: FVar(macro :thx.react.Signal.Signal1<$ctype>, null)
+			//kind: FVar(macro :msignal.Signal.Signal1<$ctype>, null)
+			kind: FVar(macro :thx.react.Signal.Signal1<$ctype>, null)
 		};
 	}
 	

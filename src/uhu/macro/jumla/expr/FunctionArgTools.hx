@@ -25,30 +25,4 @@ class FunctionArgTools {
 		return Printer.printFunctionArg( a );
 	}
 	
-	/*public static function exists(args:Array<FunctionArg>, name:String):Bool {
-		var result = false;
-		
-		for (arg in args) {
-			if (arg.name == name) {
-				result = true;
-				break;
-			}
-		}
-		
-		return result;
-	}
-	
-	public static function get(args:Array<FunctionArg>, name:String):FunctionArg {
-		var result = null;
-		
-		for (arg in args) {
-			if (arg.name == name) {
-				result = arg;
-				break;
-			}
-		}
-		
-		return result;
-	}*/
-	
 }

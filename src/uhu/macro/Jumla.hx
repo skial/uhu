@@ -6,7 +6,6 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 
 typedef JumlaPrinter = uhu.macro.jumla.Printer;
-typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 
 typedef JumlaTypeTools = uhu.macro.jumla.TypeTools;
 typedef JumlaTypePathTools = uhu.macro.jumla.TypePathTools;
@@ -24,14 +23,14 @@ typedef JumlaMethodKindTools = uhu.macro.jumla.type.MethodKindTools;
 typedef JumlaTFunTools = uhu.macro.jumla.type.TFunTools;
 
 typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
+typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 typedef JumlaEVarTools = uhu.macro.jumla.expr.EVarTools;
-typedef JumlaConstantTools = uhu.macro.jumla.expr.ConstantTools;
-typedef JumlaEFunctionTools = uhu.macro.jumla.expr.EFunctionTools;
 typedef JumlaFieldTools = uhu.macro.jumla.expr.FieldTools;
+typedef JumlaConstantTools = uhu.macro.jumla.expr.ConstantTools;
 typedef JumlaFunctionTools = uhu.macro.jumla.expr.FunctionTools;
 typedef JumlaFunctionArgTools = uhu.macro.jumla.expr.FunctionArgTools;
-typedef JumlaTypeDefinitionTools = uhu.macro.jumla.expr.TypeDefinitionTools;
 typedef JumlaMetadataEntryTools = uhu.macro.jumla.expr.MetadataEntryTools;
+typedef JumlaTypeDefinitionTools = uhu.macro.jumla.expr.TypeDefinitionTools;
 
 typedef JumlaCommon = uhu.macro.jumla.Common;
 

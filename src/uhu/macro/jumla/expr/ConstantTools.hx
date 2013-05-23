@@ -4,6 +4,7 @@ import haxe.macro.Expr;
 
 using StringTools;
 using haxe.EnumTools;
+using uhu.macro.Jumla;
 
 /**
  * ...
@@ -88,6 +89,10 @@ class ConstantTools {
 	
 	public static function isEReg(c:Constant):Bool {
 		return (c.getName() == 'CRegexp');
+	}
+	
+	public static function isWildcard(c:Constant):Bool {
+		return (c.get() == '_');
 	}
 	
 }

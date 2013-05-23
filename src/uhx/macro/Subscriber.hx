@@ -86,8 +86,8 @@ class Subscriber {
 							case _:
 						}
 						
-						var key = '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})';
-						//var key = '${parts.join(".")}.UhxSignalFor_$fname.on(set_${field.name})';
+						//var key = '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})';
+						var key = '${parts.join(".")}.UhxSignalFor_$fname.on(set_${field.name})';
 						if (!subCache.exists( key )) {
 							
 							var _arr = field.isStatic() ? initExprs : newExprs;
