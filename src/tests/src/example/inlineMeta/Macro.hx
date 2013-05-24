@@ -60,59 +60,64 @@ class Macro {
 				
 			case EBlock(exprs):
 				
-				// Get everything inbetween each @:wait found.
-				var chunks:Array<Array<Expr>> = exprs.split( 'EMeta' );
-				
-				// Remove any expressions which appears before the first @:wait
-				// and store it in misfits.
-				var i = 0;
 				var index = exprs.indexOf( 'EMeta' );
-				var misfits:Array<Expr> = [];
-				while (i != exprs.indexOf( 'EMeta' ) && index != -1) {
-					
-					++i;
-					var val = chunks[0].shift();
-					if (val != null) misfits.push( val );
-					
-					if (chunks[0].length == 0) chunks.shift();
-					
-				}
 				
-				var nbody:Array<Expr> = [];
-				var ecopy = exprs.copy();
-				ecopy.reverse();
-				
-				var i = exprs.length - 1;
-				for (e in ecopy) {
+				if (index > 0) {
 					
-					var isMeta = e.expr.getName() == 'EMeta';
+					// Get everything inbetween each @:wait found.
+					var chunks:Array<Array<Expr>> = exprs.split( 'EMeta' );
 					
-					STEP = i+1;
-					
-					if (isMeta) {
+					// Remove any expressions which appears before the first @:wait
+					// and store it in misfits.
+					var i = 0;
+					var misfits:Array<Expr> = [];
+					while (i != exprs.indexOf( 'EMeta' ) && index != -1) {
 						
-						var chunk = isMeta ? chunks.pop() : [];
+						++i;
+						var val = chunks[0].shift();
+						if (val != null) misfits.push( val );
 						
-						if (nbody.length > 0) {
-							chunk = chunk.concat( nbody );
-							nbody = [];
-						}
+						if (chunks[0].length == 0) chunks.shift();
 						
-						e = loop( e, (isMeta && chunk != null) ? chunk : [] );
-						
-						nbody = nbody.concat( DECLARTION );
-						nbody.push( e );
-						
-						DECLARTION = [];
 					}
 					
-					--i;
+					var nbody:Array<Expr> = [];
+					var ecopy = exprs.copy();
+					ecopy.reverse();
+					
+					var i = exprs.length - 1;
+					for (e in ecopy) {
+						
+						var isMeta = e.expr.getName() == 'EMeta';
+						
+						STEP = i+1;
+						
+						if (isMeta) {
+							
+							var chunk = isMeta ? chunks.pop() : [];
+							
+							if (nbody.length > 0) {
+								chunk = chunk.concat( nbody );
+								nbody = [];
+							}
+							
+							e = loop( e, (isMeta && chunk != null) ? chunk : [] );
+							
+							nbody = nbody.concat( DECLARTION );
+							nbody.push( e );
+							
+							DECLARTION = [];
+						}
+						
+						--i;
+						
+					}
+					
+					// Combine any expression before the first @:wait metadata with the newly
+					// constructed method body.
+					result = { expr: EBlock( misfits.concat( nbody ) ), pos: e.pos };
 					
 				}
-				
-				// Combine any expression before the first @:wait metadata with the newly
-				// constructed method body.
-				result = { expr: EBlock( misfits.concat( nbody ) ), pos: e.pos };
 				
 			case ECall(e, oparams):
 				
