@@ -13,6 +13,23 @@ using uhu.macro.Jumla;
  */
 class Common {
 	
+	public static function indexOf< T: { name:String } >(obj:Array<T>, name:String, startIndex:Int = 0):Int {
+		var result = -1;
+		
+		while (startIndex < obj.length) {
+			
+			if (obj[ startIndex ].name == name) {
+				result = startIndex;
+				break;
+			}
+			
+			++startIndex;
+			
+		}
+		
+		return result;
+	}
+	
 	public static function remove< T: { name:String } >(obj:Array<T>, key:String):Bool {
 		var result = false;
 		var target = null;

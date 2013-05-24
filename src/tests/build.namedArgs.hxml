@@ -1,0 +1,10 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+-cp ../
+
+-main example.namedArgs.Main
+-js bin/example.namedArgs.js
+
+#-dce full

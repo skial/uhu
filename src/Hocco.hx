@@ -19,11 +19,11 @@ using tink.macro.tools.MacroTools;
 class Hocco {
 	
 	/**
-	 * You call this method from your ```.hxml``` file. Add ```--macro Hocco.me()``` for this method to be called.
+	 * You call this method from your `.hxml` file. Add `--macro Hocco.me()` for this method to be called.
 	 * 
-	 * It adds the conditional flag ```use_rtti_doc``` into the compiler.
+	 * It adds the conditional flag `use_rtti_doc` into the compiler.
 	 */
-	@:macro public static function me():Void {
+	public static macro function me():Void {
 		Compiler.define('use_rtti_doc');
 		Context.onGenerate(rummage);
 	}
@@ -31,9 +31,9 @@ class Hocco {
 	/**
 	 * Used to set the global defaults which will effect every class, enum or typedef.
 	 * 
-	 * You call this method from your ```.hxml``` file. Add ```--macro Hocco.setDefaults( { show_privates:true } )``` for this method to be called.
+	 * You call this method from your `.hxml` file. Add `--macro Hocco.setDefaults( { show_privates:true } )` for this method to be called.
 	 */
-	@:macro public static function setDefaults(defaults:TDefaults):Void {
+	public static macro function setDefaults(defaults:TDefaults):Void {
 		if (defaults.output_path != null) HoccoBuild.output_path = Sys.getCwd() + defaults.output_path;
 		if (defaults.lookup_files != null) HoccoBuild.lookup_files = defaults.lookup_files;
 		if (defaults.directory_path != null) HoccoBuild.directory_path = Sys.getCwd() + defaults.directory_path;
