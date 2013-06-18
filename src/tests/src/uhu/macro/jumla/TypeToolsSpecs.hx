@@ -53,7 +53,7 @@ class TypeToolsSpecs extends TestCase {
 	public function testIfFunction() {
 		expr = macro : String->String->Int->Int->Void;
 		type = ComplexTypeTools.toType( expr );
-		assertTrue( type.isFunction() );
+		assertTrue( type.isMethod() );
 	}
 	
 	public function testIfStructure() {

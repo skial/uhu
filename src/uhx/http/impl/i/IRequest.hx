@@ -1,7 +1,7 @@
 package uhx.http.impl.i;
 
+import thx.react.Signal;
 import uhx.web.URI;
-import msignal.Signal;
 import haxe.ds.StringMap;
 import uhx.http.impl.t.TData;
 import uhx.http.impl.i.IResponse;

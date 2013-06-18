@@ -60,7 +60,7 @@ class ComplexTypeTools {
 	}
 
 	public static inline function toString(c:ComplexType):String {
-		return Printer.printComplexType( c );
+		return c.printComplexType();
 	}
 	
 }

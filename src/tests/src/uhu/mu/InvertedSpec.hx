@@ -1,7 +1,7 @@
 package uhu.mu;
 
 import haxe.unit.TestCase;
-import uhu.mu.Renderer;
+//import uhu.mu.Renderer;
 import uhu.mu.Settings;
 import uhu.mu.Common;
 import uhu.Library;

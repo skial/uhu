@@ -1,4 +1,5 @@
 package uhu.hocco;
+
 import haxe.Http;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
@@ -7,16 +8,14 @@ import haxe.macro.Type;
 import haxe.Template;
 import massive.neko.io.FileSys;
 import massive.neko.util.PathUtil;
-import neko.FileSystem;
+import sys.FileSystem;
 import massive.neko.io.File;
 import neko.Lib;
-import neko.Sys;
 
 import Markdown;
 
 using StringTools;
-using tink.core.types.Outcome;
-using tink.macro.tools.MacroTools;
+using uhu.macro.Jumla;
 
 /**
  * ...
@@ -59,18 +58,18 @@ class HoccoBuild {
 	 * Comments are passed through MDown, and code is passed through CodeHighlighter's syntax highlighting. 
 	 * This page is the result of running Hocco against its own source file.
 	 * 
-	 * If you have Hocco in your ```.hxml``` file, you can use it as:
+	 * If you have Hocco in your `.hxml` file, you can use it as:
 	 * 
-	 * ```@:hocco class MyClass```
+	 * `@:hocco class MyClass`
 	 * 
-	 * In your ```.hxml``` file add ```--macro Hocco.me()``` which will generate linked HTML documentation for the class, 
-	 * saving it into a ```docs``` folder by default.
+	 * In your `.hxml` file add `--macro Hocco.me()` which will generate linked HTML documentation for the class, 
+	 * saving it into a `docs` folder by default.
 	 * 
 	 * Hocco is monolingual, but there are also [Docco](http://jashkenas.github.com/docco/), [Pycco](http://fitzgen.github.com/pycco/), 
 	 * [Rocco](http://rtomayko.github.com/rocco/) and [Shocco](http://rtomayko.github.com/shocco/) written in and with support for other languages. 
 	 * The [source for Hocco](https://github.com/skial/Hocco) is available on GitHub, and released under the MIT license.
 	 * 
-	 * To install Hocco, run ```haxelib install Hocco``` from the command line.
+	 * To install Hocco, run `haxelib install Hocco` from the command line.
 	 */
 	public static var __reademe__:String;
 	
@@ -88,7 +87,7 @@ class HoccoBuild {
 	
 	/**
 	 * ### Main Documentation Generation Function ###
-	 * Generate the documentation for the source file by looping over every field in ```field```, accessing its documentation field provided by the compiler,
+	 * Generate the documentation for the source file by looping over every field in `field`, accessing its documentation field provided by the compiler,
 	 * then reading the source code file, which then copies the related code, highlighting it and converts the markdown.
 	 */
 	public static function document(name:String, pos:Position, doc:Null<String>, fields:Array<TField>):Void {
@@ -98,10 +97,10 @@ class HoccoBuild {
 		title = name;
 		names.push(name);
 		
-		var code:String = File.create(neko.Sys.getCwd() + Context.getPosInfos(pos).file).readString();
+		var code:String = File.create(Sys.getCwd() + Context.getPosInfos(pos).file).readString();
 		
 		if (doc != null) {
-			sections.push( { docs_text:Markdown.convert(parseComment(doc)), code_text:'', id:counter } );
+			sections.push( { docs_text:Markdown.markdownToHtml(parseComment(doc)), code_text:'', id:counter } );
 			counter++;
 		}
 		
@@ -119,7 +118,7 @@ class HoccoBuild {
 	
 	/**
 	 * Prepares Hocco for generating documentation for a Class by combining instance fields and static fields together. If the class has a constructor
-	 * then it gets added to the ```fields``` array.
+	 * then it gets added to the `fields` array.
 	 */
 	public static function documentClass(local:ClassType):Void {
 		var fields:Array<ClassField> = new Array<ClassField>();
@@ -135,7 +134,7 @@ class HoccoBuild {
 	}
 	
 	/**
-	 * Prepares Hocco for generating documentation for a [Typedef](http://haxe.org/manual/struct) by accessing the ```TAnonymous``` type's fields 
+	 * Prepares Hocco for generating documentation for a [Typedef](http://haxe.org/manual/struct) by accessing the `TAnonymous` type's fields 
 	 * which get passed along to document.
 	 */
 	public static function documentTypedef(local:DefType):Void {
@@ -144,14 +143,14 @@ class HoccoBuild {
 		switch (local.type) {
 			case TAnonymous(f):
 				fields = f.get().fields;
-			default:
+			case _:
 		}
 		
 		document(local.name, local.pos, local.doc, cast fields);
 	}
 	
 	/**
-	 * Prepares Hocco for generating documentation for an [Enum](http://haxe.org/ref/enums) by storing all its constructs in ```fields```.
+	 * Prepares Hocco for generating documentation for an [Enum](http://haxe.org/ref/enums) by storing all its constructs in `fields`.
 	 */
 	public static function documentEnum(local:EnumType):Void {
 		var fields:Array<EnumField> = new Array<EnumField>();
@@ -163,7 +162,7 @@ class HoccoBuild {
 	
 	/**
 	 * Given the field and source code, remove unwanted formatting created by some IDE's and copy the source code using the information stored 
-	 * in ```field.pos```.
+	 * in `field.pos`.
 	 * 
 	 * Pass the code to [CodeHighlighter](https://github.com/tong/codehighlighter) for syntax highlighting, pass the documentation to 
 	 * [mdown](https://github.com/jasononeil/mdown) for markdown conversion.
@@ -208,13 +207,13 @@ class HoccoBuild {
 		
 		if (align.match(code) && align.matchedRight().trim() == '') code = align.replace(code, '$1');
 		
-		doc = Markdown.convert(doc_string);
+		doc = Markdown.markdownToHtml(doc_string);
 		
 		return { docs_text:doc, code_text:code, id:counter };
 	}
 	
 	/**
-	 * If you set ```print_metadata``` to true through ```--macro Hocco.setDefaults( { print_access:true } )```, then any metadata associated
+	 * If you set `print_metadata` to true through `--macro Hocco.setDefaults( { print_access:true } )`, then any metadata associated
 	 * with the current field being processed will be built and attached to the generated output.
 	 */
 	@:example(hello = 'world') 
@@ -305,12 +304,12 @@ class HoccoBuild {
 	public static var print_metadata:Bool = false;
 	
 	/**
-	 * Used to determine if hocco should look in ```directory_path``` for non inline documentation.
+	 * Used to determine if hocco should look in `directory_path` for non inline documentation.
 	 */
 	public static var lookup_files:Bool = false;
 	
 	/**
-	 * Used to determine where hocco should look when ```lookup_files``` is true, for the current class, typedef or enum being processed.
+	 * Used to determine where hocco should look when `lookup_files` is true, for the current class, typedef or enum being processed.
 	 */
 	public static var local_file_path:String = '';
 	
@@ -325,17 +324,18 @@ class HoccoBuild {
 	public static var output_path:String = Sys.getCwd() + File.seperator + 'docs' + File.seperator;
 	
 	/**
-	 * The location of ```hocco.css```.
+	 * The location of `hocco.css`.
 	 */
-	public static var raw_css:String = Sys.getCwd() + File.seperator + Context.resolvePath('uhu/hocco/assets/hocco.css');
+	//public static var raw_css:String = Sys.getCwd() + File.seperator + Context.resolvePath('uhu/hocco/assets/hocco.css');
+	public static var raw_css:String = Sys.getCwd() + File.seperator + FileSystem.fullPath('uhu/hocco/assets/hocco.css');
 	
 	/**
-	 * The location of ```hocco.html``` template.
+	 * The location of `hocco.html` template.
 	 */
 	public static var raw_html:String = Sys.getCwd() + File.seperator + Context.resolvePath('uhu/hocco/assets/hocco.html');
 	
 	/**
-	 * Checks if ```field``` is private.
+	 * Checks if `field` is private.
 	 */
 	public static function isPrivate(field:TField):Bool {
 		if (show_privates) {
@@ -346,7 +346,7 @@ class HoccoBuild {
 	}
 	
 	/**
-	 * Checks if ```field``` has the ```@:ignore``` or ```@ignore``` meta tag.
+	 * Checks if `field` has the `@:ignore` or `@ignore` meta tag.
 	 */
 	public static function hasIgnore(field:TField):Bool {
 		if (field.meta.has(':ignore') || field.meta.has('ignore')) return true;
@@ -361,7 +361,7 @@ class HoccoBuild {
 	}
 	
 	/**
-	 * Takes a ```String``` and replaces common IDE specific comment formating.
+	 * Takes a `String` and replaces common IDE specific comment formating.
 	 */
 	public static function parseComment(doc:Null<String>):String {
 		return doc == null ? '' : doc.replace('\n\t * ', '').replace('/**', '');

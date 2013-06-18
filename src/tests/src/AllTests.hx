@@ -1,23 +1,23 @@
 package ;
 
 import haxe.Utf8Spec;
-import uhx.fmt.ASCIISpec;
-import uhx.macro.PubSubSpec;
 import uhx.web.URISpec;
+import uhx.fmt.ASCIISpec;
+import haxe.io.StringInput;
+import uhx.macro.PubSubSpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
-import uhx.http.impl.t.TRequest;
 
-#if !js
+//#if !js
+import uhu.mu.MustacheSpec;
 import uhu.mu.CommentSpec;
-import uhu.mu.DelimiterSpec;
+import uhu.mu.SectionSpec;
+/*import uhu.mu.DelimiterSpec;
 import uhu.mu.InterpolationSpec;
 import uhu.mu.InvertedSpec;
-import uhu.mu.MustacheSpec;
 import uhu.mu.PartialSpec;
-import uhu.mu.SectionSpec;
-import uhu.mu.WalkContextSpec;
-#end
+import uhu.mu.WalkContextSpec;*/
+//#end
 
 #if sys
 import sys.net.HostSpec;
@@ -33,6 +33,9 @@ import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
 import uhx.crypto.MD5Spec;
 
+import utest.Runner;
+import utest.ui.Report;
+
 /**
  * ...
  * @author Skial Bainn
@@ -44,48 +47,50 @@ import uhx.crypto.MD5Spec;
 class AllTests {
 	
 	public static function main() {
-		var runner = new TestRunner();
 		
-		runner.add( new PubSubSpec() );
+		var runner = new Runner();
 		
-		runner.add( new ASCIISpec() );
-		runner.add( new Utf8Spec() );
+		/*runner.addCase( new PubSubSpec() );
 		
-		runner.add( new Base64Spec() );
-		runner.add( new MD5Spec() );
-		runner.add( new HMACSpec() );
+		runner.addCase( new ASCIISpec() );
+		runner.addCase( new Utf8Spec() );
 		
-		runner.add( new URISpec() );
+		runner.addCase( new Base64Spec() );
+		runner.addCase( new MD5Spec() );
+		runner.addCase( new HMACSpec() );
+		
+		runner.addCase( new URISpec() );*/
 		
 		#if sys
 		
-		runner.add( new OAuth10aSpec() );
+		//runner.addCase( new OAuth10aSpec() );
 		
-		runner.add( new HostSpec() );
-		//runner.add( new SocketSpec() );	// temp disabled - neko cant start echo socket
+		//runner.addCase( new HostSpec() );
+		//runner.addCase( new SocketSpec() );	// temp disabled - neko cant start echo socket
 		
 		#end
 		
-		#if !js
+		//#if !js
 		// Mustache Tests
-		runner.add( new CommentSpec() );
-		runner.add( new DelimiterSpec() ); //
-		runner.add( new InterpolationSpec() );
-		runner.add( new InvertedSpec() );
-		runner.add( new MustacheSpec() ); //
-		runner.add( new PartialSpec() ); //
-		runner.add( new SectionSpec() ); 
-		runner.add( new WalkContextSpec() ); 
-		#end
+		//runner.addCase( new MustacheSpec() ); //
+		runner.addCase( new CommentSpec() );
+		runner.addCase( new SectionSpec() ); 
+		/*runner.addCase( new DelimiterSpec() ); //
+		runner.addCase( new InterpolationSpec() );
+		runner.addCase( new InvertedSpec() );
+		runner.addCase( new PartialSpec() ); //
+		runner.addCase( new WalkContextSpec() ); */
+		//#end
 		
 		#if js
 		// Request Tests
-		runner.add( new RequestSpec() );
+		//runner.addCase( new RequestSpec() );
 		#end
 		
 		// Github OAuth Tests
-		runner.add( new GithubSpec() );
+		//runner.addCase( new GithubSpec() );
 		
+		Report.create( runner );
 		runner.run();
 		
 	}

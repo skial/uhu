@@ -1,14 +1,12 @@
 package ;
 
-import haxe.macro.Compiler;
-import haxe.macro.Context;
-import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.Expr;
+import haxe.macro.Context;
+import haxe.macro.Compiler;
 import uhu.hocco.HoccoBuild;
-import uhu.Library;
 
-using tink.core.types.Outcome;
-using tink.macro.tools.MacroTools;
+using uhu.macro.Jumla;
 
 /**
  * ...
@@ -23,7 +21,7 @@ class Hocco {
 	 * 
 	 * It adds the conditional flag `use_rtti_doc` into the compiler.
 	 */
-	public static macro function me():Void {
+	public static macro function init():Void {
 		Compiler.define('use_rtti_doc');
 		Context.onGenerate(rummage);
 	}
@@ -45,7 +43,7 @@ class Hocco {
 	}
 	
 	/**
-	 * Checks the objects metadata for ```@:hocco```.
+	 * Checks the objects metadata for `@:hocco`.
 	 * 
 	 * If it is detected, it checks for any parameters that might have been passed along.
 	 */
@@ -55,31 +53,43 @@ class Hocco {
 			
 			HoccoBuild.local_file_path = namespace.toLowerCase();
 			
-			for (meta in val.meta.get()) 
-				if (meta.name == ':hocco') 
-					if (val.doc == null) 
-						for (param in meta.params)
+			var meta = val.meta.get().get( ':hocoo' );
+			if (meta != null && val.doc == null) {
+				
+				for (param in meta.params) {
+					
+					switch (param.expr) {
+						case EBinop(_, e1, e2):
+							var id = e1.printExpr();
 							
-							switch (param.expr) {
-								
-								case EBinop( _, e1, e2 ):
-									var id = e1.toString();
+							switch (id) {
+								case 'doc':
+									val.doc = e2.printExpr();
 									
-									if (id == 'doc') val.doc = e2.getString().sure(); 
-									
-									if (id == 'lookup_files' && e2.getIdent().sure() == 'true')
+								case 'lookup_files':
+									if (e2.printExpr() == 'true') {
 										HoccoBuild.lookup_files = true;
-									else
+									} else {
 										HoccoBuild.lookup_files = _defaults.lookup_files;
+									}
 									
-									if (id == 'show_privates' && e2.getIdent().sure() == 'true')
+								case 'show_privates':
+									if (e2.printExpr() == 'true') {
 										HoccoBuild.show_privates = true;
-									else
+									} else {
 										HoccoBuild.show_privates = _defaults.show_privates;
+									}
 									
-								default:
-								
-							}	
+								case _:
+							}
+							
+						case _:
+						
+					}
+					
+				}
+				
+			}
 			
 			return true;
 			
@@ -91,7 +101,7 @@ class Hocco {
 	}
 	
 	/**
-	 * The callback function for ```Context.onGenerate```. Loop through every type.
+	 * The callback function for `Context.onGenerate`. Loop through every type.
 	 */
 	private static function rummage(val:Array<Type>):Void {
 		for (v in val) chop(v);

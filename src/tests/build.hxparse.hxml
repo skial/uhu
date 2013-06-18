@@ -1,0 +1,10 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+-cp ../../../hxparse/src
+
+-main example.hxparse.Main
+-js bin/example.hxparse.js
+
+-dce full

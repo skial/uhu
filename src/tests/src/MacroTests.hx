@@ -3,7 +3,10 @@ package ;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import haxe.unit.TestRunner;
-import uhu.macro.jumla.TypeToolsSpecs;
+import uhu.macro.jumla.type.TypePrinterSpecs;
+
+//import uhu.macro.jumla.TypeToolsSpecs;
+//import uhu.hocco.HoccoSpecs;
 
 /**
  * ...
@@ -15,7 +18,9 @@ class MacroTests {
 		
 		var runner = new TestRunner();
 		
-		runner.add( new TypeToolsSpecs() );
+		//runner.add( new TypePrinterSpecs() );
+		//runner.add( new TypeToolsSpecs() );
+		//runner.add( new HoccoSpecs() );
 		
 		runner.run();
 		

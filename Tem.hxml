@@ -1,12 +1,5 @@
 -cp src
--cp ../detox/src
--cp ../thx/src
--cp ../beanhx/src
--cp ../selecthxml/src
--lib mdown
--lib polygonal-core
--js bin/tem/tem.js
--D haxe3
--D no-macro-cache
+-lib phantomjs
+-neko bin/tem/tem.js
 -main Tem
---macro Tem.setIndex('templates/tem/basic.tem.html')
+--macro uhx.macro.Tem.setIndex('templates/tem/basic.tem.html')

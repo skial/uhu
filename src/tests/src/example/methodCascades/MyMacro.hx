@@ -32,7 +32,7 @@ class MyMacro {
 	private static var prev:Var = null;
 	
 	private static function find(e:Expr):Expr {
-		var result = null;
+		var result = e;
 		
 		switch ( e.expr ) {
 			
@@ -80,7 +80,6 @@ class MyMacro {
 				
 			case _:
 				trace( e );
-				result = e;
 				
 		}
 		

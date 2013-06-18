@@ -1,13 +1,12 @@
 package uhx.http.impl;
 
 import uhx.web.URI;
-import msignal.Signal;
 import uhx.http.Response;
 import haxe.ds.StringMap;
 import uhx.http.impl.t.TData;
 import js.html.XMLHttpRequest;
 import uhx.http.impl.e.EMethod;
-import uhx.http.impl.t.TRequest;
+import thx.react.Signal;
 
 using haxe.EnumTools;
 
@@ -33,12 +32,12 @@ class Request_js implements Klas {
 		
 		xhr.addEventListener('load', function(e) {
 			var response = new Response( this );
-			onSuccess.dispatch( response );
+			onSuccess.trigger( response );
 		}, false);
 		
 		xhr.addEventListener('error', function(e) {
 			var response = new Response( this );
-			onError.dispatch( response );
+			onError.trigger( response );
 		}, false);
 		
 		xhr.open( method.getName(), url.toString(), true );

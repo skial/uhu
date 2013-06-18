@@ -47,7 +47,7 @@ class Handler {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
-		if (Context.defined('debug')) {
+		if (Context.defined('debug_macro')) {
 			trace('-----');
 			trace('Class ${cls.path()}');
 		}
@@ -60,7 +60,7 @@ class Handler {
 		 * while in IDE display mode, `-D display`.
 		 */
 		
-		if (Context.defined('debug')) {
+		if (Context.defined('debug_macro')) {
 			trace('-----');
 			trace('Running class handlers');
 		}
@@ -69,7 +69,7 @@ class Handler {
 			
 			if (cls.meta.has( key )) {
 				
-				if (Context.defined('debug')) {
+				if (Context.defined('debug_macro')) {
 					trace('${cls.path()} - $key');
 				}
 				
@@ -79,7 +79,7 @@ class Handler {
 			
 		}
 		
-		if (Context.defined('debug')) {
+		if (Context.defined('debug_macro')) {
 			trace('-----');
 			trace('Running class field handlers');
 		}
@@ -101,7 +101,7 @@ class Handler {
 			
 			if (matched != null) {
 				
-				if (Context.defined('debug')) {
+				if (Context.defined('debug_macro')) {
 					trace('${cls.path()} - $matched');
 				}
 				

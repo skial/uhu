@@ -28,8 +28,8 @@ class RequestSpec extends TestCase {
 		request = new Request( 'https://api.github.com/users/skial'.toURL(), GET );
 		request.init();
 		
-		request.onSuccess.add( GET_onSuccess );
-		request.onError.add( GET_onError );
+		request.onSuccess.on( GET_onSuccess );
+		request.onError.on( GET_onError );
 		
 		request.send();
 	}

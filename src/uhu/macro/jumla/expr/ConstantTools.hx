@@ -40,7 +40,7 @@ class ConstantTools {
 	}
 	
 	@:extern public static inline function toString(c:Constant):String {
-		return Printer.printConstant( c );
+		return c.printConstant();
 	}
 	
 	public static function get(c:Constant) {

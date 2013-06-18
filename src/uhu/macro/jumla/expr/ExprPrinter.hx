@@ -1,4 +1,4 @@
-package uhu.macro.jumla;
+package uhu.macro.jumla.expr;
 
 import haxe.macro.Expr;
 
@@ -6,7 +6,7 @@ import haxe.macro.Expr;
  * @author Skial Bainn
  */
 
-class Printer {
+class ExprPrinter {
 	
 	/**
 	 * Just so I can use `using`

@@ -19,7 +19,7 @@ using uhu.macro.Jumla;
 // Haitian Creole for compiler
 class Du {
 	
-	private static var defines:Array<String> = ['js', 'swf', 'as3', 'neko', 'php', 'cpp', 'cs', 'java'];
+	private static var defines:Array<String> = ['js', 'swf', 'as3', 'neko', 'php', 'cpp', 'cs', 'java', 'sys'];
 	
 	public static macro function addDefine(name:String) {
 		defines.push( name );

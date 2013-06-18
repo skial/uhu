@@ -1,0 +1,9 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+
+-main example.methodName.Main
+-js bin/example.methodName.js
+
+-dce full

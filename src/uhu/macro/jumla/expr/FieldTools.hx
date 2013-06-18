@@ -27,7 +27,7 @@ class FieldTools {
 	}
 	
 	@:extern public static inline function toString(f:Field):String {
-		return Printer.printField( f );
+		return f.printField();
 	}
 	
 	public static function toFProp(variable:Field):Field {

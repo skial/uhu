@@ -6,8 +6,11 @@ import haxe.macro.Expr;
 import haxe.macro.Printer;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
+
+#if neko
 import sys.FileSystem;
 import sys.io.File;
+#end
 
 using StringTools;
 using uhu.macro.Jumla;

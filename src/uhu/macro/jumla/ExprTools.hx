@@ -131,7 +131,7 @@ class ExprTools {
 	}
 
 	public static inline function toString(e:Expr):String {
-		return Printer.printExpr( e );
+		return e.printExpr();
 	}
 	
 	@:extern public static inline function merge(expr1:Expr, expr2:Expr):Expr {

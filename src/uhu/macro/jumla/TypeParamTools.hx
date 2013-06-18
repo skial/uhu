@@ -9,7 +9,7 @@ using uhu.macro.Jumla;
 class TypeParamTools {
 
 	@:extern public static inline function toString(t:TypeParam):String {
-		return Printer.printTypeParam( t );
+		return t.printTypeParam();
 	}
 
 }

@@ -37,7 +37,7 @@ class TypePathTools {
 	}
 	
 	@:extern public static inline function toString(t:TypePath):String {
-		return Printer.printTypePath( t );
+		return t.printTypePath();
 	}
 	
 }

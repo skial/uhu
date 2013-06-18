@@ -4,13 +4,14 @@
 -cp src
 -cp ..
 -cp ../../../../../jonas/src
--cp ../../../thx/src
+-cp ../../../polygonal-core/src
+-cp ../../../thx.core/src
+-cp ../../../thx.react/src
+#-cp ../../../hxparse/src
 
--lib polygonal-core
--lib msignal
--lib mlib
--lib thx-react
--lib thx-core
+-lib utest
+-lib hxparse
+-lib detox
 
 -main AllTests
 -js bin/tests.js

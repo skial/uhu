@@ -22,7 +22,7 @@ class FunctionArgTools {
 	}
 
 	@:extern public static inline function toString(a:FunctionArg):String {
-		return Printer.printFunctionArg( a );
+		return a.printFunctionArg();
 	}
 	
 }

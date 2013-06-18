@@ -6,9 +6,7 @@ import uhx.http.Request;
 import haxe.ds.StringMap;
 import js.html.XMLHttpRequest;
 import uhx.http.impl.e.EStatus;
-import uhx.http.impl.t.TRequest;
 import uhx.http.impl.i.IRequest;
-import uhx.http.impl.t.TResponse;
 import uhx.http.impl.i.IResponse;
 
 /**
