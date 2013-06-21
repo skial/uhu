@@ -85,7 +85,7 @@ class MuParser {
 		return token.getName() == 'Space';
 	}
 	
-	private static function isAlone(tokens:Array<EMu>):Bool {
+	private static function isStandalone(tokens:Array<EMu>):Bool {
 		var result = true;
 		var counter = 0;
 		
@@ -104,6 +104,17 @@ class MuParser {
 			
 			counter++;
 			
+		}
+		
+		return result;
+	}
+	
+	private static function isInterpolating(token:EMu):Bool {
+		var result = false;
+		
+		switch (token) {
+			case Normal(_), Unescaped(_): result = true;
+			case _:
 		}
 		
 		return result;
@@ -135,10 +146,21 @@ class MuParser {
 	
 	public static function render(tokens:Array<EMu>, views:Array<Map<String, Dynamic>>):StringBuf {
 		var buffer = new StringBuf();
-		var isStandalone = tokens.isAlone();
+		var skipNewline = false;
+		var skipWhitespace = false;
 		var i = 0;
 		while (i != tokens.length) {
 			var token = tokens[i];
+			var prev = i != 0 ? tokens[i - 1] : null;
+			var next = i + 1 != tokens.length ? tokens[i + 1] : null;
+			
+			if (!token.isInterpolating() && (prev != null && prev.isNewline()) && (next != null && (next.isWhitespace() && next.getParameters()[0].length > 1))) {
+				tokens[i + 1] = Static('');
+			} else if (next != null && !next.isInterpolating() && token.isWhitespace()) {
+				skipWhitespace = true;
+			} else if (prev != null && prev.isNewline() && !token.isInterpolating()) {
+				skipNewline = true;
+			}
 			
 			switch ( token ) {
 				case Static(v):
@@ -163,11 +185,7 @@ class MuParser {
 						var isBool = value.is( Bool );
 						var isMap = value.is( StringMap );
 						var isMethod = value.isFunction();
-						trace( value );
-						trace( isArray );
-						trace( isBool );
-						trace( isMap );
-						trace( isMethod );
+						
 						if (isArray && value.length == 0 || isBool && value == false) b = false;
 						
 						if (b) {
@@ -204,17 +222,28 @@ class MuParser {
 					
 				case Close(_):
 					
-				case Space(v) if (!isStandalone):
-					buffer.add( v );
+				case Space(v):
+					if (!skipWhitespace) {
+						buffer.add( v );
+					} else {
+						skipWhitespace = false;
+					}
 					
-				case Newline(v) if (tokens.slice(i).isAlone()):
-					isStandalone = true;
-					buffer.add( v );
+				case Newline(v):
+					if (!skipNewline || !skipWhitespace) {
+						buffer.add( v );
+					}
+					if (skipNewline) skipNewline = false;
+					if (skipWhitespace) skipWhitespace = false;
 					
-				case Tab(v) if (!isStandalone):
-					buffer.add( v );
+				case Tab(v):
+					if (!skipWhitespace) {
+						buffer.add( v );
+					} else {
+						skipWhitespace = false;
+					}
 					
-				case _:
+				//case _:
 					
 			}
 			

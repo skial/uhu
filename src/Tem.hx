@@ -1,4 +1,5 @@
 package ;
+
 import uhx.macro.Tem;
 
 /**
@@ -12,9 +13,19 @@ import uhx.macro.Tem;
  */
 
 @:autoBuild( uhx.macro.Tem.build() )
-interface Tem { }
+class Tem { 
+	
+	public static function main() { 
+		
+	}
+	
+	#if (js && nodejs_std)
+	
+	#end
+	
+}
 
-class C1 implements Tem {
+class C1 extends Tem {
 	public function new() {
 		
 	}

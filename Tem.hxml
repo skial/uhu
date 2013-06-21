@@ -1,5 +1,5 @@
 -cp src
--lib phantomjs
--neko bin/tem/tem.js
+-lib nodejs_std
+-js bin/tem/tem.js
 -main Tem
 --macro uhx.macro.Tem.setIndex('templates/tem/basic.tem.html')
