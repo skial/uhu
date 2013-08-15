@@ -1,6 +1,6 @@
 package ;
 
-import uhx.macro.Kort;
+import uhx.sys.LodSpec;
 //import uhx.tem.TemSpec;
 /*import haxe.Utf8Spec;
 import uhx.macro.help.TemArray.TemArray;
@@ -53,7 +53,7 @@ import utest.ui.Report;
 class AllTests {
 	
 	public static function main() {	
-		new Kort( ['-h'] );
+		
 		var runner = new Runner();
 		
 		/*runner.addCase( new WaitSpec() );
@@ -98,6 +98,7 @@ class AllTests {
 		//runner.addCase( new GithubSpec() );
 		
 		//runner.addCase( new TemSpec() );
+		runner.addCase( new LodSpec() );
 		
 		Report.create( runner );
 		runner.run();

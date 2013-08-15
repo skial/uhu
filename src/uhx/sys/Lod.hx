@@ -50,8 +50,18 @@ class Lod {
 				
 			} else {
 				
-				nargs.push( arg );
-				if (arg.startsWith( '--no-' )) nargs.push( 'false' );
+				
+				if (arg.startsWith( '--no-' )) {
+					
+					nargs.push( arg.substr( 4 ) );
+					nargs.push( 'false' );
+					
+				} else {
+					
+					nargs.push( arg );
+					
+				}
+				
 			}
 			
 		}
@@ -65,7 +75,7 @@ class Lod {
 			// Just dump all remaining args into `argv`
 			if (arg == '--') {
 				
-				var remaining = args.slice( args.indexOf( arg ) );
+				var remaining = result.get('original').slice( args.indexOf( arg )+1 );
 				set( 'argv', remaining );
 				
 			} else {
