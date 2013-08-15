@@ -1,13 +1,15 @@
 package uhx.http.impl;
 
+import haxe.PosInfos;
 import uhx.web.URI;
-import uhx.http.Response;
 import haxe.ds.StringMap;
-import uhx.http.impl.t.TData;
+import uhx.http.Response;
 import js.html.XMLHttpRequest;
+import uhx.http.impl.t.TData;
 import uhx.http.impl.e.EMethod;
-import thx.react.Signal;
+import uhx.http.impl.a.Headers;
 
+using StringTools;
 using haxe.EnumTools;
 
 /**
@@ -18,39 +20,74 @@ using haxe.EnumTools;
 class Request_js implements Klas {
 	
 	@:noCompletion public var xhr:XMLHttpRequest;
-	public var headers(default, null):StringMap<String>;
+	public var headers:Headers;
 	
-	public var onError:Signal1<Response>;
-	public var onSuccess:Signal1<Response>;
+	@:pub public var error:Response;
+	@:pub public var success:Response;
+	
+	public var url(default, null):URI;
+	public var method(default, null):EMethod;
 
-	public function new(url:URI, method:EMethod) {
+	public function new(url:URI, method:EMethod, ?p:PosInfos) {
+		this.url = url;
+		this.method = method;
+		
 		xhr = new XMLHttpRequest();
-		headers = new StringMap<String>();
+		headers = new Headers( xhr );
 		
-		onError = new Signal1<Response>();
-		onSuccess = new Signal1<Response>();
-		
-		xhr.addEventListener('load', function(e) {
-			var response = new Response( this );
-			onSuccess.trigger( response );
-		}, false);
-		
-		xhr.addEventListener('error', function(e) {
-			var response = new Response( this );
-			onError.trigger( response );
-		}, false);
-		
+		init();
+	}
+	
+	private function init() {
 		xhr.open( method.getName(), url.toString(), true );
+		
+		xhr.addEventListener('load', onSuccess, false);
+		xhr.addEventListener('error', onError, false);
 	}
 	
-	public function init():Void {
-		for (key in headers.keys()) {
-			xhr.setRequestHeader( key, headers.get( key ) );
+	public function destroy() {
+		xhr.abort();
+		
+		xhr.removeEventListener('load', onSuccess, false);
+		xhr.removeEventListener('error', onError, false);
+	}
+	
+	public function send(?params:StringMap<String>, ?body:String = ''):Void {
+		
+		if (params != null) {
+			
+			switch (method) {
+				case GET:
+					for (key in params.keys()) {
+						url.query.set( key, [ params.get( key ) ] );
+					}
+					
+					destroy();
+					init();
+					
+				case POST:
+					for (key in params.keys()) {
+						body += key.urlEncode() + '=' + params.get( key ).urlEncode();
+					}
+					
+					headers.set('content-type', 'application/x-www-form-urlencoded');
+					
+				case _:
+			}
+			
 		}
+		
+		xhr.send( body );
 	}
 	
-	public function send():Void {
-		xhr.send();
+	private function onSuccess(e) {
+		var response = new Response( this );
+		success = response;
+	}
+	
+	private function onError(e) {
+		var response = new Response( this );
+		error = response;
 	}
 	
 }

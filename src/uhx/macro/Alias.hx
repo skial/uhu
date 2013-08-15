@@ -49,7 +49,7 @@ class Alias {
 							access: new_access,
 							kind: FFun( {
 								args:[],
-								ret:t,
+								ret:null,
 								params:[],
 								expr:macro { return $i{field.name}; },
 							} ),

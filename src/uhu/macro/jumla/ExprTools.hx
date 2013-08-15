@@ -1,6 +1,7 @@
 package uhu.macro.jumla;
 
 import haxe.macro.Expr;
+import haxe.macro.Type;
 import uhu.macro.jumla.TypeParamTools;
 import uhu.macro.jumla.expr.ConstantTools;
 

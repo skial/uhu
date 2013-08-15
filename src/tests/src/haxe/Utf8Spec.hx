@@ -1,25 +1,27 @@
 package haxe;
-import haxe.unit.TestCase;
+
+import haxe.Utf8;
+import utest.Assert;
 
 /**
  * ...
  * @author Skial Bainn
  */
-class Utf8Spec extends TestCase {
+class Utf8Spec {
 
 	public var value:String = '♫£$𤭢';
 	public var expected:String = 'â«Â£$ð¤­¢';
 
 	public function new() {
-		super();
+		
 	}
 	
 	public function testUTF8encode() {
-		assertEquals(expected, Utf8.encode(value));
+		Assert.equals(expected, Utf8.encode(value));
 	}
 	
 	public function testUTF8decode() {
-		assertEquals(value, Utf8.decode(expected));
+		Assert.equals(value, Utf8.decode(expected));
 	}
 	
 }

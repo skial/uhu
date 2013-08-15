@@ -1,13 +1,14 @@
 package uhx.crypto;
-import haxe.unit.TestCase;
-import haxe.crypto.Sha1;
+
+import utest.Assert;
 import uhx.crypto.HMAC;
+import haxe.crypto.Sha1;
 
 /**
  * ...
  * @author Skial Bainn
  */
-class HMACSpec extends TestCase {
+class HMACSpec {
 
 	public var value:String = 'Skial Bainn';
 	public var key:String = 'abc123';
@@ -16,15 +17,15 @@ class HMACSpec extends TestCase {
 	public var expected_with_key = 'a43b2464ae7fc37d2bde9a5cbe2a90ef8bfbafa3';
 
 	public function new() {
-		super();
+		
 	}
 	
 	public function testHaxeSHA1() {
-		assertEquals(expected, Sha1.encode(value));
+		Assert.equals(expected, Sha1.encode(value));
 	}
 	
 	public function testUhuSHA1_key() {
-		assertEquals(expected_with_key, HMAC.sha1(key, value));
+		Assert.equals(expected_with_key, HMAC.sha1(key, value));
 	}
 	
 }

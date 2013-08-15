@@ -26,6 +26,7 @@ typedef JumlaExprTools = uhu.macro.jumla.ExprTools;
 typedef JumlaComplexTypeTools = uhu.macro.jumla.ComplexTypeTools;
 typedef JumlaEVarTools = uhu.macro.jumla.expr.EVarTools;
 typedef JumlaFieldTools = uhu.macro.jumla.expr.FieldTools;
+typedef JumlaFieldArrayTools = uhu.macro.jumla.expr.FieldArrayTools;
 typedef JumlaConstantTools = uhu.macro.jumla.expr.ConstantTools;
 typedef JumlaFunctionTools = uhu.macro.jumla.expr.FunctionTools;
 typedef JumlaFunctionArgTools = uhu.macro.jumla.expr.FunctionArgTools;

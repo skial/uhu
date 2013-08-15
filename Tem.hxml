@@ -1,5 +1,14 @@
 -cp src
--lib nodejs_std
+-cp ../selecthxml/src
+-cp src/tests/src
+-cp ../thx.core/src
+-cp ../thx.react/src
+-lib detox
+-lib tink_macro
+-lib tink_core
+-lib selecthxml
+-lib beanhx
 -js bin/tem/tem.js
 -main Tem
 --macro uhx.macro.Tem.setIndex('templates/tem/basic.tem.html')
+-dce full

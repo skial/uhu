@@ -1,55 +1,56 @@
 package uhx.fmt;
 
-import haxe.unit.TestCase;
+import utest.Assert;
 
 /**
  * ...
  * @author Skial Bainn
  */
-class ASCIISpec extends TestCase {
+
+class ASCIISpec {
 
 	public function new() {
-		super();
+		
 	}
 	
 	public function testValue_NUL() {
-		assertEquals(0, ASCII.NUL);
-	}
-	
-	public function testValue_NUL_alias() {
-		assertEquals(0, ASCII.NULL);
+		Assert.equals(0, ASCII.NUL);
 	}
 	
 	public function testToString_NUL() {
-		assertEquals('\\0', ASCII.NUL);
-	}
-	
-	public function testToString_NUL_alias() {
-		assertEquals('\\0', ASCII.NULL);
+		var e:String = '\\0';
+		var a:String = ASCII.NUL;
+		Assert.equals(e, a);
 	}
 	
 	public function testValue_ZERO() {
-		assertEquals(48, ASCII.ZERO);
+		Assert.equals(48, ASCII.ZERO);
 	}
 	
 	public function testToString_ZERO() {
-		assertEquals('0', '' + ASCII.ZERO);
+		var e:String = '0';
+		var a:String = ASCII.ZERO;
+		Assert.equals(e, a);
 	}
 	
 	public function testValue_z() {
-		assertEquals(122, ASCII.z);
+		Assert.equals(122, ASCII.z);
 	}
 	
 	public function testToString_z() {
-		assertEquals('z', ASCII.z);
+		var e:String = 'z';
+		var a:String = ASCII.z;
+		Assert.equals(e, a);
 	}
 	
 	public function testValue_Z() {
-		assertEquals(90, ASCII.Z);
+		Assert.equals(90, ASCII.Z);
 	}
 	
 	public function testToString_Z() {
-		assertEquals('Z', ASCII.Z);
+		var e:String = 'Z';
+		var a:String = ASCII.Z;
+		Assert.equals(e, a);
 	}
 	
 }

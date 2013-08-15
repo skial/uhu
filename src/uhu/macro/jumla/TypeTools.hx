@@ -18,24 +18,32 @@ class TypeTools {
 		return getName(type);
 	}
 	
-	public static inline function toString(t:Type):String {
+	public static function toString(t:Type):String {
 		return getName( t );
 	}
 	
-	public static inline function isEnum(type:Type):Bool {
+	public static function isEnum(type:Type):Bool {
 		return type.getName() == 'TEnum';
 	}
 	
-	public static inline function isClass(type:Type):Bool {
+	public static function isClass(type:Type):Bool {
 		return type.getName() == 'TInst';
 	}
 	
-	public static inline function isTypedef(type:Type):Bool {
+	public static function isTypedef(type:Type):Bool {
 		return type.getName() == 'TType';
 	}
 	
-	public static inline function isMethod(type:Type):Bool {
+	public static function isMethod(type:Type):Bool {
 		return type.getName() == 'TFun';
+	}
+	
+	public static function isArray(type:Type):Bool {
+		return type.getName() == 'Array';
+	}
+	
+	public static function isIterable(type:Type):Bool {
+		return Context.unify( type, Context.getType( 'Iterable' ) );
 	}
 	
 	public static function arity(type:Type):Int {
@@ -183,13 +191,21 @@ class TypeTools {
 					result = t.get().defaults();
 				}
 				
-			case TEnum(t, p):
+			//case TEnum(t, p):
 				
 			case TInst(t, p):
 				
-			case TType(t, p):
+				switch(t.get().name) {
+					case 'String':
+						result = macro '';
+						
+					case _:
+						trace(t.get().name);
+				}
 				
-			case TFun(args, ret):
+			//case TType(t, p):
+				
+			//case TFun(args, ret):
 				
 			case TAnonymous(a):
 				
@@ -210,13 +226,51 @@ class TypeTools {
 				switch (t.get().name) {
 					case 'Bool':
 						result = macro true;
-					
+						
+					case 'Int':
+						result = macro 0;
+						
+					case 'Float':
+						result = macro .0;
+						
 					case 'Void':
 						
 					case _:
 						trace(t.get().name);
 				}
 				
+			case _:
+				trace( type );
+		}
+		
+		return result;
+	}
+	
+	public static function toValueType(type:Type):Expr {
+		var result = macro TNull;
+		
+		switch( type ) {
+			case TInst(t, p):
+				result = macro TClass( $i { type.getName() } );
+				
+			case TAbstract(t, p):
+				
+				switch (t.get().name) {
+					case 'Bool':
+						result = macro TBool;
+						
+					case 'Int':
+						result = macro TInt;
+						
+					case 'Float':
+						result = macro TFloat;
+						
+					case _:
+						
+				}
+				
+			case _:
+				trace( type );
 		}
 		
 		return result;

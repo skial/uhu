@@ -1,5 +1,6 @@
 package uhx.http.impl;
 
+import haxe.rtti.Meta;
 import uhx.web.URI;
 import haxe.io.Bytes;
 import uhx.http.Request;
@@ -8,23 +9,24 @@ import js.html.XMLHttpRequest;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.i.IRequest;
 import uhx.http.impl.i.IResponse;
+import uhx.http.impl.a.Headers;
 
 /**
  * ...
  * @author Skial Bainn
  */
 
-class Response_js implements Klas/* implements IResponse*/ {
+class Response_js implements Klas {
 	
 	public var request(default, null):Request;
 	public var url(get, null):URI;
 	public var text(get, null):String;
 	public var status(get, null):EStatus;
 	public var content(get, null):Bytes;
-	public var encoding(get, null):String;
+	//public var encoding(get, null):String;
 	public var status_code(get, null):Int;
 	public var history(get, null):Array<String>;
-	public var headers(get, null):StringMap<String>;
+	public var headers(get, null):Headers;
 	
 	@:noCompletion public var xhr:XMLHttpRequest;
 
@@ -32,10 +34,12 @@ class Response_js implements Klas/* implements IResponse*/ {
 		request = r;
 		
 		xhr = untyped request.xhr;
+		
+		headers = new Headers( xhr );
 	}
 	
 	private function get_url():URI {
-		return new URI('');
+		return request.url;
 	}
 	
 	private function get_text():String {
@@ -43,16 +47,16 @@ class Response_js implements Klas/* implements IResponse*/ {
 	}
 	
 	private function get_status():EStatus {
-		return OK;
+		return Status.fromInt.get( xhr.status );
 	}
 	
 	private function get_content():Bytes {
 		return Bytes.ofString( '' );
 	}
 	
-	private function get_encoding():String {
+	/*private function get_encoding():String {
 		return '';
-	}
+	}*/
 	
 	private function get_status_code():Int {
 		return xhr.status;
@@ -62,8 +66,8 @@ class Response_js implements Klas/* implements IResponse*/ {
 		return [''];
 	}
 	
-	private function get_headers():StringMap<String> {
-		return new StringMap<String>();
+	private function get_headers():Headers {
+		return headers;
 	}
 	
 }

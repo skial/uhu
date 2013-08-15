@@ -1,6 +1,9 @@
 package uhx.http;
 
-import haxe.unit.TestCase;
+import haxe.Json;
+import haxe.Timer;
+import uhx.http.impl.e.EStatus;
+import utest.Assert;
 import uhx.http.impl.i.IResponse;
 import uhx.http.impl.e.EMethod;
 
@@ -11,39 +14,67 @@ using uhx.web.URL;
  * @author Skial Bainn
  */
 
-class RequestSpec extends TestCase {
+class RequestSpec implements Klas {
+	
+	/**
+	 * All url's have to accept cross origin requests, which is required
+	 * by Javascript, so the tests have a chance to succeed.
+	 */
+	
+	public static inline var DELAY:Int = 1000;
 
 	public var request:Request;
 	public var response:Response;
 	
-	public function new() {
-		super();
-	}
+	@:sub(uhx.http.Request,error)
+	public var error:Response;
 	
-	override public function setup():Void {
+	@:sub(uhx.http.Request,success)
+	public var success:Response;
+	
+	public function new() {
 		
 	}
 	
 	public function testGET() {
-		request = new Request( 'https://api.github.com/users/skial'.toURL(), GET );
-		request.init();
-		
-		request.onSuccess.on( GET_onSuccess );
-		request.onError.on( GET_onError );
-		
+		var url = 'http://ip.jsontest.com';
+		request = new Request( url.toURL(), GET );
 		request.send();
+		
+		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		
+		Assert.equals( 200, success.status_code );
+		Assert.isTrue( success.headers.exists('Content-Type') );
+		Assert.isTrue( success.headers.exists('content-type') );
+		Assert.equals( url, success.url.toString() );
+		Assert.equals( EStatus.OK, success.status );
 	}
 	
-	public function GET_onSuccess(r:Response) {
-		trace('SUCCESS!');
-		trace(r.status_code);
-		trace(r.text);
+	public function testPOST_StringMap() {
+		var url = 'https://posttestserver.com/post.php';
+		request = new Request( url.toURL(), POST );
+		request.send( ['Name' => 'Skial'] );
+		
+		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		
+		Assert.equals( 200, success.status_code );
+		Assert.equals( EStatus.OK, success.status );
+		Assert.equals( url, success.url.toString() );
 	}
 	
-	public function GET_onError(r:Response) {
-		trace('ERROR!');
-		trace(r.status_code);
-		trace(r.text);
+	public function testHeaders() {
+		var url = 'http://headers.jsontest.com/';
+		request = new Request( url.toURL(), GET );
+		request.send();
+		
+		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		
+		var json = Json.parse( success.text );
+		
+		Assert.equals( 200, success.status_code );
+		Assert.equals( EStatus.OK, success.status );
+		Assert.stringContains( 'localhost', json.Origin );
+		Assert.stringContains( 'headers.jsontest.com', json.Host );
 	}
 	
 }

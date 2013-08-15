@@ -30,18 +30,137 @@ class FieldTools {
 		return f.printField();
 	}
 	
-	public static function toFProp(variable:Field):Field {
-		
-		switch (variable.kind) {
-			case FVar( t, e ):
-				
-				variable.kind = FProp('get_${variable.name}', 'set_${variable.name}', t, e);
+	public static function mkField(n:String):Field {
+		return {
+			name: n,
+			kind: FVar(null, null),
+			meta: [],
+			pos: Context.currentPos(),
+			access: [],
+			doc: '',
+		}
+	}
+	
+	public static function addAccess(field:Field, a:Access):Field {
+		if (field.access.indexOf( a ) == -1) field.access.push( a );
+		return field;
+	}
+	
+	public static function removeAccess(field:Field, a:Access):Field {
+		if (field.access.indexOf( a ) > -1) field.access.remove( a );
+		return field;
+	}
+	
+	public static function mkPublic(f:Field):Field {
+		f.addAccess( APublic );
+		return f;
+	}
+	
+	public static function rmPublic(f:Field):Field {
+		f.removeAccess( APublic );
+		return f;
+	}
+	
+	public static function mkPrivate(f:Field):Field {
+		f.addAccess( APrivate );
+		return f;
+	}
+	
+	public static function rmPrivate(f:Field):Field {
+		f.removeAccess( APrivate );
+		return f;
+	}
+	
+	public static function mkStatic(f:Field):Field {
+		f.addAccess( AStatic );
+		return f;
+	}
+	
+	public static function rmStatic(f:Field):Field {
+		f.removeAccess( AStatic );
+		return f;
+	}
+	
+	public static function mkOverride(f:Field):Field {
+		f.addAccess( AOverride );
+		return f;
+	}
+	
+	public static function rmOverride(f:Field):Field {
+		f.removeAccess( AOverride );
+		return f;
+	}
+	
+	private static function mkDynamic(f:Field):Field {
+		f.addAccess( ADynamic );
+		return f;
+	}
+	
+	private static function rmDynamic(f:Field):Field {
+		f.removeAccess( ADynamic );
+		return f;
+	}
+	
+	public static function mkInline(f:Field):Field {
+		f.addAccess( AInline );
+		return f;
+	}
+	
+	public static function rmInline(f:Field):Field {
+		f.removeAccess( AInline );
+		return f;
+	}
+	
+	public static function mkMacro(f:Field):Field {
+		f.addAccess( AMacro );
+		return f;
+	}
+	
+	public static function rmMacro(f:Field):Field {
+		f.removeAccess( AMacro );
+		return f;
+	}
+	
+	public static function toFVar(field:Field, t:ComplexType, e:Expr = null):Field {
+		field.kind = FVar(t, e);
+		return field;
+	}
+	
+	public static function toFProp(field:Field, g:String = 'default', s:String = 'default', t:ComplexType = null, e:Expr = null):Field {
+		field.kind = FProp(g, s, t, e);
+		return field;
+	}
+	
+	public static function toFFun(field:Field):Field {
+		field.kind = FFun( {
+			args: [],
+			ret: null,
+			expr: null,
+			params: []
+		} );
+		return field;
+	}
+	
+	public static function getMethod(field:Field):Function {
+		var result = null;
+		switch (field.kind) {
+			case FFun(m):
+				result = m;
 				
 			case _:
-				throw '"${variable.name}" field kind is not of type "FieldType::FVar"';
 		}
-		
-		return variable;
+		return result;
+	}
+	
+	public static function addMeta(f:Field, meta:MetadataEntry):Field {
+		if (f.meta == null) f.meta = [];
+		f.meta.push( meta );
+		return f;
+	}
+	
+	public static function addDoc(f:Field, doc:String):Field {
+		f.doc = doc;
+		return f;
 	}
 	
 	public static function createGetter(variable:Field, expression:Expr):Field {
@@ -80,7 +199,11 @@ class FieldTools {
 		return result;
 	}
 	
-	@:extern public static inline function _getter(variable:Field, expr:Expr):Field {
+	public static inline function mkGetter(v:Field, e:Expr):Field {
+		return createGetter( v, e );
+	}
+	
+	@:deprecated public static inline function _getter(variable:Field, expr:Expr):Field {
 		return createGetter( variable, expr );
 	}
 	
@@ -124,7 +247,11 @@ class FieldTools {
 		return result;
 	}
 	
-	@:extern public static inline function _setter(variable:Field, expr:Expr):Field {
+	public static inline function mkSetter(v:Field, e:Expr):Field {
+		return createSetter( v, e );
+	}
+	
+	@:deprecated public static inline function _setter(variable:Field, expr:Expr):Field {
 		return createSetter( variable, expr );
 	}
 	
@@ -164,6 +291,44 @@ class FieldTools {
 		}
 		
 		return result;
+	}
+	
+	public static function body(field:Field, e:Expr):Field {
+		switch (field.kind) {
+			case FFun(method):
+				method.expr = e;
+				
+			case _:
+		}
+		
+		return field;
+	}
+	
+	public static function param(field:Field, id:String, ?constraints:Array<ComplexType>):Field {
+		switch (field.kind) {
+			case FFun(method):
+				constraints = constraints == null ? [] : constraints;
+				
+				method.params.push( {
+					name: id,
+					constraints: constraints
+				} );
+				
+			case _:
+		}
+		
+		return field;
+	}
+	
+	public static function ret(field:Field, ctype:ComplexType):Field {
+		switch (field.kind) {
+			case FFun(method):
+				method.ret = ctype;
+				
+			case _:
+		}
+		
+		return field;
 	}
 	
 	public static function isVariable(field:Field):Bool {

@@ -14,6 +14,16 @@ using uhu.macro.Jumla;
  */
 class ClassTypeTools {
 	
+	public static function isStatic(cls:ClassType):Bool {
+		var result = false;
+		
+		if (cls.constructor != null) {
+			result = true;
+		}
+		
+		return result;
+	}
+	
 	public static function hasInterface(cls:ClassType, path:String):Bool {
 		var result = false;
 		

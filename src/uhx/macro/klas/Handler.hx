@@ -13,7 +13,10 @@ import uhu.macro.Du;
 import uhx.macro.Alias;
 import uhx.macro.Publisher;
 import uhx.macro.Subscriber;
+import uhx.macro.Tem;
 import uhx.macro.To;
+import uhx.macro.Wait;
+import uhx.sys.Ede;
 
 using Lambda;
 using StringTools;
@@ -27,11 +30,17 @@ using uhu.macro.Jumla;
 
 class Handler {
 	
+	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
+		Wait.handler,
+	];
+	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		//':implements' => Implements.handler,	// replaced with uhx.macro.Protocol
 		//':aop' => AOP.handler,	// doesnt work
+		':tem' => TemMacro.handler,
+		':cmd' => Ede.handler,
 		':uhx_to' => To.handler,
-		':uhx_alias' => Alias.handler,
+		//':uhx_alias' => Alias.handler,	// causes more trouble than it's worth
 		':uhx_pub' => Publisher.handler,
 		':uhx_sub' => Subscriber.handler,
 	];
@@ -40,7 +49,7 @@ class Handler {
 		':to' => ':uhx_to',
 		':pub' => ':uhx_pub',
 		':sub' => ':uhx_sub',
-		':alias' => ':uhx_alias',
+		//':alias' => ':uhx_alias',
 	];
 	
 	public static function build():Array<Field> {
@@ -109,6 +118,10 @@ class Handler {
 				
 			}
 			
+		}
+		
+		for (def in DEFAULTS) {
+			fields = def( cls, fields );
 		}
 		
 		return fields;

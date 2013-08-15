@@ -1,12 +1,13 @@
 package uhx.crypto;
-import haxe.unit.TestCase;
+
+import utest.Assert;
 import haxe.crypto.Md5;
 
 /**
  * ...
  * @author Skial Bainn
  */
-class MD5Spec extends TestCase {
+class MD5Spec {
 
 	public var value:String = 'Skial Bainn';
 	public var key:String = 'abc123';
@@ -14,11 +15,11 @@ class MD5Spec extends TestCase {
 	public var expected_with_key:String = '476b606e22ea134b57a77c7a607514f3';
 
 	public function new() {
-		super();
+		
 	}
 	
 	public function testHaxeMD5() {
-		assertEquals(expected, Md5.encode(value));
+		Assert.equals(expected, Md5.encode(value));
 	}
 	
 }

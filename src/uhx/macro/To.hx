@@ -31,7 +31,7 @@ class To {
 		for (field in fields) {
 			
 			if (field.meta.exists(':to')) {
-			
+				
 				var type = null;
 				var expr = null;
 				var name = 'AbstractFor_${field.name}';
@@ -61,7 +61,7 @@ class To {
 					meta: [],
 					params: [],
 					isExtern: false,
-					kind: TDAbstract( type, [], [type] ),
+					kind: TDAbstract( type, [], [] ),
 					fields:	createFields( cls, field, type, expr ),
 				}
 				
@@ -89,9 +89,9 @@ class To {
 				var type = Context.toComplexType( Context.getType( name ) );
 				
 				switch (field.kind) {
-					case FVar(t, _):
+					case FVar(t, e):
 						field.kind = FProp('get', 'never', type);
-						
+						//e = null;
 						fields.push( {
 							name: 'get_${field.name}',
 							access: access,
@@ -107,9 +107,9 @@ class To {
 							meta: []
 						} );
 						
-					case FProp(g, s, t, _):
+					case FProp(g, s, t, e):
 						field.kind = FProp(g, s, type);
-						
+						//e = null;
 						var getter = fields.get(g + '_${field.name}');
 						
 						if (getter != null) {
@@ -145,7 +145,7 @@ class To {
 				
 				// If field has @:alias metadata, fetch the alias
 				// and its getter and modify their types.
-				if (field.meta.exists(':alias')) {
+				/*if (field.meta.exists(':alias')) {
 					
 					var meta = field.meta.get(':alias');
 					var value = meta.params[0].printExpr().replace('"', '');
@@ -166,7 +166,7 @@ class To {
 							
 						case _:
 					}
-				}
+				}*/
 				
 			}
 			

@@ -1,6 +1,6 @@
 package uhx.macro;
 
-import haxe.unit.TestCase;
+import utest.Assert;
 import help.metadata.pubsub.A;
 import help.metadata.pubsub.B;
 import help.metadata.pubsub.C;
@@ -9,10 +9,10 @@ import help.metadata.pubsub.C;
  * ...
  * @author Skial Bainn
  */
-class PubSubSpec extends TestCase {
+class PubSubSpec {
 
 	public function new() {
-		super();
+		
 	}
 	
 	public function testInstance() {
@@ -21,13 +21,13 @@ class PubSubSpec extends TestCase {
 		
 		b.b = 'Hello Bonded World';	// Little weird...
 		
-		this.assertEquals('Hello Bonded World', a.a);
+		Assert.equals('Hello Bonded World', a.a);
 	}
 	
 	public function testStatic() {
 		B._b = 123;
 		
-		this.assertEquals(123, A._a);
+		Assert.equals(123, A._a);
 	}
 	
 	public function testStructure() {
@@ -36,7 +36,7 @@ class PubSubSpec extends TestCase {
 		
 		b.c = { name:'Skial', a:1, b:2 };
 		
-		this.assertEquals('Skial', a.c.name);
+		Assert.equals('Skial', a.c.name);
 	}
 	
 	public function testInstanceTriangle() {
@@ -46,13 +46,13 @@ class PubSubSpec extends TestCase {
 		
 		c.start = 'Hello Instance Tri Universe';
 		
-		this.assertEquals('Hello Instance Tri Universe', a.end);
+		Assert.equals('Hello Instance Tri Universe', a.end);
 	}
 	
 	public function testStaticTriangle() {
 		C._start = 'Hello Static Tri Universe';
 		
-		this.assertEquals('Hello Static Tri Universe', A._end);
+		Assert.equals('Hello Static Tri Universe', A._end);
 	}
 	
 	public function testMixedTriangle() {
@@ -66,7 +66,21 @@ class PubSubSpec extends TestCase {
 		// b => static
 		// c => instance
 		
-		this.assertEquals('Hello Tri Verse', a.fin);
+		Assert.equals('Hello Tri Verse', a.fin);
+	}
+	
+	public function testManyInstances() {
+		var a = new A();
+		var b1 = new B();
+		var b2 = new B();
+		
+		b1.b = 'Hello1';
+		
+		Assert.equals('Hello1', a.a);
+		
+		b2.b = 'Hello2';
+		
+		Assert.equals('Hello2', a.a);
 	}
 	
 }

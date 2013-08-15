@@ -20,6 +20,14 @@ class FunctionArgTools {
 		
 		return result;
 	}
+	
+	public static function mkArg(n:String, ctype:ComplexType = null, opt:Bool = false):FunctionArg {
+		return {
+			name: n,
+			type: ctype,
+			opt: opt,
+		};
+	}
 
 	@:extern public static inline function toString(a:FunctionArg):String {
 		return a.printFunctionArg();

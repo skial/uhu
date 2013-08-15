@@ -18,7 +18,7 @@
 
 #--macro uhx.macro.klas.Handler.init()
 
--dce full
+#-dce full
 #-dce no
 
 #-cmd phantomjs bin/tests.js --debug=yes --local-to-remote-url-access=yes

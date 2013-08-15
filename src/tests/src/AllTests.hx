@@ -1,6 +1,11 @@
 package ;
 
-import haxe.Utf8Spec;
+import uhx.macro.Kort;
+//import uhx.tem.TemSpec;
+/*import haxe.Utf8Spec;
+import uhx.macro.help.TemArray.TemArray;
+import uhx.macro.help.TemArray.TemArray;
+import uhx.macro.WaitSpec;
 import uhx.web.URISpec;
 import uhx.fmt.ASCIISpec;
 import haxe.io.StringInput;
@@ -19,7 +24,7 @@ import uhu.mu.PartialSpec;
 import uhu.mu.WalkContextSpec;*/
 //#end
 
-#if sys
+/*#if sys
 import sys.net.HostSpec;
 import sys.net.SocketSpec;
 import uhx.oauth.OAuth10aSpec;
@@ -31,8 +36,9 @@ import uhx.http.RequestSpec;
 
 import uhx.crypto.Base64Spec;
 import uhx.crypto.HMACSpec;
-import uhx.crypto.MD5Spec;
+import uhx.crypto.MD5Spec;*/
 
+import utest.TestHandler;
 import utest.Runner;
 import utest.ui.Report;
 
@@ -46,20 +52,24 @@ import utest.ui.Report;
 #end
 class AllTests {
 	
-	public static function main() {
-		
+	public static function main() {	
+		new Kort( ['-h'] );
 		var runner = new Runner();
 		
-		/*runner.addCase( new PubSubSpec() );
+		/*runner.addCase( new WaitSpec() );
+		runner.addCase( new PubSubSpec() );
 		
 		runner.addCase( new ASCIISpec() );
+		
+		#if !js
 		runner.addCase( new Utf8Spec() );
+		#end
 		
 		runner.addCase( new Base64Spec() );
 		runner.addCase( new MD5Spec() );
 		runner.addCase( new HMACSpec() );
 		
-		runner.addCase( new URISpec() );*/
+		runner.addCase( new URISpec() );
 		
 		#if sys
 		
@@ -68,13 +78,13 @@ class AllTests {
 		//runner.addCase( new HostSpec() );
 		//runner.addCase( new SocketSpec() );	// temp disabled - neko cant start echo socket
 		
-		#end
+		#end*/
 		
 		//#if !js
 		// Mustache Tests
 		//runner.addCase( new MustacheSpec() ); //
-		runner.addCase( new CommentSpec() );
-		runner.addCase( new SectionSpec() ); 
+		//runner.addCase( new CommentSpec() );
+		//runner.addCase( new SectionSpec() ); 
 		/*runner.addCase( new DelimiterSpec() ); //
 		runner.addCase( new InterpolationSpec() );
 		runner.addCase( new InvertedSpec() );
@@ -82,13 +92,12 @@ class AllTests {
 		runner.addCase( new WalkContextSpec() ); */
 		//#end
 		
-		#if js
-		// Request Tests
 		//runner.addCase( new RequestSpec() );
-		#end
 		
 		// Github OAuth Tests
 		//runner.addCase( new GithubSpec() );
+		
+		//runner.addCase( new TemSpec() );
 		
 		Report.create( runner );
 		runner.run();

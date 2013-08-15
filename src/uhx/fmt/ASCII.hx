@@ -9,111 +9,78 @@ package uhx.fmt;
 class ASCII implements Klas {
 
 	@:to(s='\\0')
-	@:alias('NULL')
 	public static inline var NUL:Int = 0;
 	
-	@:alias('START_OF_HEADER')
 	public static inline var SOH:Int = 1;
 	
-	@:alias('START_OF_TEXT')
 	public static inline var STX:Int = 2;
 	
-	@:alias('END_OF_TEXT')
 	public static inline var ETX:Int = 3;
 	
-	@:alias('END_OF_TRANSMISSION')
 	public static inline var EOT:Int = 4;
 	
-	@:alias('ENQUIRY')
 	public static inline var ENQ:Int = 5;
 	
-	@:alias('ACKNOWLEDGMENT')
 	public static inline var ACK:Int = 6;
 	
 	@:to(s='\\a')
-	@:alias('BELL')
 	public static inline var BEL:Int = 7;
 	
 	@:to(s='\\b')
-	@:alias('BACKSPACE')
 	public static inline var BS:Int = 8;
 	
 	@:to(s='\\t')
-	@:alias('HORIZONTAL_TAB')
 	public static inline var HT:Int = 9;
 	
 	@:to(s='\\n')
-	@:alias('LINE_FEED', 'NEW_LINE')
 	public static inline var LF:Int = 10;
 	
 	@:to(s='\\v')
-	@:alias('VERTICAL_TAB')
 	public static inline var VT:Int = 11;
 	
 	@:to(s='\\f')
-	@:alias('FORM_FEED')
 	public static inline var FF:Int = 12;
 	
 	@:to(s='\\r')
-	@:alias('CARRIAGE_RETURN')
 	public static inline var CR:Int = 13;
 	
-	@:alias('SHIFT_OUT')
 	public static inline var SO:Int = 14;
 	
-	@:alias('SHIFT_IN')
 	public static inline var SI:Int = 15;
 	
-	@:alias('DATA_LINK_ESCAPE')
 	public static inline var DLE:Int = 16;
 	
-	@:alias('DEVICE_CONTROL_1')
 	public static inline var DC1:Int = 17;
 	
-	@:alias('DEVICE_CONTROL_2')
 	public static inline var DC2:Int = 18;
 	
-	@:alias('DEVICE_CONTROL_3')
 	public static inline var DC3:Int = 19;
 	
-	@:alias('DEVICE_CONTROL_4')
 	public static inline var DC4:Int = 20;
 	
-	@:alias('NEGATIVE_ACKNOWLEDGEMENT')
 	public static inline var NAK:Int = 21;
 	
-	@:alias('SYNCHRONOUS_IDLE')
 	public static inline var SYN:Int = 22;
 	
-	@:alias('END_OF_TRANSMISSION_BLOCK')
 	public static inline var ETB:Int = 23;
 	
-	@:alias('CANCEL')
 	public static inline var CAN:Int = 24;
 	
-	@:alias('END_OF_MEDIUM')
 	public static inline var EM:Int = 25;
 	
-	@:alias('SUBSTITUTE')
 	public static inline var SUB:Int = 26;
 	
 	@:to(s='\\e')
-	@:alias('ESCAPE')
 	public static inline var ESC:Int = 27;
 	
-	@:alias('FILE_SEPARATOR')
 	public static inline var FS:Int = 28;
 	
-	@:alias('GROUP_SEPARATOR')
 	public static inline var GS:Int = 29;
 	
-	@:alias('RECORD_SEPARATOR')
 	public static inline var RS:Int = 30;
 	
-	@:alias('UNIT_SEPARATOR')
 	public static inline var US:Int = 31;
 	
-	@:alias('DELETE')
 	public static inline var DEL:Int = 127;
 	
 	@:to(s='_')
@@ -126,7 +93,6 @@ class ASCII implements Klas {
 	public static inline var QUOTATION:Int = 34;
 	
 	@:to(s='#')
-	@:alias('HASH')
 	public static inline var NUMBER:Int = 35;
 	
 	@:to(s='$')

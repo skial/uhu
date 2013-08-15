@@ -25,16 +25,63 @@ class Publisher {
 		
 		for (field in fields) {
 			
-			if (field.name == 'new') continue;
-			if (field.meta.exists(':alias_of')) continue;
-			
 			if (field.meta.exists(':pub')) {
 				
 				switch (field.kind) {
 					case FVar(t, e):
+						
 						field.kind = FProp('default', 'set', t, e);
 						
-						var fname = 'UhxSignalFor_${field.name}';
+						//var ns = [''];
+						var params = field.meta.get(':pub').params;
+						var es = [macro $i { field.name } = v];
+						var fs = [];
+						
+						// This is needed to force the default signal to be created as well.
+						// DCE should remove it if unused. Needs testing.
+						params.push( macro ns='' );
+						
+						for (param in params) {
+							var ns = param.printExpr().split('ns=')[1].replace('"', '');
+							
+							if (ns != '') ns = 'NS$ns';
+							var fname = 'UhxSignalFor_$ns${field.name}';
+							
+							es.push( macro $i { fname } .trigger( v ) );
+							fs.push( fname );
+							
+							if (!pubCache.exists( fname )) {
+								
+								//initExprs.push( macro $i { fname } = new msignal.Signal.Signal1<$t>() );
+								initExprs.push( macro $i { fname } = new thx.react.Signal.Signal1<$t>() );
+								pubCache.set( fname, true );
+								
+							}
+						}
+						
+						es.push( macro return v );
+						
+						for (f in fs) {
+							
+							if (!fields.exists( f )) {
+								
+								fields.push( {
+									name: f,
+									meta: [],
+									doc: null,
+									pos: field.pos,
+									access: [APublic, AStatic],
+									//kind: FVar(macro :msignal.Signal.Signal1<$ctype>, null)
+									kind: FVar(macro :thx.react.Signal.Signal1<$t>, null)
+								} );
+								
+							}
+							
+						}
+						
+						fields.push( field._setter( { expr: EBlock( es ), pos: field.pos } ) );
+						
+						/*var fname = 'UhxSignalFor_${field.name}';
 						
 						fields.push( field._setter( macro {
 							$i { field.name } = v;
@@ -55,7 +102,7 @@ class Publisher {
 							initExprs.push( macro $i { fname } = new thx.react.Signal.Signal1<$t>() );
 							pubCache.set( fname, true );
 							
-						}
+						}*/
 						
 					case FProp(g, s, t, e):
 						trace(field.name);
@@ -72,7 +119,7 @@ class Publisher {
 		// If _init is null create an __init__ field.
 		if (_init == null) {
 			// no `__init__` method was found, make it!
-			_init = PubSubHelper.create__init__();
+			_init = PubSubHelper._init();
 			fields.push( _init );
 		}
 		
@@ -80,8 +127,11 @@ class Publisher {
 			case FFun(method):
 				method.ret = null;
 				
-				for (e in initExprs) {
-					method.expr = e.concat( method.expr );
+				switch (method.expr.expr) {
+					case EBlock(es):
+						method.expr = { expr: EBlock( es.concat( initExprs ) ), pos: _init.pos };
+						
+					case _:
 				}
 				
 			case _:
