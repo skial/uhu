@@ -37,13 +37,19 @@ class Lod {
 		for (arg in args) {
 			
 			var sep = arg.indexOf( seperator );
-			var dquote = arg.indexOf( '"' );
-			var squote = arg.indexOf( "'" );
 			
-			if (sep > -1 && (dquote > -1 || sep < dquote) && (squote > -1 || sep < squote)) {
+			if (sep > -1) {
 				
 				var key = arg.substr( 0, sep );
-				var value = arg.substr( sep );
+				var value = arg.substr( sep + 1 );
+				
+				if (value.startsWith('"') || value.startsWith("'")) {
+					value = value.substr( 1 );
+				}
+				
+				if (value.endsWith('"') || value.endsWith("'")) {
+					value = value.substr( 0, value.length-1 );
+				}
 				
 				nargs.push( key );
 				nargs.push( value );
@@ -102,7 +108,7 @@ class Lod {
 							set( 'unmatched', [arg] );
 					}
 					
-					pre = Value;
+					//pre = Value;
 					
 				}
 				

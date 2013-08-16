@@ -1,5 +1,6 @@
 package uhx.sys;
 
+import haxe.ds.StringMap;
 import utest.Assert;
 
 /**
@@ -16,11 +17,11 @@ class LodSpec {
 		var l = new Lod();
 		l.args = ['--a', '1', '-b', '2', '--no-c'];
 		
-		var map = l.parse();
+		var map:StringMap<Array<String>> = l.parse();
 		
-		Assert.equals('1', map.get('a'));
-		Assert.equals('2', map.get('b'));
-		Assert.equals('false', map.get('c'));
+		Assert.equals('1', map.get('a')[0]);
+		Assert.equals('2', map.get('b')[0]);
+		Assert.equals('false', map.get('c')[0]);
 		Assert.equals(l.args, map.get('original'));
 	}
 	
@@ -28,10 +29,23 @@ class LodSpec {
 		var l = new Lod();
 		l.args = ['--a', '1', '--', '-b', '2', '--no-c'];
 		
-		var map = l.parse();
+		var map:StringMap<Array<String>> = l.parse();
 		
-		Assert.equals('1', map.get('a'));
-		Assert.equals(''+['-b', '2', '--no-c'], ''+map.get('argv'));
+		Assert.equals('1', map.get('a')[0]);
+		Assert.equals('' + ['-b', '2', '--no-c'], '' + map.get('argv'));
+	}
+	
+	public function testSeperator() {
+		var l = new Lod();
+		l.seperator = '=';
+		l.args = ['-a=1', '-b=2', '-c="Hello World"', "-d='Hello Skial'"];
+		
+		var map:StringMap<Array<String>> = l.parse();
+		
+		Assert.equals('1', map.get('a')[0]);
+		Assert.equals('2', map.get('b')[0]);
+		Assert.equals('Hello World', map.get('c')[0]);
+		Assert.equals('Hello Skial', map.get('d')[0]);
 	}
 	
 }

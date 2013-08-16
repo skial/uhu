@@ -23,7 +23,7 @@ class Liy {
 		
 	}
 	
-	public function parse() {
+	public function parse():Void {
 		var checks:Array<Dynamic> = [obj, fields, meta, args];
 		for (nul in checks) {
 			if (nul == null) throw '[obj, fields, meta, args] can not be null';
@@ -67,7 +67,7 @@ class Liy {
 				
 				Reflect.callMethod( obj, f, values.slice( 0, arity ) );
 				
-			} else {
+			} else if (values.length > 0) {
 				
 				Reflect.setField( obj, field, values[0] );
 				

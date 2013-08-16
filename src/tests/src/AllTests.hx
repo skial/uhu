@@ -1,5 +1,6 @@
 package ;
 
+import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
 //import uhx.tem.TemSpec;
 /*import haxe.Utf8Spec;
@@ -99,6 +100,7 @@ class AllTests {
 		
 		//runner.addCase( new TemSpec() );
 		runner.addCase( new LodSpec() );
+		runner.addCase( new LiySpec() );
 		
 		Report.create( runner );
 		runner.run();
