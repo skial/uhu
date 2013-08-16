@@ -94,7 +94,7 @@ class Ede {
 									var _args = _map.get( name );
 									
 									if (_args.length < $v { field.arity() } ) {
-										throw help();
+										throw '' + (name == $v { field.name } ?$v { '--' + field.name } :'-'+name) + $v { ' expects ' + field.arity() + ' args.' };
 									} else {
 										$a{argcasts};
 									}
