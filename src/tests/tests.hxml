@@ -15,6 +15,5 @@
 -lib mcli
 -js bin/tests.js
 -D disable_macro_tests
--D use_rtti_doc
 -main AllTests
 --macro uhx.macro.Tem.setIndex('templates/tem/basic.tem.html')

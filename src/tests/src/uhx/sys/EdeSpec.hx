@@ -31,7 +31,6 @@ class EdeSpec {
 		var peep = new Person( ['-h'] );
 		
 		var h = peep.help();
-		trace( h );
 		Assert.is(h, String);
 	}
 	

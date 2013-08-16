@@ -32,7 +32,7 @@ class Ede {
 		}
 		
 		// Force the compiler to include javadoc during macro mode.
-		//Compiler.define( 'use_rtti_doc' );
+		Compiler.define( 'use_rtti_doc' );
 		
 		// Build a lists of instance field names.
 		var instances:Array<Expr> = [];
@@ -78,6 +78,7 @@ class Ede {
 						
 						for (i in 0...field.arity()) {
 							var tname = field.args()[i].type.toType().getName();
+							
 							if (tname != 'String') {
 								
 								argcasts.push( macro var v:Dynamic = _args[$v { i } ] );
