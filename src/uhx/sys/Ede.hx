@@ -36,6 +36,7 @@ class Ede {
 		
 		// Build a lists of instance field names.
 		var instances:Array<Expr> = [];
+		var typecasts:Array<Expr> = [];
 		
 		for (field in fields) {
 			
@@ -44,16 +45,64 @@ class Ede {
 			}
 			
 			switch (field.kind) {
+				case FVar(t, _), FProp(_, _, t, _):
+					var tname = t.toType().getName();
+					
+					if (tname != 'String') {
+						var e = valueCast( tname );
+						
+						var aliases = [macro $v { field.name } ]
+							.concat( field.meta.exists('alias') ? field.meta.get('alias').params : [] );
+						
+						typecasts.push( 
+							macro for (name in [$a { aliases } ]) {
+								if (_map.exists( name )) { 
+									var v:Dynamic = _map.get( name )[0];
+									_map.set(name, [$e]);
+								}
+							} 
+						);
+					}
+					
 				case FFun(_):
-					if (field.arity() > 0) {
+					if (field.arity() > 0 && field.name != 'new') {
 						
 						var arity = 'arity'.mkMeta();
 						arity.params.push( macro $v { field.arity() } );
 						field.addMeta( arity );
 						
+						var aliases = [macro $v { field.name } ]
+							.concat( field.meta.exists('alias') ? field.meta.get('alias').params : [] );
+						
+						var argcasts:Array<Expr> = [];
+						
+						for (i in 0...field.arity()) {
+							var tname = field.args()[i].type.toType().getName();
+							if (tname != 'String') {
+								
+								argcasts.push( macro var v:Dynamic = _args[$v { i } ] );
+								argcasts.push( macro v = $e{valueCast( tname )} );
+								
+							}
+						}
+						
+						typecasts.push(
+							macro for (name in [$a { aliases } ]) {
+								if (_map.exists( name )) {
+									
+									var _args = _map.get( name );
+									
+									if (_args.length < $v { field.arity() } ) {
+										throw help();
+									} else {
+										$a{argcasts};
+									}
+									
+								}
+							}
+						);
+						
 					}
-					
-				case _:
 			}
 			
 		}
@@ -68,7 +117,11 @@ class Ede {
 		instances.push( macro 'help' );
 		
 		// Get all doc info.
-		var checks:Array<{doc:Null<String>, meta:Metadata, name:String}> = [ for (f in fields) if (!f.access.has( AStatic) && f.name != 'new') f ];
+		var checks:Array<{doc:Null<String>, meta:Metadata, name:String}> = [ 
+			for (f in fields) 
+				if (!f.access.has( AStatic) && f.name != 'new') 
+					f 
+		];
 		checks.unshift( cast cls );
 		
 		var docs:Array<String> = [];
@@ -134,6 +187,7 @@ class Ede {
 		nexprs.push( macro var _cmd:uhx.sys.Lod = new uhx.sys.Lod() );
 		nexprs.push( macro _cmd.args = args );
 		nexprs.push( macro var _map = _cmd.parse() );
+		nexprs = nexprs.concat( typecasts );
 		nexprs.push( macro var _line:uhx.sys.Liy = new uhx.sys.Liy() );
 		nexprs.push( macro _line.obj = this );
 		nexprs.push( macro _line.fields = [$a { instances } ] );
@@ -152,6 +206,23 @@ class Ede {
 		
 		
 		return fields;
+	}
+	
+	private static function valueCast(type:String):Expr {
+		var result = macro null;
+		
+		switch ( type ) {
+			case 'Int':
+				result = macro Std.parseInt( v );
+				
+			case 'Float':
+				result = macro Std.parseFloat( v );
+				
+			case 'String':
+				result = macro v;
+		}
+		
+		return result;
 	}
 	
 }

@@ -13,10 +13,10 @@ using StringTools;
 class Lod {
 	
 	public var args:Array<String>;
-	public var seperator:String = ' ';
+	public var seperator:String = '|*|';
 	
 	private var pre:PrevLod;
-	private var result:StringMap<Array<String>>;
+	private var result:StringMap<Array<Dynamic>>;
 	
 	public function new() {
 		
@@ -25,7 +25,7 @@ class Lod {
 	public function parse() {
 		if (args == null) throw 'args can not be null';
 		
-		result = new StringMap<Array<String>>();
+		result = new StringMap<Array<Dynamic>>();
 		set( 'original', args );
 		
 		return process( prepare( args ) );
@@ -75,7 +75,7 @@ class Lod {
 		return nargs;
 	}
 	
-	private function process(args:Array<String>):StringMap<Array<String>> {
+	private function process(args:Array<String>):StringMap<Array<Dynamic>> {
 		for (arg in args) {
 			
 			// Just dump all remaining args into `argv`
@@ -119,7 +119,7 @@ class Lod {
 		return result;
 	}
 	
-	private function set(name:String, values:Array<String>) {
+	private function set(name:String, values:Array<Dynamic>) {
 		if (result.exists( name )) {
 			
 			values = result.get( name ).concat( values );

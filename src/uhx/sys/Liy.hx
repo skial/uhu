@@ -16,7 +16,7 @@ class Liy {
 	
 	public var obj:Dynamic;
 	public var fields:Array<String>;
-	public var args:StringMap<Array<String>>;
+	public var args:StringMap<Array<Dynamic>>;
 	public var meta:Dynamic<Dynamic<Array<Dynamic>>>;
 
 	public function new() {

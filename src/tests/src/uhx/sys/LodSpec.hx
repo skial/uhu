@@ -17,7 +17,7 @@ class LodSpec {
 		var l = new Lod();
 		l.args = ['--a', '1', '-b', '2', '--no-c'];
 		
-		var map:StringMap<Array<String>> = l.parse();
+		var map:StringMap<Array<Dynamic>> = l.parse();
 		
 		Assert.equals('1', map.get('a')[0]);
 		Assert.equals('2', map.get('b')[0]);
@@ -29,7 +29,7 @@ class LodSpec {
 		var l = new Lod();
 		l.args = ['--a', '1', '--', '-b', '2', '--no-c'];
 		
-		var map:StringMap<Array<String>> = l.parse();
+		var map = l.parse();
 		
 		Assert.equals('1', map.get('a')[0]);
 		Assert.equals('' + ['-b', '2', '--no-c'], '' + map.get('argv'));
@@ -40,7 +40,7 @@ class LodSpec {
 		l.seperator = '=';
 		l.args = ['-a=1', '-b=2', '-c="Hello World"', "-d='Hello Skial'"];
 		
-		var map:StringMap<Array<String>> = l.parse();
+		var map = l.parse();
 		
 		Assert.equals('1', map.get('a')[0]);
 		Assert.equals('2', map.get('b')[0]);

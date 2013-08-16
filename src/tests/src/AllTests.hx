@@ -1,5 +1,6 @@
 package ;
 
+import uhx.sys.EdeSpec;
 import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
 //import uhx.tem.TemSpec;
@@ -101,6 +102,7 @@ class AllTests {
 		//runner.addCase( new TemSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );
+		runner.addCase( new EdeSpec() );
 		
 		Report.create( runner );
 		runner.run();
