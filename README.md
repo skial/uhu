@@ -5,17 +5,83 @@
 ## Klas
 
 Klas is a macro auto build `interface` giving you access to a wide range of experimental features.
+Just add `implements Klas` to your class, then follow the instructions for any of the following
+metadata.
 
 + [@:cmd](#cmd) : Create CLI applications.
-+ [@:tem](#tem) : Just plain Haxe, HTML and CSS.
++ ~~[@:tem](#tem) : Just plain Haxe, HTML and CSS.~~
 + [@:wait](#wait) : Async helper.
-+ [@:arg](#named arg) : Named arguments.
-+ [@:pub](#pubsub) : Marks field as a publisher.
-+ [@:sub](#pubsub) : Marks field as a subscriber.
++ ~~[@:arg](#named arg) : Named arguments.~~
++ ~~[@:pub](#pubsub) : Marks field as a publisher.~~
++ ~~[@:sub](#pubsub) : Marks field as a subscriber.~~
 
 ## Cmd
 
-The `@:cmd` metadata allows you to use your class to build a command line interface. Inspired by [mcli](https://github.com/waneck/mcli) by [Cauê Waneck](https://github.com/waneck).
+The `@:cmd` metadata allows you to use your class to build a command line interface. 
+Inspired by [mcli](https://github.com/waneck/mcli) by [Cauê Waneck](https://github.com/waneck).
+
+#### Syntax
+
++ The `@:cmd` metadata is added to your class.
++ The class constructor must have an `args:Array<String>` parameter.
++ Add `@alias('f')` to any field, where `f` is the short flag identifer.
++ If a field has documentation, it is used in the generated help message.
++ You can optional add `@:usage('cmd [options] <file>')` to your class, which is included in the generated
+help message.
+
+#### Example
+
+``` Shell
+Person
+
+Options :
+	-a, --age	The persons age.
+	-n, --name	The persons full name.
+	-l, --numLimbs	How many limbs the person has.
+	--limbs	
+	--r	Does nothing.
+	-h, --help	Show this message.
+```
+
+``` Haxe
+@:cmd
+class Person implements Klas {
+	
+	/**
+	 * The persons age.
+	 */
+	@alias('a')
+	public var age:Int;
+	
+	/**
+	 * The persons full name.
+	 */
+	@alias('n')
+	public var name:String;
+	
+	/**
+	 * How many limbs the person has.
+	 */
+	@alias('l')
+	public function numLimbs(v:Int) {
+		limbs = v;
+	}
+	
+	public var limbs:Int;
+	
+	/**
+	 * Does nothing.
+	 */
+	public function r(a:String, b:String, c:Int) {
+		// nothing
+	}
+	
+	public function new(args:Array<String>) {
+		
+	}
+	
+}
+```
 	
 ## Tem
 
