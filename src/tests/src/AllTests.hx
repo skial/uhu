@@ -1,5 +1,6 @@
 package ;
 
+import uhx.macro.NamedArgsSpec;
 import uhx.sys.EdeSpec;
 import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
@@ -100,6 +101,7 @@ class AllTests {
 		//runner.addCase( new GithubSpec() );
 		
 		//runner.addCase( new TemSpec() );
+		runner.addCase( new NamedArgsSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );
 		runner.addCase( new EdeSpec() );

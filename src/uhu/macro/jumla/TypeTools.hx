@@ -115,15 +115,19 @@ class TypeTools {
 					var fields = cls.fields.get();
 					var field = null;
 					
-					if (statics.exists( id )) {
-						
-						field = statics.get( id );
-						isStatic = true;
-						
-					} else if (fields.exists( id )) {
-						
-						field = fields.get( id );
-						
+					if (id != 'new') {
+						if (statics.exists( id )) {
+							
+							field = statics.get( id );
+							isStatic = true;
+							
+						} else if (fields.exists( id )) {
+							
+							field = fields.get( id );
+							
+						}
+					} else if (cls.constructor != null) {
+						field = cls.constructor.get();
 					}
 					
 					if (field != null) {
@@ -136,6 +140,13 @@ class TypeTools {
 				case _:
 			}
 			
+		}
+		
+		switch (result) {
+			case TLazy(f):
+				result = f();
+				
+			case _:
 		}
 		
 		return result;

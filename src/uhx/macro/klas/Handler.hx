@@ -11,6 +11,7 @@ import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhu.macro.Du;
 import uhx.macro.Alias;
+import uhx.macro.NamedArgs;
 import uhx.macro.Publisher;
 import uhx.macro.Subscriber;
 import uhx.macro.Tem;
@@ -32,6 +33,7 @@ class Handler {
 	
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
 		Wait.handler,
+		NamedArgs.handler,
 	];
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [

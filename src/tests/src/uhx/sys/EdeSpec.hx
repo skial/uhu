@@ -36,7 +36,11 @@ class EdeSpec {
 	
 }
 
+/**
+ * An undefined Person
+ */
 @:cmd
+@:usage('person [options]')
 class Person implements Klas {
 	
 	/**
