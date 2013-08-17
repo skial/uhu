@@ -24,3 +24,39 @@ Tem allows you to bind your HTML directly to you classes, using only CSS as the 
 ## Wait
 
 The `@:wait` metadata helps you reduce callback hell. It should work for any target, but it was originally built for the Javascript target.
+
+Take a look at the code taken [WaitSpec.hx]() for a working example.
+
+``` Haxe
+class WaitSpec implements Klas {
+
+	public function new() {
+		
+	}
+	
+	public function testSingle() {
+		@:wait Timer.delay( Assert.createAsync( [] ), 100 );
+		Assert.equals('Hello', 'Hello');
+	}
+	
+	public function testNested() {
+		@:wait Timer.delay( Assert.createAsync( [] ), 100 );
+		Assert.equals('Waiting...', 'Waiting...');
+		
+		@:wait Timer.delay( Assert.createAsync( [] ), 100 );
+		Assert.equals('Waiting...', 'Waiting...');
+		
+		@:wait Timer.delay( Assert.createAsync( [] ), 100 );
+		Assert.equals('Waiting...', 'Waiting...');
+		
+		@:wait Timer.delay( Assert.createAsync( [] ), 100 );
+		Assert.equals('Waiting...', 'Waiting...');
+	}
+	
+	public function testDeep() {
+		@:wait Timer.delay( Assert.createAsync( Assert.createAsync( Assert.createAsync( Assert.createAsync( [] ) ) ) ), 100 );
+		Assert.equals('Hello', 'Hello');
+	}
+	
+}
+```
