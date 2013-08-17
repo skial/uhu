@@ -9,9 +9,9 @@ Just add `implements Klas` to your class, then follow the instructions for any o
 metadata.
 
 + [@:cmd](#cmd) : Create CLI applications.
-+ ~~[@:tem](#tem) : Just plain Haxe, HTML and CSS.~~
 + [@:wait](#wait) : Async helper.
 + ~~[@:arg](#named arg) : Named arguments.~~
++ ~~[@:tem](#tem) : Just plain Haxe, HTML and CSS.~~
 + ~~[@:pub](#pubsub) : Marks field as a publisher.~~
 + ~~[@:sub](#pubsub) : Marks field as a subscriber.~~
 
@@ -20,7 +20,7 @@ metadata.
 The `@:cmd` metadata allows you to use your class to build a command line interface. 
 Inspired by [mcli](https://github.com/waneck/mcli) by [Cauê Waneck](https://github.com/waneck).
 
-#### Syntax
+#### How to use it
 
 + The `@:cmd` metadata is added to your class.
 + The class constructor must have an `args:Array<String>` parameter.
@@ -28,11 +28,28 @@ Inspired by [mcli](https://github.com/waneck/mcli) by [Cauê Waneck](https://git
 + If a field has documentation, it is used in the generated help message.
 + You can optional add `@:usage('cmd [options] <file>')` to your class, which is included in the generated
 help message.
++ The matching fields are set / called using reflection in the order the arguments have been passed.
++ If `--` is found, every argument after will be dumped into the map with a key of `argv`.
++ If an arg starts with `--no-`, the next value will automatically become `false`.
++ If an arg matches to a method, it will check that it has enough params to pass, if not an error is thrown.
++ All args are cast to the fields type.
+
+#### Limitation's & Future additions
+
++ Add commands in a similar way [haxe.web.Dispatch](http://jasononeil.com.au/2013/05/29/creating-complex-url-routing-schemes-with-haxe-web-dispatch/)
+works. eg `git add [options]` where `add` is the command.
++ Proper support for `Bool`.
++ Allow class wide access of [Lod](https://github.com/skial/uhu/blob/experimental/src/tests/src/uhx/sys/LodSpec.hx)
+and [Liy](https://github.com/skial/uhu/blob/experimental/src/tests/src/uhx/sys/LiySpec.hx)
+which handle argument parsing during runtime. Currently locked away in the constructor.
 
 #### Example
 
 ``` Shell
-Person
+An undefined Person
+
+Usage:
+	person [options]
 
 Options :
 	-a, --age	The persons age.
@@ -44,7 +61,11 @@ Options :
 ```
 
 ``` Haxe
+/**
+ * An undefined Person
+ */
 @:cmd
+@:usage('person [options]')
 class Person implements Klas {
 	
 	/**
@@ -82,16 +103,13 @@ class Person implements Klas {
 	
 }
 ```
-	
-## Tem
 
-Tem allows you to bind your HTML directly to you classes, using only CSS as the glue.
 
 ## Wait
 
 The `@:wait` metadata helps you reduce callback hell. It should work for any target, but it was originally built for the Javascript target.
 
-#### Syntax
+#### How to use it
 
 + The `@:wait` metadata has to be defined before the aysnc method being called.
 + The async method has to define each callback using square brackets.
@@ -154,3 +172,21 @@ class WaitSpec implements Klas {
 	
 }
 ```
+
+## Arg
+
+Named arguments is a simple macro.
+
+#### How to use it
+
++ In a method call, just add `@:` before the argument name, followed by the value.
+ 
+#### Example
+
+``` Haxe
+
+```
+
+## Tem
+
+Tem allows you to bind your HTML directly to you classes, using only CSS as the glue.
