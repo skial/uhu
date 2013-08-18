@@ -42,9 +42,18 @@ class NamedArgs {
 		var args = type.args();
 		var arity = type.arity();
 		
-		for (arg in args) if (arg.opt == false) return params;
+		for (i in 0...arity) {
+			// I consider this a poor check, but it works.
+			if (args[i].opt == false && params[i] == null) return params;
+		}
 		
-		for (i in 0...arity) result.push( macro null );
+		for (i in 0...arity) {
+			var e = macro null;
+			if (params[i] != null && params[i].expr.getName() != 'EMeta') {
+				e = params[i];
+			}
+			result.push( e );
+		}
 		
 		for (i in 0...params.length) {
 			
