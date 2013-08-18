@@ -1,5 +1,9 @@
 # Uhu & Uhx _(Experimental Uhu)_
 
+# Status
+
+Use at your own risk. For those people who like to experiment.
+
 * [Klas](#klas) : Global macro helper.
 
 ## Klas
@@ -10,7 +14,7 @@ metadata.
 
 + [@:cmd](#cmd) : Create CLI applications.
 + [@:wait](#wait) : Async helper.
-+ [@:arg](#named args) : Named arguments.
++ [@:arg](#arg) : Named arguments.
 + ~~[@:tem](#tem) : Just plain Haxe, HTML and CSS.~~
 + ~~[@:pub](#pubsub) : Marks field as a publisher.~~
 + ~~[@:sub](#pubsub) : Marks field as a subscriber.~~
@@ -186,6 +190,22 @@ Named arguments is a simple macro.
 #### Example
 
 ``` Haxe
+class A {
+	
+	public var _a:String;
+	public var _b:String;
+	public var _c:String;
+	public var _d:String;
+	
+	public function new(?a:String, ?b:String, ?c:String, ?d:String) {
+		_a = a;
+		_b = b;
+		_c = c;
+		_d = d;
+	}
+	
+}
+
 class B {
 	
 	public var _a:Int;

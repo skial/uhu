@@ -43,8 +43,9 @@ class NamedArgs {
 		var arity = type.arity();
 		
 		for (i in 0...arity) {
+			if (args[i].opt) break;
 			// I consider this a poor check, but it works.
-			if (args[i].opt == false && params[i] == null) return params;
+			if (!args[i].opt && (params[i] == null || params[i].expr.getName() == 'EMeta')) return params;
 		}
 		
 		for (i in 0...arity) {

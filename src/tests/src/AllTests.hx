@@ -4,15 +4,14 @@ import uhx.macro.NamedArgsSpec;
 import uhx.sys.EdeSpec;
 import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
-//import uhx.tem.TemSpec;
+import uhx.macro.WaitSpec;
+import uhx.macro.PubSubSpec;
+import uhx.tem.TemSpec;
 /*import haxe.Utf8Spec;
 import uhx.macro.help.TemArray.TemArray;
-import uhx.macro.help.TemArray.TemArray;
-import uhx.macro.WaitSpec;
 import uhx.web.URISpec;
 import uhx.fmt.ASCIISpec;
 import haxe.io.StringInput;
-import uhx.macro.PubSubSpec;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
 
@@ -59,10 +58,10 @@ class AllTests {
 		
 		var runner = new Runner();
 		
-		/*runner.addCase( new WaitSpec() );
+		runner.addCase( new WaitSpec() );
 		runner.addCase( new PubSubSpec() );
 		
-		runner.addCase( new ASCIISpec() );
+		/*runner.addCase( new ASCIISpec() );
 		
 		#if !js
 		runner.addCase( new Utf8Spec() );
