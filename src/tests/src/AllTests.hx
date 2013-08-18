@@ -99,7 +99,7 @@ class AllTests {
 		// Github OAuth Tests
 		//runner.addCase( new GithubSpec() );
 		
-		//runner.addCase( new TemSpec() );
+		runner.addCase( new TemSpec() );
 		runner.addCase( new NamedArgsSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );
