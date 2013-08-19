@@ -101,7 +101,9 @@ class Parser {
 						result = parserExpr( p[0] );
 						
 					case _:
+						#if debug
 						trace( t.get().name );
+						#end
 				}
 				
 			case TAbstract(t, p):
@@ -118,7 +120,7 @@ class Parser {
 						
 					case _:
 						#if debug
-						trace( t.get().name );
+						//trace( t.get().name );
 						#end
 						result = parserExpr( p[0] );
 				}
@@ -163,6 +165,8 @@ class Parser {
 		if (fields.exists( name )) {
 			var field = fields.get( name );
 			var prefix = attribute ? 'TEMATTR' : 'TEMDOM';
+			var domName = '${prefix}_$name';
+			var attName = (attribute?'':'data-') + name;
 			
 			switch (field.kind) {
 				case FVar(t, e):
@@ -177,10 +181,15 @@ class Parser {
 								switch (_t.get().name) {
 									case 'Array':
 										var td:TypeDefinition = TemCommon.arrayWrapper;
+										var aw:Field = td.fields.get( 'arrayWrite' );
+										var m:Function = aw.getMethod();
 										
-										var fs:Array<Field> = [
-											td.fields.get( 'arrayWrite' ),
-										];
+										switch (m.expr.expr) {
+											case EBlock( es ):
+												m.expr = { expr: EBlock( [ macro untyped $i { 'set_single_$domName' } (key, value) ].concat( es ) ), pos: aw.pos };
+												
+											case _:
+										}
 										
 										Context.defineType( td );
 										
@@ -204,56 +213,42 @@ class Parser {
 					
 					fields.push( mkParseField( name, t ) );
 					
-					var extra = macro null;
-					
-					if (type.isIterable()) {
-						
-						fields.push( 'prev_TEMVAL_$name'.mkField()
-							.mkPublic()
-							.toFVar( t )
-						);
-						
-						extra = macro $i { 'prev_TEMVAL_$name' } = $i { name };
-						
-					}
-					
 					fields.push( field.mkSetter( macro { 
-						$extra;
 						$i { name } = v; 
 						$i { 'set_${prefix}_$name' } ( v ); 
 						return v; } 
 					) );
 					
 					fields.push( 
-						'${prefix}_$name'.mkField()
+						domName.mkField()
 						.mkPublic()
-						.toFProp( 'get', 'null', macro: dtx.DOMCollection )
+						.toFProp( 'get', 'null', macro: dtx.DOMNode )
 						.addMeta( ':isVar'.mkMeta() )
 					);
 					
-					fields.push( fields.get('${prefix}_$name').mkGetter( macro {
-						if ($i { '${prefix}_$name' } == null) {
-							$i { '${prefix}_$name' } = dtx.collection.Traversing.find($i { TemCommon.TemDOM.name }, '[$name]');
+					fields.push( fields.get( domName ).mkGetter( macro {
+						if ($i { domName } == null) {
+							$i { domName } = dtx.collection.Traversing.find($i { TemCommon.TemDOM.name }, '[$attName]').getNode();
 						}
-						return $i { '${prefix}_$name' };
+						return $i { domName };
 					} ) );
+					
+					var id = 'set_$domName';
 					
 					switch ( [attribute, type.isIterable()] ) {
 						case [true, false]:
-							var id = 'set_${prefix}_$name';
 							fields.push( id.mkField()
 								.mkPublic()
 								.toFFun()
-								.body( macro dtx.collection.ElementManipulation.setAttr($i { '${prefix}_$name' }, $v { name }, '' + v) )
+								.body( macro dtx.single.ElementManipulation.setAttr($i { domName }, $v { attName }, '' + v) )
 							);
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
 							
 						case [false, false]:
-							var id = 'set_${prefix}_$name';
 							fields.push( id.mkField()
 								.mkPublic()
 								.toFFun()
-								.body( macro dtx.collection.ElementManipulation.setText($i { '${prefix}_$name' }, '' + v) )
+								.body( macro dtx.single.ElementManipulation.setText($i { domName }, '' + v) )
 							);
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
 							
@@ -265,7 +260,7 @@ class Parser {
 								.body( macro {
 									var child = $i { 'get_${prefix}_$name' } .children()[ pos ];
 									if (child == null ) {
-										child = dtx.Tools.parse('<div></dov>');
+										child = dtx.Tools.parse('<div></div>');
 										// Need to insert a new DOM element, matching the first child's node type.
 										// Probably better to create a help class to handle all of this instead of
 										// relying on macro generation.
@@ -276,14 +271,17 @@ class Parser {
 							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );*/
 							
 						case [true, true]:
-							var id = 'set_${prefix}_$name';
 							fields.push( id.mkField()
 								.mkPublic()
 								.toFFun()
-								.body( macro for (_v in v) {
-									if ( -1 == Lambda.indexOf( $i { 'prev_TEMVAL_$name' }, _v ) ) {
-										for (child in $i { '${prefix}_$name' } ) {
-											dtx.single.ElementManipulation.setAttr( child, $v { name }, '' + _v );
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
+									for (i in 0...v.length) {
+										//var _v = v[i];
+										if (dom.collection.length > i) {
+											dtx.single.ElementManipulation.setAttr( dom.getNode( i ), $v{ attName }, '' + v[i] );
+										} else {
+											dom.add( dtx.single.ElementManipulation.setAttr( dtx.Tools.create( 'div' ), $v{ attName }, '' + v[i] ), i );
 										}
 									}
 								} )
@@ -291,19 +289,23 @@ class Parser {
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
 							
 						case [false, true]:
-							var id = 'set_${prefix}_$name';
 							fields.push( id.mkField()
 								.mkPublic()
 								.toFFun()
-								.body( macro for (_v in v) {
-									if ( -1 == Lambda.indexOf( $i { 'prev_TEMVAL_$name' }, _v ) ) {
-										for (child in $i { '${prefix}_$name' } ) {
-											dtx.single.ElementManipulation.setText( child, '' + _v );
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
+									for (i in 0...v.length) {
+										//var _v = v[i];
+										if (dom.collection.length > i) {
+											dtx.single.ElementManipulation.setText( dom.getNode( i ), '' + v[i] );
+										} else {
+											dom.add( dtx.single.ElementManipulation.setText( dtx.Tools.create( 'div' ), '' + v[i] ), i );
 										}
 									}
 								} )
 							);
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
 					}
 					/*var expr = attribute 
 						? macro dtx.collection.ElementManipulation.setAttr($i { '${prefix}_$name' }, $v { name }, '' + v)

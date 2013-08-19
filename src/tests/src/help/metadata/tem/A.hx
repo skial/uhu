@@ -33,6 +33,8 @@ class A implements Klas {
 		Assert.equals( 25, age );
 		Assert.equals( 5.9, height );
 		
+		list = ['1', '2', '3'];
+		
 		list[2] = 'Goodbye Bob!';
 	}
 	

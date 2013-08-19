@@ -95,7 +95,7 @@ class TemCommon {
 		var name = 'TemArray' + arrayWrapperCounter;
 		
 		var fields = [
-			'new', 'concat', 'copy', 'filter', 'insert', 'iterator', 'join',
+			'new', 'get_length', 'concat', 'copy', 'filter', 'insert', 'iterator', 'join',
 			'map', 'pop', 'push', 'remove', 'reverse', 'shift', 'slice', 'sort',
 			'splice', 'toString', 'unshift', 'toArray', 'arrayRead', 'arrayWrite',
 			'fromArray',
@@ -105,6 +105,10 @@ class TemCommon {
 			.body( macro { this = a; } )
 			.args().push( 'a'.mkArg( macro: Array<T>, false ) );
 		
+		fields.push( 'length'.mkField().toFProp( 'get', 'never', macro: Int ) );
+		fields.get( 'get_length' )
+			.body( macro { return this.length; } );
+			
 		fields.get( 'concat' )
 			.body( macro { return this.concat( a.toArray() ); } )
 			.ret( macro: $name<T> )
@@ -197,8 +201,7 @@ class TemCommon {
 		
 		var _arrayWrite:Field = fields.get( 'arrayWrite' )
 			.body( macro { 
-				this[key] = value; 
-				return value;
+				return this[key] = value;
 			} )
 			.ret( macro: T );
 		_arrayWrite.meta.push( ':arrayAccess'.mkMeta() );

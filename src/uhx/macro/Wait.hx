@@ -354,14 +354,16 @@ class Wait {
 					
 				case ECall(e, params):
 					var r = loopECallArgs( params );
-					result.push( { 
-						pos: i,
-						exprs: r[0].exprs, 
-						set: function(nexpr:Expr) {
-							//args[i] = { expr: ECall( e, [nexpr] ), pos: args[i].pos };
-							r[0].set( nexpr );
-						}
-					} );
+					if (r.length > 0) {
+						result.push( { 
+							pos: i,
+							exprs: r[0].exprs, 
+							set: function(nexpr:Expr) {
+								//args[i] = { expr: ECall( e, [nexpr] ), pos: args[i].pos };
+								r[0].set( nexpr );
+							}
+						} );
+					}
 					
 				case _:
 					//trace( args[i] );
