@@ -46,7 +46,7 @@ class Parser {
 				var ttype = local.path().getType().follow();
 				var ctype = ttype.toComplexType();
 				
-				TemCommon.TemPlateExprs.push( { expr: ENew( std.Type.enumParameters(ctype)[0], [ macro @:fragment Detox.find( $v{'.'+name} ) ] ), pos: cls.pos } );
+				TemCommon.TemPlateExprs.push( { expr: ENew( std.Type.enumParameters(ctype)[0], [ macro @:fragment Detox.find( $v { '.' + name } ) ] ), pos: cls.pos } );
 			}
 			#end
 			
@@ -186,7 +186,12 @@ class Parser {
 										
 										switch (m.expr.expr) {
 											case EBlock( es ):
-												m.expr = { expr: EBlock( [ macro untyped $i { 'set_single_$domName' } (key, value) ].concat( es ) ), pos: aw.pos };
+												m.expr = { expr: EBlock( 
+												// TODO trying to get `this.set_single_$domName(id,v)` to compile in the right context.
+												// So not `this.list.set_single...` but `this.set_single...`
+													[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
+													.concat( es ) 
+												), pos: aw.pos };
 												
 											case _:
 										}
@@ -288,6 +293,23 @@ class Parser {
 							);
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
 							
+							id = 'set_single_$domName';
+							
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' } (), true );
+									if (dom.collection.length > pos) {
+										dtx.single.ElementManipulation.setAttr( dom.getNode( pos ), $v { attName }, '' + v );
+									} else {
+										dom.add( dtx.single.ElementManipulation.setAttr( dtx.Tools.create( 'div' ), $v { attName }, '' + v ), pos );
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
 						case [false, true]:
 							fields.push( id.mkField()
 								.mkPublic()
@@ -306,10 +328,24 @@ class Parser {
 							);
 							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
 							
+							id = 'set_single_$domName';
+							
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' } (), true );
+									if (dom.collection.length > pos) {
+										dtx.single.ElementManipulation.setText( dom.getNode( pos ), '' + v );
+									} else {
+										dom.add( dtx.single.ElementManipulation.setText( dtx.Tools.create( 'div' ), '' + v ), pos );
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
 					}
-					/*var expr = attribute 
-						? macro dtx.collection.ElementManipulation.setAttr($i { '${prefix}_$name' }, $v { name }, '' + v)
-						: macro dtx.collection.ElementManipulation.setText($i { '${prefix}_$name' }, '' + v);*/
 					
 				case _:
 					

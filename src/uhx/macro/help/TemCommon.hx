@@ -55,6 +55,17 @@ class TemCommon {
 		};
 	}
 	
+	public static var TemEThis(get, never):Field;
+	
+	private static function get_TemEThis():Field {
+		return {
+			name: 'ethis',
+			access: [APublic],
+			kind: FVar( null ),
+			pos: Context.currentPos(),
+		};
+	}
+	
 	public static var tem(get, never):TypeDefinition;
 	
 	private static function get_tem():TypeDefinition {
