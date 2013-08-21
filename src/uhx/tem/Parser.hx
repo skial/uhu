@@ -187,8 +187,8 @@ class Parser {
 										switch (m.expr.expr) {
 											case EBlock( es ):
 												m.expr = { expr: EBlock( 
-												// TODO trying to get `this.set_single_$domName(id,v)` to compile in the right context.
-												// So not `this.list.set_single...` but `this.set_single...`
+													// dirty little trick, in every non static method, add `var ethis = this`
+													// so when `arrayWrite` get inlined it references the correct instance.
 													[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };

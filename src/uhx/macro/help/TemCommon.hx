@@ -104,6 +104,7 @@ class TemCommon {
 	
 	private static function get_arrayWrapper():TypeDefinition {
 		var name = 'TemArray' + arrayWrapperCounter;
+		arrayWrapperCounter++;
 		
 		var fields = [
 			'new', 'get_length', 'concat', 'copy', 'filter', 'insert', 'iterator', 'join',

@@ -16,19 +16,30 @@ class A implements Klas {
 	public var age:Int = 0;
 	public var height:Float = .0;
 	
-	public var list:Array<String>;
+	public var sarray:Array<String>;
+	public var iarray:Array<Int>;
+	
+	var attrSrc:DOMNode;
+	var dataName:DOMNode;
+	var dataAge:DOMNode;
+	var dataHeight:DOMNode;
+	
+	var dataSArray:DOMNode;
+	var dataIArray:DOMNode;
 
 	public function new() {
-		var values:Array<Dynamic> = [src, name, age, height, list];
+		var values:Array<Dynamic> = [src, name, age, height, sarray, iarray];
 		for (value in values) {
 			untyped console.log( value );
 		}
 		
-		var attrSrc:DOMNode = '[src]'.find().getNode();
-		var dataList:DOMNode = '[data-list]'.find().getNode();
-		var dataName:DOMNode = '[data-name]'.find().getNode();
-		var dataAge:DOMNode = '[data-age]'.find().getNode();
-		var dataHeight:DOMNode = '[data-height]'.find().getNode();
+		attrSrc = '[src]'.find().getNode();
+		dataName = '[data-name]'.find().getNode();
+		dataAge = '[data-age]'.find().getNode();
+		dataHeight = '[data-height]'.find().getNode();
+		
+		dataSArray = '[data-sarray]'.find().getNode();
+		dataIArray = '[data-iarray]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
@@ -47,22 +58,41 @@ class A implements Klas {
 		Assert.equals( 5.9, height );
 		Assert.equals( '5.9', dataHeight.text() );
 		
-		list = ['1', '2', '3'];
-		
-		Assert.equals('1', dataList.children().collection[0].text());
-		Assert.equals('2', dataList.children().collection[1].text());
-		Assert.equals('3', dataList.children().collection[2].text());
-		
-		list[2] = 'Goodbye Bob!';
-		Assert.equals('Goodbye Bob!', dataList.children().collection[2].text());
-		
-		list[3] = 'Newy Newness';
-		Assert.equals('Newy Newness', dataList.children().collection[3].text());
-		
-		list[5] = 'Future';
-		Assert.equals('Future', dataList.children().collection[5].text());
-		
-		untyped console.log( list );
+		testArray_String();
+		testArray_Int();
 	}
 	
+	public function testArray_String() {
+		sarray = ['1', '2', '3'];
+		
+		Assert.equals('1', dataSArray.children().collection[0].text());
+		Assert.equals('2', dataSArray.children().collection[1].text());
+		Assert.equals('3', dataSArray.children().collection[2].text());
+		
+		sarray[2] = 'Goodbye Bob!';
+		Assert.equals('Goodbye Bob!', dataSArray.children().collection[2].text());
+		
+		sarray[3] = 'Newy Newness';
+		Assert.equals('Newy Newness', dataSArray.children().collection[3].text());
+		
+		sarray[5] = 'Future';
+		Assert.equals('Future', dataSArray.children().collection[5].text());
+	}
+	
+	public function testArray_Int() {
+		iarray = [66, -100, 23];
+		
+		Assert.equals(66, dataIArray.children().collection[0].text());
+		Assert.equals(-100, dataIArray.children().collection[1].text());
+		Assert.equals(23, dataIArray.children().collection[2].text());
+		
+		iarray[2] = 44;
+		Assert.equals(44, dataIArray.children().collection[2].text());
+		
+		iarray[3] = 200;
+		Assert.equals(200, dataIArray.children().collection[3].text());
+		
+		iarray[5] = 99999;
+		Assert.equals(99999, dataIArray.children().collection[5].text());
+	}
 }
