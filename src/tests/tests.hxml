@@ -17,3 +17,4 @@
 -D disable_macro_tests
 -main AllTests
 --macro uhx.macro.Tem.setIndex('templates/tem/index.html')
+-dce std

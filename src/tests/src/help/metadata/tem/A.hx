@@ -77,6 +77,10 @@ class A implements Klas {
 		
 		sarray[5] = 'Future';
 		Assert.equals('Future', dataSArray.children().collection[5].text());
+		
+		for (val in sarray) {
+			val += ' loop';
+		}
 	}
 	
 	public function testArray_Int() {

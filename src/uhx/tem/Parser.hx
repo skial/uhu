@@ -5,6 +5,7 @@ import haxe.rtti.Meta;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import uhx.macro.help.Hijacked;
 import uhx.macro.help.TemCommon;
 import haxe.macro.ComplexTypeTools;
 #end
@@ -180,7 +181,7 @@ class Parser {
 								
 								switch (_t.get().name) {
 									case 'Array':
-										var td:TypeDefinition = TemCommon.arrayWrapper;
+										var td:TypeDefinition = Hijacked.array;
 										var aw:Field = td.fields.get( 'arrayWrite' );
 										var m:Function = aw.getMethod();
 										
