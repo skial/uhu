@@ -159,26 +159,27 @@ class Hijacked {
 		var name = 'HijackedIterator${counter}';
 		counter++;
 		
-		var fields:Array<Field> = [ 'new', 'next', 'hasNext', 'fromIterator', 'toIterator' ]
-			.mkFields().mkPublic().mkInline().toFFun();
+		var fields:Array<Field> = [ 'new', 'next', 'hasNext', 'fromIterator'/*, 'toIterator'*/ ]
+			.mkFields().mkPublic().toFFun();
 			
 		var _new = fields.get( 'new' );
-		_new.body( macro this = it );
+		_new.body( macro { this = it; } );
 		_new.args().push( 'it'.mkArg( macro: Iterator<T>, false ) );
 		
 		var _n = fields.get( 'next' );
-		_n.ret( macro: T ).body( macro return this.next() );
+		_n.ret( macro: T ).body( macro { untyped console.log('hijacked!') ; return this.next(); } );
 		
 		var _h = fields.get( 'hasNext' );
-		_n.ret( macro: Bool ).body( macro return this.hasNext() );
+		_h.ret( macro: Bool ).body( macro { return this.hasNext(); } );
 		
 		var _fi = fields.get( 'fromIterator' );
-		_fi.mkStatic().body( macro return new $name<T>(it) ).ret( macro: $name<T> );
+		_fi.mkStatic().body( macro { return new $name<T>(it); } ).ret( macro: $name<T> ).param('T');
 		_fi.meta.push( ':from'.mkMeta() );
 		_fi.args().push( 'it'.mkArg( macro: Iterator<T>, false ) );
 		
-		var _ti = fields.get( 'toIterator' );
-		_ti.body( macro return this ).ret( macro: Iterator<T> );
+		/*var _ti = fields.get( 'toIterator' );
+		_ti.body( macro { return this; } ).ret( macro: Iterator<T> );
+		_ti.meta.push( ':to'.mkMeta() );*/
 		
 		var td:TypeDefinition = {
 			name: name,

@@ -190,6 +190,7 @@ class Parser {
 												m.expr = { expr: EBlock( 
 													// dirty little trick, in every non static method, add `var ethis = this`
 													// so when `arrayWrite` get inlined it references the correct instance.
+													// ^ This is done in Tem.hx::handler ^
 													[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };
