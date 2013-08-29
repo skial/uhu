@@ -18,6 +18,7 @@ class A implements Klas {
 	
 	public var sarray:Array<String>;
 	public var iarray:Array<Int>;
+	public var xarray:Array<Xml>;
 	
 	var attrSrc:DOMNode;
 	var dataName:DOMNode;
@@ -26,9 +27,10 @@ class A implements Klas {
 	
 	var dataSArray:DOMNode;
 	var dataIArray:DOMNode;
+	var dataXArray:DOMNode;
 
 	public function new() {
-		var values:Array<Dynamic> = [src, name, age, height, sarray, iarray];
+		var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, xarray];
 		for (value in values) {
 			untyped console.log( value );
 		}
@@ -40,6 +42,7 @@ class A implements Klas {
 		
 		dataSArray = '[data-sarray]'.find().getNode();
 		dataIArray = '[data-iarray]'.find().getNode();
+		dataXArray = '[data-xarray]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
@@ -60,6 +63,7 @@ class A implements Klas {
 		
 		testArray_String();
 		testArray_Int();
+		testArray_Xml();
 	}
 	
 	public function testArray_String() {
@@ -78,9 +82,15 @@ class A implements Klas {
 		sarray[5] = 'Future';
 		Assert.equals('Future', dataSArray.children().collection[5].text());
 		
-		for (val in sarray) {
-			val += ' loop';
+		for (i in 0...sarray.length) {
+			sarray[i] += ' loop';
 		}
+		
+		Assert.equals('Future loop', sarray[5]);
+		Assert.equals('Future loop', dataSArray.children().collection[5].text());
+		
+		Assert.equals('undefined loop', sarray[4]);
+		Assert.equals('undefined loop', dataSArray.children().collection[4].text());
 	}
 	
 	public function testArray_Int() {
@@ -98,5 +108,19 @@ class A implements Klas {
 		
 		iarray[5] = 99999;
 		Assert.equals(99999, dataIArray.children().collection[5].text());
+		
+		for (i in 0...iarray.length) {
+			iarray[i] += 1;
+		}
+		
+		Assert.equals( -99, iarray[1]);
+		Assert.equals( -99, dataIArray.children().collection[1].text());
+		
+		Assert.equals('' + Math.NaN, '' + iarray[4]);
+		Assert.equals('' + Math.NaN, dataIArray.children().collection[4].text());
+	}
+	
+	public function testArray_Xml() {
+		xarray = [Xml.parse('World 0'), Xml.parse('World 1'), Xml.parse('World 2')];
 	}
 }

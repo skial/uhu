@@ -154,44 +154,74 @@ class Hijacked {
 		return td;
 	}
 	
-	public static var iterator(get, never):TypeDefinition;
-	private static function get_iterator():TypeDefinition {
-		var name = 'HijackedIterator${counter}';
+	public static var string(get, never):TypeDefinition;
+	private static function get_string():TypeDefinition {
+		var name = 'HijackedString${counter}';
+		var ctype = TPath( {
+			pack: pack,
+			name: name,
+			params: [],
+		} );
 		counter++;
 		
-		var fields:Array<Field> = [ 'new', 'next', 'hasNext', 'fromIterator'/*, 'toIterator'*/ ]
-			.mkFields().mkPublic().toFFun();
+		var fields:Array<Field> = [
+			'new', 'length', 'get_length', 'toUpperCase', 'toLowerCase', 'charAt', 'charCodeAt',
+			'indexOf', 'lastIndexOf', 'split', 'substr', 'substring', 'toString',
+			'fromString', /*'fromCharCode',*/
+		].mkFields().mkInline().mkPublic().toFFun();
+		
+		for (field in fields) {
 			
-		var _new = fields.get( 'new' );
-		_new.body( macro { this = it; } );
-		_new.args().push( 'it'.mkArg( macro: Iterator<T>, false ) );
+			switch(field.name) {
+				case 'new':
+					field.body( macro this = s );
+					field.args().push( 's'.mkArg( macro: String ) );
+					
+				case 'length': field.toFProp( 'get', 'never', macro: Int );
+				case 'get_length': field.body( macro return this.length );
+				case 'toUpperCase': field.body( macro return new $name( this.toUpperCase() ) ).ret( macro: $ctype );
+				case 'toLowerCase': field.body( macro return new $name( this.toLowerCase() ) ).ret( macro: $ctype );
+				case 'charAt': field.body( macro return new $name( this.charAt(index) ) ).ret( macro: $ctype ).args().push( 'index'.mkArg( macro: Int ) );
+				case 'charCodeAt': field.body( macro return this.charCodeAt(index) ).ret( macro: Null<Int> ).args().push( 'index'.mkArg( macro: Int ) );
+				case 'indexOf': 
+					field.body( macro return this.indexOf(string, startIndex) ).ret( macro: Int );
+					field.args().push( 'str'.mkArg( macro: String ) );
+					field.args().push( 'startIndex'.mkArg( macro: Int, true ) );
+					
+				case 'lastIndexOf':
+					field.body( macro return this.lastIndexOf(string, startIndex) ).ret( macro: Int );
+					field.args().push( 'str'.mkArg( macro: String ) );
+					field.args().push( 'startIndex'.mkArg( macro: Int, true ) );
+					
+				case 'split': field.body( macro return this.split(delimiter) ).ret( macro: Array < $ctype > ).args().push( 'delimiter'.mkArg( macro: String ) );
+				case 'substr': 
+					field.body( macro return new $name( this.substr(pos, len) ) ).ret( macro: $ctype );
+					field.args().push( 'pos'.mkArg( macro: Int ) );
+					field.args().push( 'len'.mkArg( macro: Int, true ) );
+					
+				case 'substring': 
+					field.body( macro return new $name( this.substring(startIndex, endIndex) ) ).ret( macro: $ctype );
+					field.args().push( 'startIndex'.mkArg( macro: Int ) );
+					field.args().push( 'endIndex'.mkArg( macro: Int, true ) );
+					
+				case 'toString': field.body( macro return this.toString() ).ret( macro: String ).meta.push( ':to'.mkMeta() );
+				case 'fromString': 
+					field.mkStatic().body( macro return new $name( s ) ).ret( macro: $ctype );
+					field.args().push( 's'.mkArg( macro: String ) );
+					field.meta.push( ':from'.mkMeta() );
+			}
+			
+		}
 		
-		var _n = fields.get( 'next' );
-		_n.ret( macro: T ).body( macro { untyped console.log('hijacked!') ; return this.next(); } );
-		
-		var _h = fields.get( 'hasNext' );
-		_h.ret( macro: Bool ).body( macro { return this.hasNext(); } );
-		
-		var _fi = fields.get( 'fromIterator' );
-		_fi.mkStatic().body( macro { return new $name<T>(it); } ).ret( macro: $name<T> ).param('T');
-		_fi.meta.push( ':from'.mkMeta() );
-		_fi.args().push( 'it'.mkArg( macro: Iterator<T>, false ) );
-		
-		/*var _ti = fields.get( 'toIterator' );
-		_ti.body( macro { return this; } ).ret( macro: Iterator<T> );
-		_ti.meta.push( ':to'.mkMeta() );*/
-		
-		var td:TypeDefinition = {
+		return {
 			name: name,
 			pack: pack,
-			pos: Context.currentPos(),
 			meta: [],
-			params: [ { name: 'T', constraints: [], params: [] } ],
 			isExtern: false,
-			kind: TDAbstract( macro: Iterator<T> ),
+			kind: TDAbstract( macro: String, [], [macro: String] ),
+			params: [],
+			pos: Context.currentPos(),
 			fields: fields,
-		};
-		
-		return td;
+		}
 	}
 }

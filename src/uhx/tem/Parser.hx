@@ -88,18 +88,25 @@ class Parser {
 	}
 	
 	#if macro
-	private static function parserExpr(type:Type):Expr {
+	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
 		var result = macro null;
 		var iterable = Context.getType('Iterable');
-		
+		trace( type );
+		trace( collection );
+		trace( type.unify( iterable ) );
 		switch ( type.follow() ) {
 			case TInst(t, p):
 				switch( t.get().name ) {
+					case 'Xml':
+						result = collection 
+							? macro Xml.parse( child.html() ) 
+							: macro Xml.parse( ele.html() );
+						
 					case 'String':
 						result = macro v;
 						
 					case 'Array' | _ if (type.unify( iterable )):
-						result = parserExpr( p[0] );
+						result = parserExpr( p[0], true );
 						
 					case _:
 						#if debug
@@ -109,7 +116,9 @@ class Parser {
 				
 			case TAbstract(t, p):
 				
-				switch (t.get().name) {
+				var atype = t.get();
+				
+				switch (atype.name) {
 					case 'Bool':
 						result = macro (v == 'true') ? true : false;
 						
@@ -119,15 +128,21 @@ class Parser {
 					case 'Float':
 						result = macro Std.parseFloat( v );
 						
+					case _ if (atype.type.unify( iterable )):
+						result = parserExpr( p[0], true );
+						
 					case _:
 						#if debug
-						//trace( t.get().name );
+						trace( atype.name );
+						trace( atype.type );
 						#end
-						result = parserExpr( p[0] );
+						result = parserExpr( p[0], true );
 				}
 				
 			case _:
-				
+				#if debug
+				trace( type.follow() );
+				#end
 		};
 		
 		return result;
