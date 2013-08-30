@@ -58,6 +58,32 @@ class ComplexTypeTools {
 		
 		return result;
 	}
+	
+	public static function asTypePath(c:ComplexType):TypePath {
+		var result = null;
+		
+		switch (c) {
+			case TPath(p):
+				result = p;
+				
+			case TFunction(_, ret):
+				result = ComplexTypeTools.asTypePath( ret );
+				
+			case TParent(t):
+				result = ComplexTypeTools.asTypePath( t );
+				
+			case TExtend(p, _):
+				result = p;
+				
+			case TOptional(t):
+				result = ComplexTypeTools.asTypePath( t );
+				
+			case _:
+				
+		}
+		
+		return result;
+	}
 
 	public static inline function toString(c:ComplexType):String {
 		return c.printComplexType();

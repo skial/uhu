@@ -90,10 +90,7 @@ class Parser {
 	#if macro
 	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
 		var result = macro null;
-		var iterable = Context.getType('Iterable');
-		trace( type );
-		trace( collection );
-		trace( type.unify( iterable ) );
+		
 		switch ( type.follow() ) {
 			case TInst(t, p):
 				switch( t.get().name ) {
@@ -105,7 +102,7 @@ class Parser {
 					case 'String':
 						result = macro v;
 						
-					case 'Array' | _ if (type.unify( iterable )):
+					case 'Array' | _ if (type.isIterable()):
 						result = parserExpr( p[0], true );
 						
 					case _:
@@ -116,9 +113,9 @@ class Parser {
 				
 			case TAbstract(t, p):
 				
-				var atype = t.get();
+				var abst = t.get();
 				
-				switch (atype.name) {
+				switch (abst.name) {
 					case 'Bool':
 						result = macro (v == 'true') ? true : false;
 						
@@ -128,13 +125,13 @@ class Parser {
 					case 'Float':
 						result = macro Std.parseFloat( v );
 						
-					case _ if (atype.type.unify( iterable )):
+					case _ if (abst.type.isIterable()):
 						result = parserExpr( p[0], true );
 						
 					case _:
 						#if debug
-						trace( atype.name );
-						trace( atype.type );
+						trace( abst.name );
+						trace( abst.type );
 						#end
 						result = parserExpr( p[0], true );
 				}
@@ -146,6 +143,178 @@ class Parser {
 		};
 		
 		return result;
+	}
+	
+	private static function setterExpr(ctype:ComplexType, domName:String, attName:String, attribute:Bool) {
+		var nfields = ['set_single_$domName', 'set_$domName'].mkFields().mkPublic().toFFun();
+		var single = nfields.get( 'set_single_$domName' );
+		var mass = nfields.get( 'set_$domName' );
+		var expr = attribute 
+			? macro dtx.single.ElementManipulation.setAttr( children.getNode( pos ), $v { attName }, Std.string( v ) )
+			: macro dtx.single.ElementManipulation.setText( children.getNode( pos ), Std.string( v ) );
+		
+		switch ( [attribute, ctype.toType().isIterable()] ) {
+			case [false, false]:
+				single.body( macro dtx.single.ElementManipulation.setText($i { domName }, '' + v) );
+				
+			case [true, false]:
+				single.body( macro dtx.single.ElementManipulation.setAttr($i { domName }, $v { attName }, '' + v) );
+				
+			case [_, true]:
+				mass.body( macro {
+					for (i in 0...v.length) {
+						$i { single.name } ( i, v[i] );
+					}
+				} );
+				
+				single.body( macro {
+					var dom = $i { 'get_$domName' } ();
+					var children = dtx.single.Traversing.children( dom );
+					if (children.collection.length > pos) {
+						$e { expr };
+					} else {
+						var c = new dtx.DOMCollection();
+						for (i in 0...(pos-(children.collection.length-1))) {
+							c.add( dtx.Tools.create( dtx.single.ElementManipulation.tagName( children.getNode() ) ) );
+						}
+						dom.append( null, c );
+						children = dtx.single.Traversing.children( dom );
+						$e { expr };
+					}
+				} );
+				
+		}
+		if (ctype.toType().isIterable()) {
+			mass.args().push( 'v'.mkArg( ctype ) );
+			
+			single.args().push( 'pos'.mkArg( macro: Int ) );
+			single.args().push( 'v'.mkArg( ctype.asTypePath().params[0].asComplexType() ) );
+		} else {
+			single.args().push( 'v'.mkArg( ctype ) );
+			nfields.remove( mass );
+		}
+		
+		for (nf in nfields) {
+			fields.push( nf );
+		}
+		
+		/*switch ( [attribute, type.isIterable()] ) {
+						case [true, false]:
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro dtx.single.ElementManipulation.setAttr($i { domName }, $v { attName }, '' + v) )
+							);
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+						case [false, false]:
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro dtx.single.ElementManipulation.setText($i { domName }, '' + v) )
+							);
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+						/*case [_, true]:
+							var id = 'set_INDIV${prefix}_$name';
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var child = $i { 'get_${prefix}_$name' } .children()[ pos ];
+									if (child == null ) {
+										child = dtx.Tools.parse('<div></div>');
+										// Need to insert a new DOM element, matching the first child's node type.
+										// Probably better to create a help class to handle all of this instead of
+										// relying on macro generation.
+									}
+									dtx.single.ElementManipulation.setAttr( child, $v { name }, '' );
+								} )
+							);
+							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );*/
+							
+						/*case [true, true]:
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
+									for (i in 0...v.length) {
+										//var _v = v[i];
+										if (dom.collection.length > i) {
+											dtx.single.ElementManipulation.setAttr( dom.getNode( i ), $v{ attName }, '' + v[i] );
+										} else {
+											dom.add( dtx.single.ElementManipulation.setAttr( dtx.Tools.create( 'div' ), $v{ attName }, '' + v[i] ), i );
+										}
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+							id = 'set_single_$domName';
+							
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' } (), true );
+									if (dom.collection.length > pos) {
+										dtx.single.ElementManipulation.setAttr( dom.getNode( pos ), $v { attName }, '' + v );
+									} else {
+										var n = dtx.Tools.create( dtx.single.ElementManipulation.tagName( dom.getNode() ) );
+										dtx.single.ElementManipulation.setAttr( n, $v { attName }, '' + v );
+										dtx.single.DOMManipulation.append( $i{'get_$domName'}(), n );
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+						case [false, true]:
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
+									for (i in 0...v.length) {
+										//var _v = v[i];
+										if (dom.collection.length > i) {
+											dtx.single.ElementManipulation.setText( dom.getNode( i ), '' + v[i] );
+										} else {
+											dom.add( dtx.single.ElementManipulation.setText( dtx.Tools.create( 'div' ), '' + v[i] ), i );
+										}
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+							id = 'set_single_$domName';
+							
+							fields.push( id.mkField()
+								.mkPublic()
+								.toFFun()
+								.body( macro {
+									var dom:dtx.DOMNode = $i { 'get_$domName' } ();
+									var children:dtx.DOMCollection = dtx.single.Traversing.children( dom, true );
+									if (pos > (children.collection.length-1)) {
+										
+										var collection:dtx.DOMCollection = new dtx.DOMCollection();
+										for (i in 0...(pos - (children.collection.length-1))) {
+											collection.add( dtx.Tools.create( dtx.single.ElementManipulation.tagName( children.getNode() ) ) );
+										}
+										dom.append( null, collection );
+										children = dtx.single.Traversing.children( dom, true );
+										// TODO create the correct amount of elements and then set the element at `pos` with value of `v`
+										dtx.single.ElementManipulation.setText( children.getNode( pos ), '' + v );
+									} else {
+										dtx.single.ElementManipulation.setText( children.getNode( pos ), '' + v );
+									}
+								} )
+							);
+							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
+							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
+							
+					}*/
 	}
 	
 	private static function mkParseField(name:String, ctype:ComplexType):Field {
@@ -237,7 +406,7 @@ class Parser {
 					
 					fields.push( field.mkSetter( macro { 
 						$i { name } = v; 
-						$i { 'set_${prefix}_$name' } ( v ); 
+						$i { 'set_' + (!field.typeof().isIterable() ? 'single_' : '') + '$domName' } ( v ); 
 						return v; } 
 					) );
 					
@@ -255,125 +424,7 @@ class Parser {
 						return $i { domName };
 					} ) );
 					
-					var id = 'set_$domName';
-					
-					switch ( [attribute, type.isIterable()] ) {
-						case [true, false]:
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro dtx.single.ElementManipulation.setAttr($i { domName }, $v { attName }, '' + v) )
-							);
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-						case [false, false]:
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro dtx.single.ElementManipulation.setText($i { domName }, '' + v) )
-							);
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-						/*case [_, true]:
-							var id = 'set_INDIV${prefix}_$name';
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro {
-									var child = $i { 'get_${prefix}_$name' } .children()[ pos ];
-									if (child == null ) {
-										child = dtx.Tools.parse('<div></div>');
-										// Need to insert a new DOM element, matching the first child's node type.
-										// Probably better to create a help class to handle all of this instead of
-										// relying on macro generation.
-									}
-									dtx.single.ElementManipulation.setAttr( child, $v { name }, '' );
-								} )
-							);
-							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );*/
-							
-						case [true, true]:
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro {
-									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
-									for (i in 0...v.length) {
-										//var _v = v[i];
-										if (dom.collection.length > i) {
-											dtx.single.ElementManipulation.setAttr( dom.getNode( i ), $v{ attName }, '' + v[i] );
-										} else {
-											dom.add( dtx.single.ElementManipulation.setAttr( dtx.Tools.create( 'div' ), $v{ attName }, '' + v[i] ), i );
-										}
-									}
-								} )
-							);
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-							id = 'set_single_$domName';
-							
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro {
-									var dom = dtx.single.Traversing.children( $i { 'get_$domName' } (), true );
-									if (dom.collection.length > pos) {
-										dtx.single.ElementManipulation.setAttr( dom.getNode( pos ), $v { attName }, '' + v );
-									} else {
-										var n = dtx.Tools.create( dtx.single.ElementManipulation.tagName( dom.getNode() ) );
-										dtx.single.ElementManipulation.setAttr( n, $v { attName }, '' + v );
-										dtx.single.DOMManipulation.append( $i{'get_$domName'}(), n );
-									}
-								} )
-							);
-							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-						case [false, true]:
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro {
-									var dom = dtx.single.Traversing.children( $i { 'get_$domName' }(), true );
-									for (i in 0...v.length) {
-										//var _v = v[i];
-										if (dom.collection.length > i) {
-											dtx.single.ElementManipulation.setText( dom.getNode( i ), '' + v[i] );
-										} else {
-											dom.add( dtx.single.ElementManipulation.setText( dtx.Tools.create( 'div' ), '' + v[i] ), i );
-										}
-									}
-								} )
-							);
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-							id = 'set_single_$domName';
-							
-							fields.push( id.mkField()
-								.mkPublic()
-								.toFFun()
-								.body( macro {
-									var dom:dtx.DOMNode = $i { 'get_$domName' } ();
-									var children:dtx.DOMCollection = dtx.single.Traversing.children( dom, true );
-									if (pos > (children.collection.length-1)) {
-										
-										var collection:dtx.DOMCollection = new dtx.DOMCollection();
-										for (i in 0...(pos - (children.collection.length-1))) {
-											collection.add( dtx.Tools.create( dtx.single.ElementManipulation.tagName( children.getNode() ) ) );
-										}
-										dom.append( null, collection );
-										children = dtx.single.Traversing.children( dom, true );
-										// TODO create the correct amount of elements and then set the element at `pos` with value of `v`
-										dtx.single.ElementManipulation.setText( children.getNode( pos ), '' + v );
-									} else {
-										dtx.single.ElementManipulation.setText( children.getNode( pos ), '' + v );
-									}
-								} )
-							);
-							fields.get( id ).args().push( 'pos'.mkArg( macro: Int, false ) );
-							fields.get( id ).args().push( 'v'.mkArg( t, false ) );
-							
-					}
+					setterExpr(t, domName, attName, attribute);
 					
 				case _:
 					
