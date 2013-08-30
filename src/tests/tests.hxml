@@ -4,15 +4,10 @@
 -cp ../../../thx.core/src
 -cp ../../../thx.react/src
 -cp ../../../polygonal-core/src
--cp ../../../selecthxml/src
 -lib utest
 -lib detox
--lib tink_macro
--lib tink_core
--lib selecthxml
--lib beanhx
 -lib hxparse
--lib mcli
+-lib selecthxml
 -js bin/tests.js
 -D disable_macro_tests
 -main AllTests

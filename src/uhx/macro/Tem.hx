@@ -43,12 +43,25 @@ class Tem {
 			var oparts = output.split( output.indexOf( '/' ) == -1 ? '\\' : '/' );
 			
 			var body:Xml = TemMacro.html.find( 'body' ).collection[0];
+			var script:DOMCollection = body.find('script[src*="' + oparts[oparts.length - 1] + '"]');
 			
-			if (body.find('script[src="' + oparts[oparts.length - 1] + '"]').length == 0) {
+			if (script.length == 0) {
 				var script:Xml = Xml.createElement( 'script' );
 				
 				script.set( 'src', oparts[oparts.length - 1] );
 				body.addChild( script );
+			} else {
+				var src  = script.getNode().attr('src').split( output.indexOf( '/' ) == -1 ? '\\' : '/' );
+				
+				if (src.length > 1) {
+					src.reverse();
+					
+					for (part in src) {
+						oparts[oparts.length - 1] == part ? oparts.pop() : break;
+					}
+					
+					oparts.push( src.pop() );
+				}
 			}
 			
 			// replaces `output` filename with `path` file name
