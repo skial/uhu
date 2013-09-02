@@ -21,8 +21,8 @@ class Request implements Klas {
 	public var headers:Headers;
 	@:noCompletion public var xhr:XMLHttpRequest;
 	
-	@:pub public var error:Response;
-	@:pub public var success:Response;
+	public var error:Response;
+	public var success:Response;
 	
 	public var url(default, null):URI;
 	public var method(default, null):EMethod;

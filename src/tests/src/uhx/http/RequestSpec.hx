@@ -30,12 +30,6 @@ class RequestSpec implements Klas {
 	public var request:Request;
 	public var response:Response;
 	
-	@:sub(uhx.http.Request,error)
-	public var error:Response;
-	
-	@:sub(uhx.http.Request,success)
-	public var success:Response;
-	
 	public function new() {
 		
 	}
@@ -47,11 +41,11 @@ class RequestSpec implements Klas {
 		
 		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
 		
-		Assert.equals( 200, success.status_code );
-		Assert.isTrue( success.headers.exists('Content-Type') );
-		Assert.isTrue( success.headers.exists('content-type') );
-		Assert.equals( url, success.url.toString() );
-		Assert.equals( EStatus.OK, success.status );
+		Assert.equals( 200, request.success.status_code );
+		Assert.isTrue( request.success.headers.exists('Content-Type') );
+		Assert.isTrue( request.success.headers.exists('content-type') );
+		Assert.equals( url, request.success.url.toString() );
+		Assert.equals( EStatus.OK, request.success.status );
 	}
 	
 	public function testPOST_StringMap() {
@@ -61,9 +55,9 @@ class RequestSpec implements Klas {
 		
 		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
 		
-		Assert.equals( 200, success.status_code );
-		Assert.equals( EStatus.OK, success.status );
-		Assert.equals( url, success.url.toString() );
+		Assert.equals( 200, request.success.status_code );
+		Assert.equals( EStatus.OK, request.success.status );
+		Assert.equals( url, request.success.url.toString() );
 	}
 	
 	public function testHeaders() {
@@ -73,10 +67,10 @@ class RequestSpec implements Klas {
 		
 		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
 		
-		var json = Json.parse( success.text );
+		var json = Json.parse( request.success.text );
 		
-		Assert.equals( 200, success.status_code );
-		Assert.equals( EStatus.OK, success.status );
+		Assert.equals( 200, request.success.status_code );
+		Assert.equals( EStatus.OK, request.success.status );
 		Assert.stringContains( 'localhost', json.Origin );
 		Assert.stringContains( 'headers.jsontest.com', json.Host );
 	}
