@@ -2,10 +2,10 @@ package uhx.http;
 
 import haxe.Json;
 import haxe.Timer;
-import uhx.http.impl.e.EStatus;
 import utest.Assert;
-import uhx.http.impl.i.IResponse;
+import uhx.http.impl.e.EStatus;
 import uhx.http.impl.e.EMethod;
+import uhx.http.impl.i.IResponse;
 
 using uhx.web.URL;
 
@@ -18,7 +18,11 @@ class RequestSpec implements Klas {
 	
 	/**
 	 * All url's have to accept cross origin requests, which is required
-	 * by Javascript, so the tests have a chance to succeed.
+	 * by Javascript, so the tests have a chance to succeed. 
+	 * \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+	 * 		Start a local server you idiot.
+	 * 			nekotools server -p 80
+	 * / / / / / / / / / / / / / / / / / / / / /
 	 */
 	
 	public static inline var DELAY:Int = 1000;

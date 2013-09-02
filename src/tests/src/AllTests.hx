@@ -6,7 +6,8 @@ import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
 import uhx.macro.WaitSpec;
 import uhx.macro.PubSubSpec;
-import uhx.tem.TemSpec;
+//import uhx.tem.TemSpec;
+
 /*import haxe.Utf8Spec;
 import uhx.macro.help.TemArray.TemArray;
 import uhx.web.URISpec;
@@ -26,14 +27,16 @@ import uhu.mu.PartialSpec;
 import uhu.mu.WalkContextSpec;*/
 //#end
 
+#if js
+import uhx.http.Request;
+import uhx.http.Response;
+import uhx.http.RequestSpec;
+#end
+
 /*#if sys
 import sys.net.HostSpec;
 import sys.net.SocketSpec;
 import uhx.oauth.OAuth10aSpec;
-#end
-
-#if js
-import uhx.http.RequestSpec;
 #end
 
 import uhx.crypto.Base64Spec;
@@ -57,9 +60,6 @@ class AllTests {
 	public static function main() {	
 		
 		var runner = new Runner();
-		
-		runner.addCase( new WaitSpec() );
-		runner.addCase( new PubSubSpec() );
 		
 		/*runner.addCase( new ASCIISpec() );
 		
@@ -94,16 +94,17 @@ class AllTests {
 		runner.addCase( new WalkContextSpec() ); */
 		//#end
 		
-		//runner.addCase( new RequestSpec() );
-		
 		// Github OAuth Tests
 		//runner.addCase( new GithubSpec() );
 		
-		runner.addCase( new TemSpec() );
+		runner.addCase( new WaitSpec() );
+		runner.addCase( new PubSubSpec() );
+		//runner.addCase( new TemSpec() );	//	No useful error given if TemSpec and RequestSpec are compiled together...
 		runner.addCase( new NamedArgsSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );
 		runner.addCase( new EdeSpec() );
+		runner.addCase( new RequestSpec() );
 		
 		Report.create( runner );
 		runner.run();

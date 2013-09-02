@@ -7,7 +7,7 @@ import js.html.XMLHttpRequest;
  * @author Skial Bainn
  * http://stackoverflow.com/questions/7462968/restrictions-of-xmlhttprequests-getresponseheader
  */
-abstract Headers(XMLHttpRequest) {
+abstract Headers(XMLHttpRequest) from XMLHttpRequest to XMLHttpRequest {
 
 	public inline function new(v:XMLHttpRequest) {
 		this = v;

@@ -58,10 +58,10 @@ class Handler {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		
-		if (Context.defined('debug_macro')) {
-			trace('-----');
-			trace('Class ${cls.path()}');
-		}
+		#if debug_macros
+		Console.start();
+		trace( cls.path() );
+		#end
 		
 		/**
 		 * Loop through any class metadata and pass along 
@@ -71,28 +71,15 @@ class Handler {
 		 * while in IDE display mode, `-D display`.
 		 */
 		
-		if (Context.defined('debug_macro')) {
-			trace('-----');
-			trace('Running class handlers');
-		}
-		
 		for (key in CLASS_META.keys()) {
 			
 			if (cls.meta.has( key )) {
 				
-				if (Context.defined('debug_macro')) {
-					trace('${cls.path()} - $key');
-				}
-				
+				trace( key );
 				fields = CLASS_META.get( key )( cls, fields );
 				
 			}
 			
-		}
-		
-		if (Context.defined('debug_macro')) {
-			trace('-----');
-			trace('Running class field handlers');
 		}
 		
 		for (key in CLASS_HAS_FIELD_META.keys()) {
@@ -112,10 +99,9 @@ class Handler {
 			
 			if (matched != null) {
 				
-				if (Context.defined('debug_macro')) {
-					trace('${cls.path()} - $matched');
-				}
-				
+				#if debug_macros
+				trace( matched );
+				#end
 				fields = CLASS_META.get( matched )(cls, fields);
 				
 			}
@@ -123,6 +109,13 @@ class Handler {
 		}
 		
 		for (def in DEFAULTS) {
+			#if debug_macros
+			trace( switch (Lambda.indexOf(DEFAULTS, def)) {
+				case 0: 'Wait';
+				case 1: 'NamedArgs';
+				case _: 
+			} );
+			#end
 			fields = def( cls, fields );
 		}
 		
