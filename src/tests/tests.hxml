@@ -11,7 +11,6 @@
 -lib mconsole
 -js bin/tests.js
 -D disable_macro_tests
--D debug_macros
 -main AllTests
 --macro uhx.macro.Tem.setIndex('templates/tem/index.html')
 -dce no

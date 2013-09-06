@@ -17,6 +17,7 @@ import uhx.macro.Subscriber;
 import uhx.macro.Tem;
 import uhx.macro.To;
 import uhx.macro.Wait;
+import uhx.macro.Bind;
 import uhx.sys.Ede;
 
 using Lambda;
@@ -34,6 +35,7 @@ class Handler {
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
 		Wait.handler,
 		NamedArgs.handler,
+		Bind.handler,
 	];
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
@@ -59,7 +61,6 @@ class Handler {
 		var fields = Context.getBuildFields();
 		
 		#if debug_macros
-		Console.start();
 		trace( cls.path() );
 		#end
 		
@@ -75,7 +76,9 @@ class Handler {
 			
 			if (cls.meta.has( key )) {
 				
+				#if debug_macros
 				trace( key );
+				#end
 				fields = CLASS_META.get( key )( cls, fields );
 				
 			}
@@ -113,7 +116,8 @@ class Handler {
 			trace( switch (Lambda.indexOf(DEFAULTS, def)) {
 				case 0: 'Wait';
 				case 1: 'NamedArgs';
-				case _: 
+				case 2: 'Bind';
+				case _: 'Not Implemented';
 			} );
 			#end
 			fields = def( cls, fields );

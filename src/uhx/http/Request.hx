@@ -18,11 +18,14 @@ using haxe.EnumTools;
  */
 class Request implements Klas {
 	
-	public var headers:Headers;
+	#if js
 	@:noCompletion public var xhr:XMLHttpRequest;
+	#end
 	
-	public var error:Response;
-	public var success:Response;
+	public var headers:Headers;
+	
+	@:pub public var error:Response;
+	@:pub public var success:Response;
 	
 	public var url(default, null):URI;
 	public var method(default, null):EMethod;
@@ -31,24 +34,30 @@ class Request implements Klas {
 		this.url = url;
 		this.method = method;
 		
+		#if js
 		xhr = new XMLHttpRequest();
 		headers = xhr;
+		#end
 		
 		init();
 	}
 	
 	private function init() {
+		#if js
 		xhr.open( method.getName(), url.toString(), true );
 		
 		xhr.addEventListener('load', onSuccess, false);
 		xhr.addEventListener('error', onError, false);
+		#end
 	}
 	
 	public function destroy() {
+		#if js
 		xhr.abort();
 		
 		xhr.removeEventListener('load', onSuccess, false);
 		xhr.removeEventListener('error', onError, false);
+		#end
 	}
 	
 	public function send(?params:StringMap<String>, ?body:String = ''):Void {

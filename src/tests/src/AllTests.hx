@@ -107,6 +107,11 @@ class AllTests {
 		runner.addCase( new RequestSpec() );
 		
 		Report.create( runner );
+		
+		#if !macro
+		Console.start();
+		#end
+		
 		runner.run();
 		
 	}

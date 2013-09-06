@@ -1,11 +1,12 @@
 package uhu.macro.jumla;
 
-import haxe.macro.Type;
 import haxe.macro.Expr;
+import haxe.macro.Type;
 import haxe.macro.Context;
 import haxe.macro.ComplexTypeTools;
 
 using uhu.macro.Jumla;
+using haxe.macro.Context;
 
 /**
  * @author Skial Bainn
@@ -287,4 +288,56 @@ class TypeTools {
 		return result;
 	}
 	
+	public static function forward(type:Type):Array<Field> {
+		var result:Array<Field> = [];
+		
+		switch (type) {
+			case TInst(t, p):
+				var cls = t.get();
+				
+				for (field in cls.fields.get()) {
+					
+					var _f = '${field.name}'.mkField().mkPublic();
+					
+					switch (field.kind) {
+						case FMethod(k):
+							_f.toFFun();
+							
+							var call = 'this.${field.name}(';
+							
+							switch (field.type) {
+								case TFun(args, ret):
+									
+									for (arg in args) {
+										_f.args().push( arg.name.mkArg( arg.t.toComplexType(), arg.opt ) );
+										call += arg.name + (args.length > 1 ? ', ' : '');
+									}
+									
+								case _:
+							}
+							
+							call += ')';
+							
+							var expr = Context.parse( call, Context.currentPos() );
+							
+							_f.body( macro return $expr );
+							
+						case FVar(r, w):
+							_f.toFProp('get', 'never', field.type.toComplexType(), field.expr() == null ? null : Context.getTypedExpr( field.expr() ) );
+							
+							result.push( 'get_${field.name}'.mkField()
+								.mkPublic().toFFun()
+								.body( macro return $e { Context.parse( 'this.${field.name}', Context.currentPos() ) } )
+							);
+					}
+					trace( _f.printField() );
+					result.push( _f );
+					
+				}
+				
+			case _:
+		}
+		
+		return result;
+	}
 }

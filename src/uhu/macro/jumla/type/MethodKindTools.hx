@@ -24,7 +24,6 @@ class MethodKindTools {
 			case MethNormal:
 				result = true;
 			case _:
-				result = false;
 		}
 		
 		return result;
@@ -37,7 +36,6 @@ class MethodKindTools {
 			case MethInline:
 				result = true;
 			case _:
-				result = false;
 		}
 		
 		return result;
@@ -50,7 +48,6 @@ class MethodKindTools {
 			case MethDynamic:
 				result = true;
 			case _:
-				result = false;
 		}
 		
 		return result;
@@ -63,7 +60,6 @@ class MethodKindTools {
 			case MethMacro:
 				result = true;
 			case _:
-				result = false;
 		}
 		
 		return result;

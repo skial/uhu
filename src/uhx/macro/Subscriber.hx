@@ -65,8 +65,28 @@ class Subscriber {
 							switch ( i ) {
 								case 0:
 									value = meta.params[0].printExpr();
+									
 									parts = value.split('.');
 									fname = parts[parts.length - 1];
+									
+									if (value.startsWith( 'this' ) && fields.exists( parts[1] )) {
+										
+										var _f = fields.get( parts[1] );
+										
+										switch (_f.kind) {
+											case FVar(t, e): 
+												parts = t.toType().getName().split( '.' );
+												_f.kind = FVar( abstractInstance( _f.name, t.toType() ).toComplexType(), e );
+												
+											case FProp(g, s, t, e):
+												parts = t.toType().getName().split( '.' );
+												_f.kind = FProp( g, s, abstractInstance( _f.name, t.toType() ).toComplexType(), e );
+												
+											case _:
+										}
+										
+										isStatic = false;
+									}
 									
 								case 1, _:
 									switch (meta.params[1].expr) {
@@ -182,6 +202,51 @@ class Subscriber {
 		}
 		
 		return fields;
+	}
+	
+	private static var abstractInstanceCache:StringMap<Type> = new StringMap<Type>();
+	
+	private static function abstractInstance(fname:String, otype:Type):Type {
+		var name = 'AbstractForInstanceField_$fname';
+		var pack = ['uhx', 'macro', 'help'];
+		var path = pack.join( '.' ) + '.$name';
+		var result = null;
+		
+		if (!abstractInstanceCache.exists( path )) {
+		
+			var ctype = otype.toComplexType();
+			var nfields = ['new', 'fromType']
+				.mkFields().mkInline()
+				.mkPublic().toFFun();
+			
+			nfields.get( 'new' ).body( macro { this = v; } ).args().push( 'v'.mkArg( ctype ) );
+			nfields.get( 'fromType' ).mkStatic().body( macro return new $name( v ) );
+			nfields.get( 'fromType' ).args().push( 'v'.mkArg( ctype ) );
+			nfields.get( 'fromType' ).meta.push( ':from'.mkMeta() );
+			
+			var td:TypeDefinition = {
+				pack: pack,
+				name: name,
+				pos: Context.currentPos(),
+				meta: [],
+				params: [],
+				isExtern: false,
+				kind: TDAbstract( ctype, [], [ ctype ] ),
+				fields: nfields.concat( otype.forward() ),
+			};
+			
+			Context.defineType( td );
+			result = Context.getType( path );
+			
+			abstractInstanceCache.set( path, result );
+			
+		} else {
+			
+			result = abstractInstanceCache.get( path );
+			
+		}
+		
+		return result;
 	}
 	
 }

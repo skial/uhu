@@ -26,9 +26,15 @@ class RequestSpec implements Klas {
 	 */
 	
 	public static inline var DELAY:Int = 1000;
-
+	
 	public var request:Request;
 	public var response:Response;
+	
+	@:sub(this.request.error)
+	public var error:Response;
+	
+	@:sub(this.request.success)
+	public var success:Response;
 	
 	public function new() {
 		
@@ -38,7 +44,7 @@ class RequestSpec implements Klas {
 		var url = 'http://ip.jsontest.com';
 		request = new Request( url.toURL(), GET );
 		request.send();
-		
+		@:bind this.response = request.success;
 		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
 		
 		Assert.equals( 200, request.success.status_code );
