@@ -21,6 +21,7 @@ class Publisher {
 		
 		if ('display'.defined()) return fields;
 		
+		var newExprs:Array<Expr> = [];
 		var initExprs:Array<Expr> = [];
 		
 		for (field in fields) {
@@ -39,7 +40,7 @@ class Publisher {
 						
 						// This is needed to force the default signal to be created as well.
 						// DCE should remove it if unused. Needs testing.
-						params.push( macro ns='' );
+						params.push( macro ns = '' );
 						
 						for (param in params) {
 							var ns = param.printExpr().split('ns=')[1].replace('"', '');
@@ -47,13 +48,20 @@ class Publisher {
 							if (ns != '') ns = 'NS$ns';
 							var fname = 'UhxSignalFor_$ns${field.name}';
 							
-							es.push( macro $i { fname } .trigger( v ) );
-							fs.push( fname );
+							es.push( macro $i { 'Static$fname' } .trigger( v ) );
+							fs.push( 'Static$fname' );
+							
+							if ( !field.isStatic() ) {
+								es.push( macro $i { 'Instance$fname' } .trigger( v ) );
+								fs.push( 'Instance$fname' );
+							}
 							
 							if (!pubCache.exists( fname )) {
 								
 								//initExprs.push( macro $i { fname } = new msignal.Signal.Signal1<$t>() );
-								initExprs.push( macro $i { fname } = new thx.react.Signal.Signal1<$t>() );
+								//var arr = field.isStatic() ? initExprs : newExprs;
+								initExprs.push( macro $i { 'Static$fname' } = new thx.react.Signal.Signal1<$t>() );
+								if ( !field.isStatic() ) newExprs.push( macro $i { 'Instance$fname' } = new thx.react.Signal.Signal1<$t>() );
 								pubCache.set( fname, true );
 								
 							}
@@ -65,15 +73,9 @@ class Publisher {
 							
 							if (!fields.exists( f )) {
 								
-								fields.push( {
-									name: f,
-									meta: [],
-									doc: null,
-									pos: field.pos,
-									access: [APublic, AStatic],
-									//kind: FVar(macro :msignal.Signal.Signal1<$ctype>, null)
-									kind: FVar(macro :thx.react.Signal.Signal1<$t>, null)
-								} );
+								var _f = f.mkField().mkPublic().toFVar( macro: thx.react.Signal.Signal1<$t> );
+								if (f.startsWith('Static')) _f.mkStatic();
+								fields.push( _f );
 								
 							}
 							
@@ -114,6 +116,7 @@ class Publisher {
 			
 		}
 		
+		var _new = fields.get( 'new' );
 		var _init = fields.get('__init__');
 		
 		// If _init is null create an __init__ field.
@@ -130,6 +133,19 @@ class Publisher {
 				switch (method.expr.expr) {
 					case EBlock(es):
 						method.expr = { expr: EBlock( es.concat( initExprs ) ), pos: _init.pos };
+						
+					case _:
+				}
+				
+			case _:
+		}
+		
+		switch (_new.kind) {
+			case FFun(method):
+				
+				switch (method.expr.expr) {
+					case EBlock(es):
+						method.expr = { expr: EBlock( es.concat( newExprs ) ), pos: _new.pos };
 						
 					case _:
 				}

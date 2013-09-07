@@ -33,23 +33,6 @@ class Subscriber {
 				var all = field.meta.getAll(':sub');
 				var ns = [];
 				
-				/*for (meta in all) {
-					
-					if (meta.params.length > 0) {
-						
-						for (param in meta.params) {
-							
-							if (param.printExpr().startsWith('ns=')) {
-								ns.push( param.printExpr().split('ns=')[1].replace('"', '') );
-								meta.params.remove( param );
-							}
-							
-						}
-						
-					}
-					
-				}*/
-				
 				for (meta in all) {
 					
 					if (meta.params.length > 0) {
@@ -59,6 +42,7 @@ class Subscriber {
 						var parts = [];
 						var fname = '';
 						var isStatic = true;
+						var isLocal = false;
 						
 						for (i in 0...meta.params.length) {
 							
@@ -75,15 +59,20 @@ class Subscriber {
 										
 										switch (_f.kind) {
 											case FVar(t, e): 
-												parts = t.toType().getName().split( '.' );
-												_f.kind = FVar( abstractInstance( _f.name, t.toType() ).toComplexType(), e );
+												//parts = t.toType().getName().split( '.' );
+												_f.kind = FVar( abstractInstance( _f.name, fname, t.toType() ).toComplexType(), e );
+												isLocal = true;
 												
 											case FProp(g, s, t, e):
-												parts = t.toType().getName().split( '.' );
-												_f.kind = FProp( g, s, abstractInstance( _f.name, t.toType() ).toComplexType(), e );
+												//parts = t.toType().getName().split( '.' );
+												_f.kind = FProp( g, s, abstractInstance( _f.name, fname, t.toType() ).toComplexType(), e );
+												isLocal = true;
 												
 											case _:
 										}
+										
+										//parts = value.split( '.' );
+										//parts.pop();
 										
 										isStatic = false;
 									}
@@ -138,9 +127,9 @@ class Subscriber {
 							
 							if (n != '') n = 'NS$n';
 							//var key = '${parts.join(".")}.UhxSignalFor_$fname.add(set_${field.name})';
-							var key = '${parts.join(".")}.UhxSignalFor_$n$fname.on(set_${field.name})';
+							var key = '${parts.join(".")}.${isLocal?"Instance":"Static"}UhxSignalFor_$n$fname.on(set_${field.name})';
 							
-							if (!subCache.exists( key )) {
+							if (!subCache.exists( key ) && !isLocal) {
 								
 								var _arr = field.isStatic() ? initExprs : newExprs;
 								
@@ -179,8 +168,11 @@ class Subscriber {
 			case FFun(method):
 				method.ret = null;
 				
-				for (e in newExprs) {
-					method.expr = e.concat( method.expr );
+				switch (method.expr.expr) {
+					case EBlock(es):
+						method.expr = { expr: EBlock( es.concat( newExprs ) ), pos: _new.pos };
+						
+					case _:
 				}
 				
 			case _:
@@ -206,7 +198,7 @@ class Subscriber {
 	
 	private static var abstractInstanceCache:StringMap<Type> = new StringMap<Type>();
 	
-	private static function abstractInstance(fname:String, otype:Type):Type {
+	private static function abstractInstance(fname:String, target:String, otype:Type):Type {
 		var name = 'AbstractForInstanceField_$fname';
 		var pack = ['uhx', 'macro', 'help'];
 		var path = pack.join( '.' ) + '.$name';
@@ -219,11 +211,15 @@ class Subscriber {
 				.mkFields().mkInline()
 				.mkPublic().toFFun();
 			
-			nfields.get( 'new' ).body( macro { this = v; } ).args().push( 'v'.mkArg( ctype ) );
+			nfields.get( 'new' ).body( macro {
+				this = v; 
+				untyped $e{ Context.parse( 'v.InstanceUhxSignalFor_$target.on(ethis.set_$fname)', Context.currentPos() ) };
+			} ).args().push( 'v'.mkArg( ctype ) );
 			nfields.get( 'fromType' ).mkStatic().body( macro return new $name( v ) );
 			nfields.get( 'fromType' ).args().push( 'v'.mkArg( ctype ) );
 			nfields.get( 'fromType' ).meta.push( ':from'.mkMeta() );
 			
+			var forwards = otype.forward();
 			var td:TypeDefinition = {
 				pack: pack,
 				name: name,
@@ -232,7 +228,7 @@ class Subscriber {
 				params: [],
 				isExtern: false,
 				kind: TDAbstract( ctype, [], [ ctype ] ),
-				fields: nfields.concat( otype.forward() ),
+				fields: nfields.concat( forwards ),
 			};
 			
 			Context.defineType( td );

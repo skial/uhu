@@ -289,55 +289,88 @@ class TypeTools {
 	}
 	
 	public static function forward(type:Type):Array<Field> {
-		var result:Array<Field> = [];
+		var results:Array<Field> = [];
 		
 		switch (type) {
 			case TInst(t, p):
 				var cls = t.get();
 				
-				for (field in cls.fields.get()) {
-					
-					var _f = '${field.name}'.mkField().mkPublic();
-					
-					switch (field.kind) {
-						case FMethod(k):
-							_f.toFFun();
-							
-							var call = 'this.${field.name}(';
-							
-							switch (field.type) {
-								case TFun(args, ret):
-									
-									for (arg in args) {
-										_f.args().push( arg.name.mkArg( arg.t.toComplexType(), arg.opt ) );
-										call += arg.name + (args.length > 1 ? ', ' : '');
-									}
-									
-								case _:
-							}
-							
-							call += ')';
-							
-							var expr = Context.parse( call, Context.currentPos() );
-							
-							_f.body( macro return $expr );
-							
-						case FVar(r, w):
-							_f.toFProp('get', 'never', field.type.toComplexType(), field.expr() == null ? null : Context.getTypedExpr( field.expr() ) );
-							
-							result.push( 'get_${field.name}'.mkField()
-								.mkPublic().toFFun()
-								.body( macro return $e { Context.parse( 'this.${field.name}', Context.currentPos() ) } )
-							);
-					}
-					trace( _f.printField() );
-					result.push( _f );
-					
-				}
+				results = forward_classField( cls.fields.get(), 'this', false );
+				//results = results.concat( forward_classField( cls.statics.get(), cls.path(), true ) );
 				
 			case _:
 		}
 		
-		return result;
+		return results;
 	}
+	
+	private static function forward_classField(fields:Array<ClassField>, caller:String, isStatic:Bool) {
+		var results:Array<Field> = [];
+		
+		for (field in fields) if (field.isPublic) {
+			
+			var _f = '${field.name}'.mkField().mkPublic();
+			if (isStatic) _f.mkStatic();
+			
+			switch (field.kind) {
+				case FMethod(k):
+					_f.toFFun().mkInline();
+					
+					var call = '$caller.${field.name}(';
+					//trace( field.name );
+					var handleArgs:Type->Void = null;
+					handleArgs = function(type:Type) {
+						switch (type) {
+							case TFun(args, ret):
+								
+								for (arg in args) {
+									//trace( arg );
+									_f.args().push( arg.name.mkArg( arg.t.toComplexType(), arg.opt ) );
+									call += arg.name + (args.length > 1 && arg != args[args.length-1] ? ', ' : '');
+								}
+								
+							case TLazy(ftype):
+								handleArgs( ftype() );
+								
+							case _: 
+								trace( type );
+						}
+					}
+					handleArgs(field.type);
+					
+					call += ')';
+					
+					var expr = Context.parse( call, Context.currentPos() );
+					
+					_f.body( macro return $expr );
+					
+				case FVar(r, w):
+					var g = 'get';
+					var s = 'never';
+					
+					switch (w) {
+						case AccCall:
+							s = 'set';
+						case _:
+					}
+					
+					_f.toFProp(g, s, field.type.toComplexType(), field.expr() == null ? null : Context.getTypedExpr( field.expr() ) );
+					var _fg = 'get_${field.name}'.mkField().mkPublic().toFFun();
+					if (isStatic) {
+						_fg.mkStatic();
+						_fg.args().push( 'v'.mkArg( Context.getType( caller ).toComplexType() ) );
+						_fg.body( macro return $e { Context.parse( 'v.${field.name}', Context.currentPos() ) } );
+					} else {
+						_fg.body( macro return $e { Context.parse( '$caller.${field.name}', Context.currentPos() ) } );
+					}
+					results.push( _fg );
+			}
+			//trace( _f.printField() );
+			results.push( _f );
+			
+		}
+		
+		return results;
+	}
+	
 }

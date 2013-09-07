@@ -44,7 +44,7 @@ class RequestSpec implements Klas {
 		var url = 'http://ip.jsontest.com';
 		request = new Request( url.toURL(), GET );
 		request.send();
-		@:bind this.response = request.success;
+		
 		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
 		
 		Assert.equals( 200, request.success.status_code );

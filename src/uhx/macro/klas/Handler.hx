@@ -18,6 +18,7 @@ import uhx.macro.Tem;
 import uhx.macro.To;
 import uhx.macro.Wait;
 import uhx.macro.Bind;
+import uhx.macro.EThis;
 import uhx.sys.Ede;
 
 using Lambda;
@@ -35,7 +36,7 @@ class Handler {
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
 		Wait.handler,
 		NamedArgs.handler,
-		Bind.handler,
+		EThis.handler,
 	];
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
@@ -116,7 +117,7 @@ class Handler {
 			trace( switch (Lambda.indexOf(DEFAULTS, def)) {
 				case 0: 'Wait';
 				case 1: 'NamedArgs';
-				case 2: 'Bind';
+				case 2: 'EThis';
 				case _: 'Not Implemented';
 			} );
 			#end
