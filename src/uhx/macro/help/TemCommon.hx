@@ -169,7 +169,6 @@ class TemCommon {
 		var field = 'setCollectionIndividual'.mkField().mkPublic()
 			.mkStatic().toFFun()
 			.body( macro {
-				//var dom = getDOM();
 				var children = dtx.single.Traversing.children( dom );
 				if (children.collection.length > pos) {
 					attr != null

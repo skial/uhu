@@ -148,62 +148,6 @@ class Parser {
 		return result;
 	}
 	
-	private static function setterExpr(ctype:ComplexType, domName:String, attName:String, attribute:Bool) {
-		var nfields = ['set_single_$domName', 'set_$domName'].mkFields().mkPublic().toFFun();
-		var single = nfields.get( 'set_single_$domName' );
-		var mass = nfields.get( 'set_$domName' );
-		var isIterable = ctype.toType().isIterable();
-		var expr = attribute 
-			? macro dtx.single.ElementManipulation.setAttr( children.getNode( pos ), $v { attName }, Std.string( v ) )
-			: macro dtx.single.ElementManipulation.setText( children.getNode( pos ), Std.string( v ) );
-		
-		switch ( [attribute, isIterable] ) {
-			case [false, false]:
-				single.body( macro dtx.single.ElementManipulation.setText($i { domName }, '' + v) );
-				
-			case [true, false]:
-				single.body( macro dtx.single.ElementManipulation.setAttr($i { domName }, $v { attName }, '' + v) );
-				
-			case [_, true]:
-				mass.body( macro {
-					for (i in 0...v.length) {
-						$i { single.name } ( i, v[i] );
-					}
-				} );
-				
-				single.body( macro {
-					var dom = $i { 'get_$domName' } ();
-					var children = dtx.single.Traversing.children( dom );
-					if (children.collection.length > pos) {
-						$e { expr };
-					} else {
-						var c = new dtx.DOMCollection();
-						for (i in 0...(pos-(children.collection.length-1))) {
-							c.add( dtx.Tools.create( dtx.single.ElementManipulation.tagName( children.getNode() ) ) );
-						}
-						dom.append( null, c );
-						children = dtx.single.Traversing.children( dom );
-						$e { expr };
-					}
-				} );
-				
-		}
-		
-		if (isIterable) {
-			mass.args().push( 'v'.mkArg( ctype ) );
-			
-			single.args().push( 'pos'.mkArg( macro: Int ) );
-			single.args().push( 'v'.mkArg( ctype.asTypePath().params[0].asComplexType() ) );
-		} else {
-			single.args().push( 'v'.mkArg( ctype ) );
-			nfields.remove( mass );
-		}
-		
-		for (nf in nfields) {
-			fields.push( nf );
-		}
-	}
-	
 	private static function mkParseField(name:String, ctype:ComplexType):Field {
 		var expr = if (ctype.toType().isIterable()) {
 			macro {
@@ -256,7 +200,7 @@ class Parser {
 													// dirty little trick, in every non static method, add `var ethis = this`
 													// so when `arrayWrite` gets inlined it references the correct instance.
 													// ^ This is done in by EThis.hx as part of uhx.macro.klas.Handler.hx ^
-													//[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
+													// prefixing Tem with `std` prevents the compiler from incorrectly using `uhx.macro.Tem`
 													[ Context.parse( 'untyped std.Tem.setCollectionIndividual(value, key, ethis.get_$domName(), ${attribute?attName:null})', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };
@@ -288,7 +232,6 @@ class Parser {
 					
 					fields.push( field.mkSetter( macro { 
 						$i { name } = v; 
-						//$i { 'set_' + (!field.typeof().isIterable() ? 'single_' : '') + '$domName' } ( v ); 
 						$e { Context.parse('Tem.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), Context.currentPos()) } ( v, $i { domName }, $v { attribute? attName :null } );
 						return v; } 
 					) );
@@ -306,8 +249,6 @@ class Parser {
 						}
 						return $i { domName };
 					} ) );
-					
-					//setterExpr(t, domName, attName, attribute);
 					
 				case _:
 					
