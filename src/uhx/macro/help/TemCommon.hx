@@ -88,10 +88,10 @@ class TemCommon {
 		};
 	}
 	
-	public static var ParseElement(get, never):Field;
+	public static var ParseSingle(get, never):Field;
 	
-	private static function get_ParseElement():Field {
-		var field = 'parseElement'.mkField().mkPublic()
+	private static function get_ParseSingle():Field {
+		var field = 'parseSingle'.mkField().mkPublic()
 			.mkStatic().toFFun()
 			.body( macro {
 				var v:String = attr ? dtx.single.ElementManipulation.attr( ele, name ) : dtx.single.ElementManipulation.text( ele );
@@ -126,6 +126,72 @@ class TemCommon {
 		field.args().push( 'attr'.mkArg( macro: Bool ) );
 		field.args().push( 'parse'.mkArg( macro: String->dtx.DOMNode->T ) );
 		
+		return field;
+	}
+	
+	public static var SetIndividual(get, never):Field;
+	
+	private static function get_SetIndividual():Field {
+		var field = 'setIndividual'.mkField().mkPublic()
+			.mkStatic().toFFun()
+			.body( macro {
+				attr == null 
+				? dtx.single.ElementManipulation.setText(dom, Std.string( value ))
+				: dtx.single.ElementManipulation.setAttr(dom, attr, Std.string( value ));
+			} ).param( 'T' );
+		
+		field.args().push( 'value'.mkArg( macro: T ) );
+		field.args().push( 'dom'.mkArg( macro: dtx.DOMNode ) );
+		field.args().push( 'attr'.mkArg( macro: String, true ) );
+		return field;
+	}
+	
+	public static var SetCollection(get, never):Field;
+	
+	private static function get_SetCollection():Field {
+		var field = 'setCollection'.mkField().mkPublic()
+			.mkStatic().toFFun()
+			.body( macro {
+				for (i in 0...value.length) {
+					$i { SetCollectionIndividual.name } ( value[i], i, dom, attr );
+				}
+			} ).param( 'T' );
+		
+		field.args().push( 'value'.mkArg( macro: Array<T> ) );
+		field.args().push( 'dom'.mkArg( macro: dtx.DOMNode ) );
+		field.args().push( 'attr'.mkArg( macro: String, true ) );
+		return field;
+	}
+	
+	public static var SetCollectionIndividual(get, never):Field;
+	
+	private static function get_SetCollectionIndividual():Field {
+		var field = 'setCollectionIndividual'.mkField().mkPublic()
+			.mkStatic().toFFun()
+			.body( macro {
+				//var dom = getDOM();
+				var children = dtx.single.Traversing.children( dom );
+				if (children.collection.length > pos) {
+					attr != null
+						? dtx.single.ElementManipulation.setAttr( children.getNode( pos ), attr, Std.string( value ) )
+						: dtx.single.ElementManipulation.setText( children.getNode( pos ), Std.string( value ) );
+				} else {
+					var c = new dtx.DOMCollection();
+					for (i in 0...(pos-(children.collection.length-1))) {
+						c.add( dtx.Tools.create( dtx.single.ElementManipulation.tagName( children.getNode() ) ) );
+					}
+					dtx.single.DOMManipulation.append( dom, null, c );
+					children = dtx.single.Traversing.children( dom );
+					attr != null 
+						? dtx.single.ElementManipulation.setAttr( children.getNode( pos ), attr, Std.string( value ) )
+						: dtx.single.ElementManipulation.setText( children.getNode( pos ), Std.string( value ) );
+				}
+			} ).param( 'T' );
+		
+		field.args().push( 'value'.mkArg( macro: T ) );
+		field.args().push( 'pos'.mkArg( macro: Int ) );
+		field.args().push( 'dom'.mkArg( macro: dtx.DOMNode ) );
+		field.args().push( 'attr'.mkArg( macro: String, true ) );
 		return field;
 	}
 	

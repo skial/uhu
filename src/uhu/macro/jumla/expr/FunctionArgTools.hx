@@ -21,11 +21,12 @@ class FunctionArgTools {
 		return result;
 	}
 	
-	public static function mkArg(n:String, ctype:ComplexType = null, opt:Bool = false):FunctionArg {
+	public static function mkArg(n:String, ctype:ComplexType = null, opt:Bool = false, value:Expr = null):FunctionArg {
 		return {
 			name: n,
 			type: ctype,
 			opt: opt,
+			value: value,
 		};
 	}
 

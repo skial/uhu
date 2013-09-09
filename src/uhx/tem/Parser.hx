@@ -211,7 +211,7 @@ class Parser {
 			};
 		} else {
 			macro {
-				return $e { Context.parse('Tem.${TemCommon.ParseElement.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
+				return $e { Context.parse('Tem.${TemCommon.ParseSingle.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			};
 		}
 		
@@ -256,7 +256,8 @@ class Parser {
 													// dirty little trick, in every non static method, add `var ethis = this`
 													// so when `arrayWrite` gets inlined it references the correct instance.
 													// ^ This is done in by EThis.hx as part of uhx.macro.klas.Handler.hx ^
-													[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
+													//[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
+													[ Context.parse( 'untyped std.Tem.setCollectionIndividual(value, key, ethis.get_$domName(), ${attribute?attName:null})', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };
 												
@@ -287,7 +288,8 @@ class Parser {
 					
 					fields.push( field.mkSetter( macro { 
 						$i { name } = v; 
-						$i { 'set_' + (!field.typeof().isIterable() ? 'single_' : '') + '$domName' } ( v ); 
+						//$i { 'set_' + (!field.typeof().isIterable() ? 'single_' : '') + '$domName' } ( v ); 
+						$e { Context.parse('Tem.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), Context.currentPos()) } ( v, $i { domName }, $v { attribute? attName :null } );
 						return v; } 
 					) );
 					
@@ -305,7 +307,7 @@ class Parser {
 						return $i { domName };
 					} ) );
 					
-					setterExpr(t, domName, attName, attribute);
+					//setterExpr(t, domName, attName, attribute);
 					
 				case _:
 					

@@ -116,7 +116,7 @@ class TemMacro {
 			
 		} else {
 			
-			
+			Context.error( '${cls.path()} requires a constructor.', cls.pos );
 			
 		}
 		
@@ -134,9 +134,11 @@ class TemMacro {
 			nplate.body( { expr:EBlock( TemCommon.TemPlateExprs ), pos: nplate.pos } );
 			
 			ndef.fields.push( nplate );
-			ndef.fields.push( TemCommon.ParseElement );
+			ndef.fields.push( TemCommon.ParseSingle );
 			ndef.fields.push( TemCommon.ParseCollection );
-			//ndef.fields.push( TemCommon.creation );
+			ndef.fields.push( TemCommon.SetIndividual );
+			ndef.fields.push( TemCommon.SetCollection );
+			ndef.fields.push( TemCommon.SetCollectionIndividual );
 			
 			Context.defineType( ndef );
 			Compiler.exclude( TemCommon.PreviousTem );
