@@ -134,11 +134,6 @@ class TemMacro {
 			nplate.body( { expr:EBlock( TemCommon.TemPlateExprs ), pos: nplate.pos } );
 			
 			ndef.fields.push( nplate );
-			ndef.fields.push( TemCommon.ParseSingle );
-			ndef.fields.push( TemCommon.ParseCollection );
-			ndef.fields.push( TemCommon.SetIndividual );
-			ndef.fields.push( TemCommon.SetCollection );
-			ndef.fields.push( TemCommon.SetCollectionIndividual );
 			
 			Context.defineType( ndef );
 			Compiler.exclude( TemCommon.PreviousTem );

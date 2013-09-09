@@ -95,9 +95,6 @@ class Parser {
 			case TInst(t, p):
 				switch( t.get().name ) {
 					case 'Xml':
-						/*result = collection 
-							? macro Xml.parse( child.html() ) 
-							: macro Xml.parse( ele.html() );*/
 						result = macro function(v:String, c:dtx.DOMNode):Xml { return Xml.parse( dtx.single.ElementManipulation.html( c ) ); }
 						
 					case 'String':
@@ -121,11 +118,9 @@ class Parser {
 						result = macro function(v:String, c:dtx.DOMNode):Bool { return (v == 'true') ? true : false; };
 						
 					case 'Int':
-						//result = macro Std.parseInt( v );
 						result = macro function(v:String, c:dtx.DOMNode):Int { return Std.parseInt( v ); };
 						
 					case 'Float':
-						//result = macro Std.parseFloat( v );
 						result = macro function(v:String, c:dtx.DOMNode):Float { return Std.parseFloat( v ); };
 						
 					case _ if (abst.type.isIterable()):
@@ -151,11 +146,11 @@ class Parser {
 	private static function mkParseField(name:String, ctype:ComplexType):Field {
 		var expr = if (ctype.toType().isIterable()) {
 			macro {
-				return $e { Context.parse('Tem.${TemCommon.ParseCollection.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
+				return $e { Context.parse('uhx.tem.help.TemHelp.parseCollection', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			};
 		} else {
 			macro {
-				return $e { Context.parse('Tem.${TemCommon.ParseSingle.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
+				return $e { Context.parse('uhx.tem.help.TemHelp.parseSingle', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			};
 		}
 		
@@ -184,7 +179,7 @@ class Parser {
 					var type = t.toType();
 					
 					if (type.isIterable()) {
-						
+						field.meta.push( 'isIterable'.mkMeta() );
 						switch ( type ) {
 							case TInst(_t, _p):
 								
@@ -201,7 +196,7 @@ class Parser {
 													// so when `arrayWrite` gets inlined it references the correct instance.
 													// ^ This is done in by EThis.hx as part of uhx.macro.klas.Handler.hx ^
 													// prefixing Tem with `std` prevents the compiler from incorrectly using `uhx.macro.Tem`
-													[ Context.parse( 'untyped std.Tem.setCollectionIndividual(value, key, ethis.get_$domName(), ${attribute?attName:null})', Context.currentPos() ) ]
+													[ Context.parse( 'untyped uhx.tem.help.TemHelp.setCollectionIndividual(value, key, ethis.get_$domName(), ${attribute?attName:null})', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };
 												
@@ -232,7 +227,7 @@ class Parser {
 					
 					fields.push( field.mkSetter( macro { 
 						$i { name } = v; 
-						$e { Context.parse('Tem.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), Context.currentPos()) } ( v, $i { domName }, $v { attribute? attName :null } );
+						$e { Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), Context.currentPos()) } ( v, $i { domName }, $v { attribute? attName :null } );
 						return v; } 
 					) );
 					
@@ -277,6 +272,10 @@ class Parser {
 				
 				var value:String = attribute ? ele.attr( name ) : ele.text();
 				//var result:Dynamic = Reflect.field(cls, 'parse$name')( value );
+				trace( Meta.getFields( cls ) );
+				trace( name );
+				trace( Reflect.hasField( Meta.getFields( cls ), name ) );
+				trace( Reflect.hasField( Reflect.field( Meta.getFields( cls ), name ), 'isIterable' ) );
 				var result:Dynamic = Reflect.field(cls, 'parse$name')( name, ele, attribute );
 				
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check
