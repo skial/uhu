@@ -13,8 +13,6 @@ import uhx.http.impl.Status;
 import js.html.XMLHttpRequest;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.a.Headers;
-import uhx.http.impl.i.IRequest;
-import uhx.http.impl.i.IResponse;
 
 /**
  * ...

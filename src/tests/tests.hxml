@@ -2,13 +2,13 @@
 -cp ..
 -cp ../../../../../jonas/src
 -cp ../../../thx.core/src
--cp ../../../thx.react/src
 -cp ../../../polygonal-core/src
 -lib utest
 -lib detox
 -lib hxparse
 -lib selecthxml
 -lib mconsole
+-lib msignal
 -js bin/tests.js
 -D disable_macro_tests
 -main AllTests

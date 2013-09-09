@@ -4,24 +4,38 @@ import utest.Assert;
 import help.metadata.pubsub.A;
 import help.metadata.pubsub.B;
 import help.metadata.pubsub.C;
+import help.metadata.pubsub.D;
+import help.metadata.pubsub.E;
 
 /**
  * ...
  * @author Skial Bainn
  */
 class PubSubSpec {
+	
+	public var d:D;
+	public var e:E;
+	
+	@:sub(this.d.something) public var something:String;
 
 	public function new() {
 		
 	}
 	
-	public function testInstance() {
+	public function testInstance_staticNotify() {
 		var a = new A();
 		var b = new B();
 		
 		b.b = 'Hello Bonded World';	// Little weird...
 		
 		Assert.equals('Hello Bonded World', a.a);
+	}
+	
+	public function testLocalInstance_instanceNotify() {
+		d = new D();
+		d.something = 'Hello World 42';
+		
+		Assert.equals('Hello World 42', this.something);
 	}
 	
 	public function testStatic() {

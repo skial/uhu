@@ -24,13 +24,13 @@ class Request implements Klas {
 	
 	public var headers:Headers;
 	
-	@:pub public var error:Response;
-	@:pub public var success:Response;
+	public var error:Response;
+	public var success:Response;
 	
 	public var url(default, null):URI;
 	public var method(default, null):EMethod;
 
-	public function new(url:URI, method:EMethod, ?p:PosInfos) {
+	public function new(url:URI, method:EMethod) {
 		this.url = url;
 		this.method = method;
 		

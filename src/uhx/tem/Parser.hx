@@ -95,12 +95,13 @@ class Parser {
 			case TInst(t, p):
 				switch( t.get().name ) {
 					case 'Xml':
-						result = collection 
+						/*result = collection 
 							? macro Xml.parse( child.html() ) 
-							: macro Xml.parse( ele.html() );
+							: macro Xml.parse( ele.html() );*/
+						result = macro function(v:String, c:dtx.DOMNode):Xml { return Xml.parse( dtx.single.ElementManipulation.html( c ) ); }
 						
 					case 'String':
-						result = macro v;
+						result = macro function(v:String, c:dtx.DOMNode):String { return v; };
 						
 					case 'Array' | _ if (type.isIterable()):
 						result = parserExpr( p[0], true );
@@ -117,13 +118,15 @@ class Parser {
 				
 				switch (abst.name) {
 					case 'Bool':
-						result = macro (v == 'true') ? true : false;
+						result = macro function(v:String, c:dtx.DOMNode):Bool { return (v == 'true') ? true : false; };
 						
 					case 'Int':
-						result = macro Std.parseInt( v );
+						//result = macro Std.parseInt( v );
+						result = macro function(v:String, c:dtx.DOMNode):Int { return Std.parseInt( v ); };
 						
 					case 'Float':
-						result = macro Std.parseFloat( v );
+						//result = macro Std.parseFloat( v );
+						result = macro function(v:String, c:dtx.DOMNode):Float { return Std.parseFloat( v ); };
 						
 					case _ if (abst.type.isIterable()):
 						result = parserExpr( p[0], true );
@@ -204,17 +207,19 @@ class Parser {
 	private static function mkParseField(name:String, ctype:ComplexType):Field {
 		var expr = ctype.toType().isIterable() 
 			? macro {
-				var r = [];
+				/*var r = [];
 				var v = '';
 				for (child in dtx.single.Traversing.children( ele, true )) {
 					v = attr ? dtx.single.ElementManipulation.attr( child, name ) : dtx.single.ElementManipulation.text( child );
 					r.push( $e { parserExpr( ctype.toType() ) } );
 				}
-				return r;
+				return r;*/
+				return $e { Context.parse('Tem.${TemCommon.ParseCollection.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			}
 			: macro {
-				var v = attr ? dtx.single.ElementManipulation.attr( ele, name ) : dtx.single.ElementManipulation.text( ele );
-				return $e { parserExpr( ctype.toType() ) };
+				/*var v = attr ? dtx.single.ElementManipulation.attr( ele, name ) : dtx.single.ElementManipulation.text( ele );
+				return $e { parserExpr( ctype.toType() ) };*/
+				return $e { Context.parse('Tem.${TemCommon.ParseElement.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			};
 		var source = 'parse$name'.mkField()
 			.mkPrivate()
@@ -257,8 +262,8 @@ class Parser {
 											case EBlock( es ):
 												m.expr = { expr: EBlock( 
 													// dirty little trick, in every non static method, add `var ethis = this`
-													// so when `arrayWrite` get inlined it references the correct instance.
-													// ^ This is done in Tem.hx::handler ^
+													// so when `arrayWrite` gets inlined it references the correct instance.
+													// ^ This is done in by EThis.hx as part of uhx.macro.klas.Handler.hx ^
 													[ Context.parse( 'untyped ethis.set_single_$domName(key, value)', Context.currentPos() ) ]
 													.concat( es ) 
 												), pos: aw.pos };

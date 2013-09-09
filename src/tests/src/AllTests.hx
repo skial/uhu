@@ -5,8 +5,8 @@ import uhx.sys.EdeSpec;
 import uhx.sys.LiySpec;
 import uhx.sys.LodSpec;
 import uhx.macro.WaitSpec;
-import uhx.macro.PubSubSpec;
-//import uhx.tem.TemSpec;
+//import uhx.macro.PubSubSpec;
+import uhx.tem.TemSpec;
 
 /*import haxe.Utf8Spec;
 import uhx.macro.help.TemArray.TemArray;
@@ -28,9 +28,9 @@ import uhu.mu.WalkContextSpec;*/
 //#end
 
 #if js
-import uhx.http.Request;
+/*import uhx.http.Request;
 import uhx.http.Response;
-import uhx.http.RequestSpec;
+import uhx.http.RequestSpec;*/
 #end
 
 /*#if sys
@@ -98,13 +98,13 @@ class AllTests {
 		//runner.addCase( new GithubSpec() );
 		
 		runner.addCase( new WaitSpec() );
-		runner.addCase( new PubSubSpec() );
-		//runner.addCase( new TemSpec() );	//	No useful error given if TemSpec and RequestSpec are compiled together...
+		//runner.addCase( new PubSubSpec() );
+		runner.addCase( new TemSpec() );	//	No useful error given if TemSpec and RequestSpec are compiled together...
+		//runner.addCase( new RequestSpec() );
 		runner.addCase( new NamedArgsSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );
 		runner.addCase( new EdeSpec() );
-		runner.addCase( new RequestSpec() );
 		
 		Report.create( runner );
 		

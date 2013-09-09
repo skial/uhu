@@ -5,7 +5,6 @@ import haxe.Timer;
 import utest.Assert;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.e.EMethod;
-import uhx.http.impl.i.IResponse;
 
 using uhx.web.URL;
 
@@ -29,12 +28,6 @@ class RequestSpec implements Klas {
 	
 	public var request:Request;
 	public var response:Response;
-	
-	@:sub(this.request.error)
-	public var error:Response;
-	
-	@:sub(this.request.success)
-	public var success:Response;
 	
 	public function new() {
 		

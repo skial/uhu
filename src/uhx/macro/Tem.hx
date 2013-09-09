@@ -94,11 +94,6 @@ class TemMacro {
 			if (fields.exists('new')) {
 				
 				var _ts = TemCommon.TemSetup;
-				var _et = TemCommon.TemEThis;
-				
-				//_et.kind = FVar( Context.toComplexType( Context.getType( cls.path() ) ) );
-				
-				//fields.push( _et );
 				fields.push( _ts );
 				
 				var _new = fields.get('new');
@@ -115,20 +110,6 @@ class TemMacro {
 						}
 						
 					case _:
-				}
-				
-				for (f in fields) {
-					switch (f.kind) {
-						case FFun(m) if (!f.isStatic()):
-							switch (m.expr.expr) {
-								case EBlock( es ):
-									es.unshift( macro var ethis = this );
-									
-								case _:
-							}
-							
-						case _:
-					}
 				}
 				
 			}
@@ -153,6 +134,8 @@ class TemMacro {
 			nplate.body( { expr:EBlock( TemCommon.TemPlateExprs ), pos: nplate.pos } );
 			
 			ndef.fields.push( nplate );
+			ndef.fields.push( TemCommon.ParseElement );
+			ndef.fields.push( TemCommon.ParseCollection );
 			//ndef.fields.push( TemCommon.creation );
 			
 			Context.defineType( ndef );
