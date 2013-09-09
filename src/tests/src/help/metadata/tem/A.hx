@@ -18,7 +18,7 @@ class A implements Klas {
 	
 	public var sarray:Array<String>;
 	public var iarray:Array<Int>;
-	public var xarray:Array<Xml>;
+	public var darray:Array<DOMNode>;
 	
 	var attrSrc:DOMNode;
 	var dataName:DOMNode;
@@ -27,10 +27,10 @@ class A implements Klas {
 	
 	var dataSArray:DOMNode;
 	var dataIArray:DOMNode;
-	var dataXArray:DOMNode;
+	var dataDArray:DOMNode;
 
 	public function new() {
-		var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, xarray];
+		var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, darray];
 		for (value in values) {
 			untyped console.log( value );
 		}
@@ -42,7 +42,7 @@ class A implements Klas {
 		
 		dataSArray = '[data-sarray]'.find().getNode();
 		dataIArray = '[data-iarray]'.find().getNode();
-		dataXArray = '[data-xarray]'.find().getNode();
+		dataDArray = '[data-darray]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
@@ -63,7 +63,7 @@ class A implements Klas {
 		
 		testArray_String();
 		testArray_Int();
-		testArray_Xml();
+		testArray_DOM();
 	}
 	
 	public function testArray_String() {
@@ -120,7 +120,7 @@ class A implements Klas {
 		Assert.equals('' + Math.NaN, dataIArray.children().collection[4].text());
 	}
 	
-	public function testArray_Xml() {
-		xarray = [Xml.parse('World 0'), Xml.parse('World 1'), Xml.parse('World 2')];
+	public function testArray_DOM() {
+		darray = ['<div>World 0</div>'.parse().getNode(), '<div>World 1</div>'.parse().getNode(), '<div>World 2</div>'.parse().getNode()];
 	}
 }
