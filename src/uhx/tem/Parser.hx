@@ -205,27 +205,19 @@ class Parser {
 	}
 	
 	private static function mkParseField(name:String, ctype:ComplexType):Field {
-		var expr = ctype.toType().isIterable() 
-			? macro {
-				/*var r = [];
-				var v = '';
-				for (child in dtx.single.Traversing.children( ele, true )) {
-					v = attr ? dtx.single.ElementManipulation.attr( child, name ) : dtx.single.ElementManipulation.text( child );
-					r.push( $e { parserExpr( ctype.toType() ) } );
-				}
-				return r;*/
+		var expr = if (ctype.toType().isIterable()) {
+			macro {
 				return $e { Context.parse('Tem.${TemCommon.ParseCollection.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
-			}
-			: macro {
-				/*var v = attr ? dtx.single.ElementManipulation.attr( ele, name ) : dtx.single.ElementManipulation.text( ele );
-				return $e { parserExpr( ctype.toType() ) };*/
+			};
+		} else {
+			macro {
 				return $e { Context.parse('Tem.${TemCommon.ParseElement.name}', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
 			};
+		}
+		
 		var source = 'parse$name'.mkField()
-			.mkPrivate()
-			.mkStatic()
-			.toFFun()
-			.body( expr );
+			.mkPrivate().mkStatic()
+			.toFFun().body( expr );
 			
 		source.args().push( 'name'.mkArg( macro: String, false ) );
 		source.args().push( 'ele'.mkArg( macro: dtx.DOMNode, false ) );
