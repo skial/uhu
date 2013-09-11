@@ -1,6 +1,7 @@
 package uhx.tem;
 
 import haxe.rtti.Meta;
+import uhx.tem.help.TemHelp;
 #if macro
 import haxe.macro.Type;
 import haxe.macro.Expr;
@@ -88,23 +89,62 @@ class Parser {
 	}
 	
 	#if macro
-	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
-		var result = macro null;
+	private static function setterExpr(type:Type):Expr {
+		var pos = Context.currentPos();
+		var result:Expr = Context.parse( 'uhx.tem.help.TemHelp.toDefault', pos );
 		var params:Array<Type> = [];
-		trace( type.follow().getName(), type.follow().isIterable(), type.follow().params(), uhx.tem.help.TemHelp.parserMap.exists( type.follow().getName() ) );
+		
 		switch ( type.follow() ) {
 			case TInst(t, p):
 				switch( t.get().name ) {
-					case 'Xml':
-						result = macro function(v:String, c:dtx.DOMNode):Xml { return Xml.parse( dtx.single.ElementManipulation.html( c ) ); }
+					case 'Array' | _ if (type.isIterable() && p[0] != null):
+						result = setterExpr( p[0] );
+					
+					case _ if (TemHelp.toMap.exists( t.get().name )):
+						result = Context.parse( 'uhx.tem.help.TemHelp.to${t.get().name}', pos );
 						
-					case 'String':
-						result = macro function(v:String, c:dtx.DOMNode):String { return v; };
+					case _:
 						
+				}
+				
+			case TAbstract(t, p):
+				var abst = t.get();
+				
+				switch (abst.name) {
+					case _ if (abst.type.isIterable() && p[0] != null):
+						result = setterExpr( p[0] );
+					
+					case _ if (TemHelp.toMap.exists( abst.name )):
+						result = Context.parse( 'uhx.tem.help.TemHelp.to${abst.name}', pos );
+						
+					case _:
+						
+				}
+				
+			case _:
+				#if debug
+				trace( type.follow() );
+				#end
+		};
+		
+		return result;
+	}
+	
+	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
+		var result = macro null;
+		var params:Array<Type> = [];
+		
+		switch ( type.follow() ) {
+			case TInst(t, p):
+				switch( t.get().name ) {
 					case 'Array' | _ if (type.isIterable()):
 						result = parserExpr( p[0], true );
 						
+					case _ if (TemHelp.parserMap.exists( t.get().name )):
+						result = Context.parse( 'uhx.tem.help.TemHelp.parse${t.get().name}', Context.currentPos() );
+						
 					case _:
+						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', Context.currentPos() );
 						#if debug
 						trace( t.get().name );
 						#end
@@ -115,24 +155,18 @@ class Parser {
 				var abst = t.get();
 				
 				switch (abst.name) {
-					case 'Bool':
-						result = macro function(v:String, c:dtx.DOMNode):Bool { return (v == 'true') ? true : false; };
-						
-					case 'Int':
-						result = macro function(v:String, c:dtx.DOMNode):Int { return Std.parseInt( v ); };
-						
-					case 'Float':
-						result = macro function(v:String, c:dtx.DOMNode):Float { return Std.parseFloat( v ); };
-						
-					case _ if (abst.type.isIterable()):
+					case _ if (abst.type.isIterable() && p[0] != null):
 						result = parserExpr( p[0], true );
 						
+					case _ if (TemHelp.parserMap.exists( abst.name )):
+						result = Context.parse( 'uhx.tem.help.TemHelp.parse${abst.name}', Context.currentPos() );
+						
 					case _:
+						result = Context.parse( 'uhx.tem.help.TemHelp.find("${abst.name}")', Context.currentPos() );
 						#if debug
 						trace( abst.name );
 						trace( abst.type );
 						#end
-						result = parserExpr( p[0], true );
 				}
 				
 			case _:
@@ -173,6 +207,7 @@ class Parser {
 			var prefix = attribute ? 'TEMATTR' : 'TEMDOM';
 			var domName = '${prefix}_$name';
 			var attName = (attribute?'':'data-') + name;
+			var pos = Context.currentPos();
 			
 			switch (field.kind) {
 				case FVar(t, e):
@@ -196,8 +231,7 @@ class Parser {
 													// dirty little trick, in every non static method, add `var ethis = this`
 													// so when `arrayWrite` gets inlined it references the correct instance.
 													// ^ This is done in by EThis.hx as part of uhx.macro.klas.Handler.hx ^
-													// prefixing Tem with `std` prevents the compiler from incorrectly using `uhx.macro.Tem`
-													[ Context.parse( 'untyped uhx.tem.help.TemHelp.setCollectionIndividual(value, key, ethis.get_$domName(), ${attribute?attName:null})', Context.currentPos() ) ]
+													[ macro $e { Context.parse( 'untyped uhx.tem.help.TemHelp.setCollectionIndividual(value, key, ethis.get_$domName(), ${setterExpr( t.toType() ).printExpr()}, ${attribute?attName:null})', pos ) } ]
 													.concat( es ) 
 												), pos: aw.pos };
 												
@@ -226,9 +260,10 @@ class Parser {
 					
 					fields.push( mkParseField( name, t ) );
 					
+					var call = Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), pos);
 					fields.push( field.mkSetter( macro { 
 						$i { name } = v; 
-						$e { Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), Context.currentPos()) } ( v, $i { domName }, $v { attribute? attName :null } );
+						$call( v, $i { domName }, $e{ setterExpr( t.toType() ) }, $v { attribute? attName :null } );
 						return v; } 
 					) );
 					
@@ -273,10 +308,6 @@ class Parser {
 				
 				var value:String = attribute ? ele.attr( name ) : ele.text();
 				//var result:Dynamic = Reflect.field(cls, 'parse$name')( value );
-				trace( Meta.getFields( cls ) );
-				trace( name );
-				trace( Reflect.hasField( Meta.getFields( cls ), name ) );
-				trace( Reflect.hasField( Reflect.field( Meta.getFields( cls ), name ), 'isIterable' ) );
 				var result:Dynamic = Reflect.field(cls, 'parse$name')( name, ele, attribute );
 				
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check

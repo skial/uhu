@@ -122,5 +122,6 @@ class A implements Klas {
 	
 	public function testArray_DOM() {
 		darray = ['<div>World 0</div>'.parse().getNode(), '<div>World 1</div>'.parse().getNode(), '<div>World 2</div>'.parse().getNode()];
+		untyped console.log( darray );
 	}
 }

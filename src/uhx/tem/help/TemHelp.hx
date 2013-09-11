@@ -25,22 +25,23 @@ class TemHelp {
 		return r;
 	}
 	
-	public static function setIndividual<T>(value:T, dom:DOMNode, ?attr:String) { 
-		attr == null ? dom.setText( Std.string( value ) ) : dom.setAttr( attr, Std.string( value ) );
+	public static function setIndividual<T>(value:T, dom:DOMNode, setter:Dynamic->DOMNode->Void, ?attr:String) { 
+		attr == null ? /*dom.setText( Std.string( value ) )*/ setter( value, dom ) : dom.setAttr( attr, Std.string( value ) );
 	}
 	
-	public static function setCollection<T>(value:Array<T>, dom:DOMNode, ?attr:String) {
+	public static function setCollection<T>(value:Array<T>, dom:DOMNode, setter:Dynamic->DOMNode->Void, ?attr:String) {
 		for (i in 0...value.length) {
-			setCollectionIndividual( value[i], i, dom, attr );
+			setCollectionIndividual( value[i], i, dom, setter, attr );
 		}
 	}
 	
-	public static function setCollectionIndividual<T>(value:T, pos:Int, dom:DOMNode, ?attr:String) { 
+	public static function setCollectionIndividual<T>(value:T, pos:Int, dom:DOMNode, setter:Dynamic->DOMNode->Void, ?attr:String) { 
 		var children = dom.children();
 		if (children.collection.length > pos) {
 			attr != null 
 				? children.getNode( pos ).setAttr( attr, Std.string( value ) )
-				: children.getNode( pos ).setText( Std.string( value ) );
+				//: children.getNode( pos ).setText( Std.string( value ) );
+				: setter( value, children.getNode( pos ) );
 		} else {
 			var c = new dtx.DOMCollection();
 			for (i in 0...(pos-(children.collection.length-1))) {
@@ -50,8 +51,21 @@ class TemHelp {
 			children = dom.children();
 			attr != null 
 				? children.getNode( pos ).setAttr( attr, Std.string( value ) )
-				: children.getNode( pos ).setText( Std.string( value ) );
+				//: children.getNode( pos ).setText( Std.string( value ) );
+				: setter( value, children.getNode( pos ) );
 		}
+	}
+	
+	public static var toMap:Map<String, Dynamic->DOMNode->Void> = [
+	'Node' => toNode,
+	];
+	
+	public static function toNode(value:DOMNode, target:DOMNode) {
+		target.replaceWith( value );
+	}
+	
+	public static function toDefault(value:Dynamic, target:DOMNode) {
+		target.setText( Std.string( value ) );
 	}
 	
 	public static var parserMap:Map<String, String->DOMNode->Dynamic> = [
@@ -76,7 +90,7 @@ class TemHelp {
 	public static function parseNode(value:String, target:DOMNode) {
 		trace( value );
 		trace( target );
-		return { };
+		return value;
 	}
 	
 }
