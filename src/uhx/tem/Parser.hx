@@ -92,7 +92,6 @@ class Parser {
 	private static function setterExpr(type:Type):Expr {
 		var pos = Context.currentPos();
 		var result:Expr = Context.parse( 'uhx.tem.help.TemHelp.toDefault', pos );
-		var params:Array<Type> = [];
 		
 		switch ( type.follow() ) {
 			case TInst(t, p):
@@ -131,8 +130,8 @@ class Parser {
 	}
 	
 	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
+		var pos = Context.currentPos();
 		var result = macro null;
-		var params:Array<Type> = [];
 		
 		switch ( type.follow() ) {
 			case TInst(t, p):
@@ -141,17 +140,16 @@ class Parser {
 						result = parserExpr( p[0], true );
 						
 					case _ if (TemHelp.parserMap.exists( t.get().name )):
-						result = Context.parse( 'uhx.tem.help.TemHelp.parse${t.get().name}', Context.currentPos() );
+						result = Context.parse( 'uhx.tem.help.TemHelp.parse${t.get().name}', pos );
 						
 					case _:
-						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', Context.currentPos() );
+						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', pos );
 						#if debug
 						trace( t.get().name );
 						#end
 				}
 				
 			case TAbstract(t, p):
-				
 				var abst = t.get();
 				
 				switch (abst.name) {
@@ -159,10 +157,10 @@ class Parser {
 						result = parserExpr( p[0], true );
 						
 					case _ if (TemHelp.parserMap.exists( abst.name )):
-						result = Context.parse( 'uhx.tem.help.TemHelp.parse${abst.name}', Context.currentPos() );
+						result = Context.parse( 'uhx.tem.help.TemHelp.parse${abst.name}', pos );
 						
 					case _:
-						result = Context.parse( 'uhx.tem.help.TemHelp.find("${abst.name}")', Context.currentPos() );
+						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', pos );
 						#if debug
 						trace( abst.name );
 						trace( abst.type );
