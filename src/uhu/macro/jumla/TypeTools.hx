@@ -102,6 +102,23 @@ class TypeTools {
 		return '';
 	}
 	
+	public static function params(type:Type):Array<Type> {
+		switch (type) {
+			case TInst(_, p):
+				return p;
+			case TEnum(_, p):
+				return p;
+			case TType(_, p):
+				return p;
+			case TAbstract(_, p):
+				return p;
+			case _:
+				
+		}
+		
+		return [];
+	}
+	
 	public static function resolve(type:Type, calls:Array<String>):Type {
 		var result:Type = type;
 		

@@ -90,7 +90,8 @@ class Parser {
 	#if macro
 	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
 		var result = macro null;
-		
+		var params:Array<Type> = [];
+		trace( type.follow().getName(), type.follow().isIterable(), type.follow().params(), uhx.tem.help.TemHelp.parserMap.exists( type.follow().getName() ) );
 		switch ( type.follow() ) {
 			case TInst(t, p):
 				switch( t.get().name ) {

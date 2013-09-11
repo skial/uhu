@@ -3,6 +3,7 @@
 -cp ../../../../../jonas/src
 -cp ../../../thx.core/src
 -cp ../../../polygonal-core/src
+-cp ../../../taurine/src
 -lib utest
 -lib detox
 -lib hxparse

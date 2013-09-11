@@ -1,5 +1,4 @@
 package ;
-import haxe.ds.StringMap.StringMap;
 
 /**
  * ...
@@ -11,7 +10,5 @@ class Tem {
 	public static function plate() {
 		// Only underbellies here be found...
 	}
-	
-	
 	
 }
