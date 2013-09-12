@@ -136,11 +136,11 @@ class Parser {
 		switch ( type.follow() ) {
 			case TInst(t, p):
 				switch( t.get().name ) {
-					case 'Array' | _ if (type.isIterable()):
-						result = parserExpr( p[0], true );
-						
 					case _ if (TemHelp.parserMap.exists( t.get().name )):
 						result = Context.parse( 'uhx.tem.help.TemHelp.parse${t.get().name}', pos );
+						
+					case _ if (type.isIterable() && p[0] != null):
+						result = parserExpr( p[0], true );
 						
 					case _:
 						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', pos );
@@ -256,7 +256,8 @@ class Parser {
 					
 					field.toFProp('default', 'set', t, e);
 					
-					fields.push( mkParseField( name, t ) );
+					//fields.push( mkParseField( name, t ) );
+					field.meta.push( { name: 'type', params: [macro $v { field.typeof().reduce().follow().getName().split('.').pop() } ], pos: field.pos } );
 					
 					var call = Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), pos);
 					fields.push( field.mkSetter( macro { 
@@ -301,13 +302,12 @@ class Parser {
 			
 			var hasSetter = fields.indexOf( 'set_$name' ) > -1;
 			//var hasGetter = fields.indexOf( 'get_$name' ) > -1;
-			
-			if (hasSetter) {
+			if (hasSetter && TemHelp.parserMap.exists( Reflect.field( Meta.getFields( cls ), name ).type[0] )) {
 				
-				var value:String = attribute ? ele.attr( name ) : ele.text();
+				//var value:String = attribute ? ele.attr( name ) : ele.text();
 				//var result:Dynamic = Reflect.field(cls, 'parse$name')( value );
-				var result:Dynamic = Reflect.field(cls, 'parse$name')( name, ele, attribute );
-				
+				//var result:Dynamic = Reflect.field(cls, 'parse$name')( name, ele, attribute );
+				var result = TemHelp.parserMap.get( Reflect.field( Meta.getFields( cls ), name ).type[0] )( name, ele, attribute );
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check
 				//Reflect.setProperty(instance, name, result);
 				

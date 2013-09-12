@@ -119,6 +119,50 @@ class TypeTools {
 		return [];
 	}
 	
+	public static function reduce(type:Type):Type {
+		var result = type;
+		
+		switch (type) {
+			case TMono(t):
+				if (t.get() != null) result = t.get().reduce();
+				
+			case TLazy(f):
+				result = f().reduce();
+				
+			case TDynamic(t):
+				if (t != null) result = t.reduce();
+				
+			case TInst(t, p):
+				if (type.isIterable()) {
+					
+					result = p[0].reduce();
+					
+				}
+				
+			case TAbstract(t, p):
+				if (type.isIterable()) {
+					
+					result = p[0].reduce();
+					
+				} else {
+					
+					var reduced = t.get().type.reduce();
+					
+					if (reduced.getName() != '') {
+						result = reduced;
+					}
+					
+				}
+				
+			case TFun(_, r):
+				result = r.reduce();
+				
+			case _:
+		}
+		
+		return result;
+	}
+	
 	public static function resolve(type:Type, calls:Array<String>):Type {
 		var result:Type = type;
 		
