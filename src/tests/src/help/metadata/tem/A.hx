@@ -122,6 +122,25 @@ class A implements Klas {
 	
 	public function testArray_DOM() {
 		darray = ['<div>World 0</div>'.parse().getNode(), '<div>World 1</div>'.parse().getNode(), '<div>World 2</div>'.parse().getNode()];
-		untyped console.log( darray );
+		
+		Assert.equals(darray[0].text(), dataDArray.children().collection[0].text());
+		Assert.equals(darray[1].text(), dataDArray.children().collection[1].text());
+		Assert.equals(darray[2].text(), dataDArray.children().collection[2].text());
+		
+		darray[2] = '<span>Universe 2</span>'.parse().getNode();
+		Assert.equals(darray[2].text(), dataDArray.children().collection[2].text());
+		
+		darray[3] = '<span>Universe 3</span>'.parse().getNode();
+		Assert.equals(darray[3].text(), dataDArray.children().collection[3].text());
+		
+		darray[5] = '<span>Universe 5</span>'.parse().getNode();
+		Assert.equals(darray[5].text(), dataDArray.children().collection[5].text());
+		
+		for (i in 0...darray.length) {
+			darray[i].setText( 'Disc World $i' );
+		}
+		
+		Assert.equals('Disc World 5', dataDArray.children().collection[5].text());
+		Assert.equals('', dataDArray.children().collection[4].text());
 	}
 }

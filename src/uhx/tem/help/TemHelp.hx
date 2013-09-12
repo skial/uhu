@@ -86,11 +86,6 @@ class TemHelp {
 	public static function parseInt(value:String, _):Int return Std.parseInt( value );
 	public static function parseBool(value:String, _):Bool return value == 'true' ? true : false;
 	public static function parseXml(value:String, ele:DOMNode):Xml return Xml.parse( ele.html() );
-	
-	public static function parseNode(value:String, target:DOMNode) {
-		trace( value );
-		trace( target );
-		return value;
-	}
+	public static function parseNode(_, target:DOMNode):DOMNode return target;
 	
 }
