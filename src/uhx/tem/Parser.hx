@@ -129,75 +129,6 @@ class Parser {
 		return result;
 	}
 	
-	private static function parserExpr(type:Type, ?collection:Bool = false):Expr {
-		var pos = Context.currentPos();
-		var result = macro null;
-		
-		switch ( type.follow() ) {
-			case TInst(t, p):
-				switch( t.get().name ) {
-					case _ if (TemHelp.parserMap.exists( t.get().name )):
-						result = Context.parse( 'uhx.tem.help.TemHelp.parse${t.get().name}', pos );
-						
-					case _ if (type.isIterable() && p[0] != null):
-						result = parserExpr( p[0], true );
-						
-					case _:
-						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', pos );
-						#if debug
-						trace( t.get().name );
-						#end
-				}
-				
-			case TAbstract(t, p):
-				var abst = t.get();
-				
-				switch (abst.name) {
-					case _ if (abst.type.isIterable() && p[0] != null):
-						result = parserExpr( p[0], true );
-						
-					case _ if (TemHelp.parserMap.exists( abst.name )):
-						result = Context.parse( 'uhx.tem.help.TemHelp.parse${abst.name}', pos );
-						
-					case _:
-						result = Context.parse( 'uhx.tem.help.TemHelp.find("${t.get().name}")', pos );
-						#if debug
-						trace( abst.name );
-						trace( abst.type );
-						#end
-				}
-				
-			case _:
-				#if debug
-				trace( type.follow() );
-				#end
-		};
-		
-		return result;
-	}
-	
-	private static function mkParseField(name:String, ctype:ComplexType):Field {
-		var expr = if (ctype.toType().isIterable()) {
-			macro {
-				return $e { Context.parse('uhx.tem.help.TemHelp.parseCollection', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
-			};
-		} else {
-			macro {
-				return $e { Context.parse('uhx.tem.help.TemHelp.parseSingle', Context.currentPos()) } (name, ele, attr, $e { parserExpr( ctype.toType() ) } );
-			};
-		}
-		
-		var source = 'parse$name'.mkField()
-			.mkPrivate().mkStatic()
-			.toFFun().body( expr );
-			
-		source.args().push( 'name'.mkArg( macro: String, false ) );
-		source.args().push( 'ele'.mkArg( macro: dtx.DOMNode, false ) );
-		source.args().push( 'attr'.mkArg( macro: Bool, false ) );
-		
-		return source;
-	}
-	
 	public static function processDOM(name:String, ele:DOMNode, attribute:Bool = false) {
 		
 		if (fields.exists( name )) {
@@ -255,8 +186,6 @@ class Parser {
 					}
 					
 					field.toFProp('default', 'set', t, e);
-					
-					//fields.push( mkParseField( name, t ) );
 					field.meta.push( { name: 'type', params: [macro $v { field.typeof().reduce().follow().getName().split('.').pop() } ], pos: field.pos } );
 					
 					var call = Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), pos);
@@ -301,15 +230,11 @@ class Parser {
 		if (fields.indexOf( name ) > -1) {
 			
 			var hasSetter = fields.indexOf( 'set_$name' ) > -1;
-			//var hasGetter = fields.indexOf( 'get_$name' ) > -1;
+			
 			if (hasSetter && TemHelp.parserMap.exists( Reflect.field( Meta.getFields( cls ), name ).type[0] )) {
 				
-				//var value:String = attribute ? ele.attr( name ) : ele.text();
-				//var result:Dynamic = Reflect.field(cls, 'parse$name')( value );
-				//var result:Dynamic = Reflect.field(cls, 'parse$name')( name, ele, attribute );
 				var result = TemHelp.parserMap.get( Reflect.field( Meta.getFields( cls ), name ).type[0] )( name, ele, attribute );
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check
-				//Reflect.setProperty(instance, name, result);
 				
 			}
 			
