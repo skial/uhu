@@ -20,7 +20,7 @@ class A implements Klas {
 	public var iarray:Array<Int>;
 	public var darray:Array<DOMNode>;
 	
-	public var collection:DOMCollection;
+	public var node:DOMNode;
 	
 	var attrSrc:DOMNode;
 	var dataName:DOMNode;
@@ -31,10 +31,10 @@ class A implements Klas {
 	var dataIArray:DOMNode;
 	var dataDArray:DOMNode;
 	
-	var dataCollection:DOMNode;
+	var dataNode:DOMNode;
 
 	public function new() {
-		/*var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, darray, collection];
+		/*var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, darray, node];
 		for (value in values) {
 			untyped console.log( value );
 		}*/
@@ -48,13 +48,13 @@ class A implements Klas {
 		dataIArray = '[data-iarray]'.find().getNode();
 		dataDArray = '[data-darray]'.find().getNode();
 		
-		dataCollection = '[data-collection]'.find().getNode();
+		dataCollection = '[data-node]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
 		Assert.is( age, Int );
 		Assert.is( height, Float );
-		Assert.is( collection, DOMCollection );
+		Assert.is( node, DOMNode );
 		
 		Assert.equals( 'http://lorempixel.com/50/50', src );
 		Assert.equals( 'http://lorempixel.com/50/50', attrSrc.attr('src') );
@@ -153,7 +153,7 @@ class A implements Klas {
 	}
 	
 	public function testCollection() {
-		Assert.equals(collection.getNode(0).text(), dataCollection.children().collection[0].text());
+		this.collection.append( '<span>World!!</span>'.parse().getNode() );
 	}
 	
 }
