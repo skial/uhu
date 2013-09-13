@@ -186,7 +186,22 @@ class Parser {
 					}
 					
 					field.toFProp('default', 'set', t, e);
-					field.meta.push( { name: 'type', params: [macro $v { field.typeof().reduce().follow().getName().split('.').pop() } ], pos: field.pos } );
+					
+					var types = [];
+					var type = field.typeof().reduce();
+					while (true) {
+						
+						types.push( macro $v { type.follow().getName().split('.').pop() } );
+						if (type.params().length > 0) {
+							type = type.params()[0];
+						} else {
+							break;
+						}
+						
+					}
+					
+					//field.meta.push( { name: 'type', params: [macro $v { field.typeof().reduce().follow().getName().split('.').pop() } ], pos: field.pos } );
+					field.meta.push( { name: 'type', params: types, pos: field.pos } );
 					
 					var call = Context.parse('uhx.tem.help.TemHelp.set' + (field.typeof().isIterable() ? 'Collection' : 'Individual'), pos);
 					fields.push( field.mkSetter( macro { 
@@ -230,12 +245,17 @@ class Parser {
 		if (fields.indexOf( name ) > -1) {
 			
 			var hasSetter = fields.indexOf( 'set_$name' ) > -1;
+			var types:Array<String> = Reflect.field( Meta.getFields( cls ), name ).type;
 			
-			if (hasSetter && TemHelp.parserMap.exists( Reflect.field( Meta.getFields( cls ), name ).type[0] )) {
+			if (hasSetter && TemHelp.parserMap.exists( types[0] )) {
 				
-				var result = TemHelp.parserMap.get( Reflect.field( Meta.getFields( cls ), name ).type[0] )( name, ele, attribute );
+				var result = TemHelp.parserMap.get( types[0] )( name, ele, attribute, types );
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check
 				
+			} else {
+				trace( 'Cant find parser!' );
+				trace( name );
+				trace( types );
 			}
 			
 		}

@@ -142,17 +142,22 @@ class TypeTools {
 			case TAbstract(t, p):
 				if (type.isIterable()) {
 					
-					result = p[0].reduce();
+					//result = p[0];
+					//result = t.get().type;
+					var pack = t.get().type.getName().split('.');
+					var name = pack.pop();
+					var params = [for (pp in p) TPType( pp.toComplexType() )];
+					var tpath = { pack : pack, name : name, params : params };
+					result = ComplexTypeTools.toType( TPath( tpath ) );
+				}/* else {*/
 					
-				} else {
+					//var reduced = t.get().type.reduce();
 					
-					var reduced = t.get().type.reduce();
-					
-					if (reduced.getName() != '') {
+					/*if (reduced.getName() != '') {
 						result = reduced;
-					}
+					}*/
 					
-				}
+				//}
 				
 			case TFun(_, r):
 				result = r.reduce();

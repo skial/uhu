@@ -15,23 +15,22 @@ class A implements Klas {
 	public var name:String = '';
 	public var age:Int = 0;
 	public var height:Float = .0;
+	public var node:DOMNode;
 	
 	public var sarray:Array<String>;
 	public var iarray:Array<Int>;
 	public var darray:Array<DOMNode>;
-	
-	public var node:DOMNode;
+	public var nested:Array<Array<DOMNode>>;
 	
 	var attrSrc:DOMNode;
 	var dataName:DOMNode;
 	var dataAge:DOMNode;
 	var dataHeight:DOMNode;
-	
 	var dataSArray:DOMNode;
 	var dataIArray:DOMNode;
 	var dataDArray:DOMNode;
-	
 	var dataNode:DOMNode;
+	var dataNested:DOMNode;
 
 	public function new() {
 		/*var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, darray, node];
@@ -48,7 +47,8 @@ class A implements Klas {
 		dataIArray = '[data-iarray]'.find().getNode();
 		dataDArray = '[data-darray]'.find().getNode();
 		
-		dataCollection = '[data-node]'.find().getNode();
+		dataNode = '[data-node]'.find().getNode();
+		dataNested = '[data-nested]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
@@ -71,10 +71,14 @@ class A implements Klas {
 		testArray_String();
 		testArray_Int();
 		testArray_DOM();
-		testCollection();
+		testDOMNode();
+		testNested();
 	}
 	
 	public function testArray_String() {
+		Assert.equals(3, sarray.length);
+		Assert.equals('Hello Skial', sarray[0]);
+		
 		sarray = ['1', '2', '3'];
 		
 		Assert.equals('1', dataSArray.children().collection[0].text());
@@ -102,6 +106,9 @@ class A implements Klas {
 	}
 	
 	public function testArray_Int() {
+		Assert.equals(3, iarray.length);
+		Assert.equals(11, iarray[0]);
+		
 		iarray = [66, -100, 23];
 		
 		Assert.equals(66, dataIArray.children().collection[0].text());
@@ -129,6 +136,9 @@ class A implements Klas {
 	}
 	
 	public function testArray_DOM() {
+		Assert.equals(3, darray.length);
+		Assert.equals('Hello 1', darray[0].text());
+		
 		darray = ['<div>World 0</div>'.parse().getNode(), '<div>World 1</div>'.parse().getNode(), '<div>World 2</div>'.parse().getNode()];
 		
 		Assert.equals(darray[0].text(), dataDArray.children().collection[0].text());
@@ -152,8 +162,14 @@ class A implements Klas {
 		Assert.equals('', dataDArray.children().collection[4].text());
 	}
 	
-	public function testCollection() {
-		this.collection.append( '<span>World!!</span>'.parse().getNode() );
+	public function testDOMNode() {
+		this.node.append( '<span>World!!</span>'.parse().getNode() );
+		Assert.equals('Hello 1', this.dataNode.children().collection[0].text());
+		Assert.equals('World!!', this.dataNode.children().collection[3].text());
+	}
+	
+	public function testNested() {
+		
 	}
 	
 }

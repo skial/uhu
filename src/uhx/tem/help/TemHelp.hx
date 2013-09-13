@@ -59,7 +59,7 @@ class TemHelp {
 		target.setText( Std.string( value ) );
 	}
 	
-	public static var parserMap:Map<String, String->DOMNode->Bool->Dynamic> = [
+	public static var parserMap:Map<String, String->DOMNode->Bool->Array<String>->Dynamic> = [
 	'String' => parseString,
 	'Int' => parseInt,
 	'Float' => parseFloat,
@@ -67,15 +67,29 @@ class TemHelp {
 	'Xml' => parseXml,
 	'Node' => parseNode,
 	'DOMCollection' => parseDOMCollection,
+	'Array' => parseArray,
 	
 	];
 	
-	public static function parseString(name:String, ele:DOMNode, attr:Bool):String return attr?ele.attr(name):ele.text();
-	public static function parseFloat(name:String, ele:DOMNode, attr:Bool):Float return Std.parseFloat( attr?ele.attr(name):ele.text() );
-	public static function parseInt(name:String, ele:DOMNode, attr:Bool):Int return Std.parseInt( attr?ele.attr(name):ele.text() );
-	public static function parseBool(name:String, ele:DOMNode, attr:Bool):Bool return (attr?ele.attr(name):ele.text()) == 'true' ? true : false;
-	public static function parseXml(_, ele:DOMNode, _):Xml return Xml.parse( ele.html() );
-	public static function parseNode(_g, ele:DOMNode, _):DOMNode return ele;
-	public static function parseDOMCollection(_, ele:DOMNode, _):DOMCollection return ele.children();
+	public static function parseArray(name:String, ele:DOMNode, attr:Bool, types:Array<String>):Array<Dynamic> {
+		var result:Array<Dynamic> = [];
+		types.shift();
+		
+		for (child in ele.children()) {
+			
+			result.push( TemHelp.parserMap.get( types[0] )( name, child, attr, types ) );
+			
+		}
+		
+		return result;
+	}
+	
+	public static function parseString(name:String, ele:DOMNode, attr:Bool, _):String return attr?ele.attr(name):ele.text();
+	public static function parseFloat(name:String, ele:DOMNode, attr:Bool, _):Float return Std.parseFloat( attr?ele.attr(name):ele.text() );
+	public static function parseInt(name:String, ele:DOMNode, attr:Bool, _):Int return Std.parseInt( attr?ele.attr(name):ele.text() );
+	public static function parseBool(name:String, ele:DOMNode, attr:Bool, _):Bool return (attr?ele.attr(name):ele.text()) == 'true' ? true : false;
+	public static function parseXml(_, ele:DOMNode, _, _):Xml return Xml.parse( ele.html() );
+	public static function parseNode(_g, ele:DOMNode, _, _):DOMNode return ele;
+	public static function parseDOMCollection(_, ele:DOMNode, _, _):DOMCollection return ele.children();
 	
 }
