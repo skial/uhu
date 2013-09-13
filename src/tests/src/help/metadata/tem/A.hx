@@ -4,6 +4,8 @@ import utest.Assert;
 
 using Detox;
 
+typedef Array2<T> = Array<Array<T>>;
+
 /**
  * ...
  * @author Skial Bainn
@@ -21,6 +23,7 @@ class A implements Klas {
 	public var iarray:Array<Int>;
 	public var darray:Array<DOMNode>;
 	public var nested:Array<Array<DOMNode>>;
+	public var deep:Array<Array<Array<Array<Array<Array<String>>>>>>;
 	
 	var attrSrc:DOMNode;
 	var dataName:DOMNode;
@@ -31,6 +34,7 @@ class A implements Klas {
 	var dataDArray:DOMNode;
 	var dataNode:DOMNode;
 	var dataNested:DOMNode;
+	var dataDeep:DOMNode;
 
 	public function new() {
 		/*var values:Array<Dynamic> = [src, name, age, height, sarray, iarray, darray, node];
@@ -49,6 +53,7 @@ class A implements Klas {
 		
 		dataNode = '[data-node]'.find().getNode();
 		dataNested = '[data-nested]'.find().getNode();
+		dataDeep = '[data-deep]'.find().getNode();
 		
 		Assert.is( src, String );
 		Assert.is( name, String );
@@ -73,6 +78,7 @@ class A implements Klas {
 		testArray_DOM();
 		testDOMNode();
 		testNested();
+		testDeep();
 	}
 	
 	public function testArray_String() {
@@ -172,6 +178,13 @@ class A implements Klas {
 		Assert.equals(2, nested.length);
 		Assert.equals(3, nested[0].length);
 		Assert.equals(3, nested[1].length);
+	}
+	
+	public function testDeep() {
+		Assert.equals(3, deep[0][0][0][0][0].length);
+		Assert.equals('Hello 1', deep[0][0][0][0][0][0]);
+		Assert.equals('Hello 2', deep[0][0][0][0][0][1]);
+		Assert.equals('Hello 3', deep[0][0][0][0][0][2]);
 	}
 	
 }
