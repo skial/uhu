@@ -246,10 +246,10 @@ class Parser {
 			
 			var hasSetter = fields.indexOf( 'set_$name' ) > -1;
 			var types:Array<String> = Reflect.field( Meta.getFields( cls ), name ).type;
-			
-			if (hasSetter && TemHelp.parserMap.exists( types[0] )) {
+			var type = types.shift();
+			if (hasSetter && TemHelp.parserMap.exists( type )) {
 				
-				var result = TemHelp.parserMap.get( types[0] )( name, ele, attribute, types );
+				var result = TemHelp.parserMap.get( type )( name, ele, attribute, types.copy() );
 				Reflect.setField(instance, name, result);	// will likely need to add a boolean for setters to check
 				
 			} else {

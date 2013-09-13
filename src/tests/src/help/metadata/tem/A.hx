@@ -169,7 +169,9 @@ class A implements Klas {
 	}
 	
 	public function testNested() {
-		
+		Assert.equals(2, nested.length);
+		Assert.equals(3, nested[0].length);
+		Assert.equals(3, nested[1].length);
 	}
 	
 }

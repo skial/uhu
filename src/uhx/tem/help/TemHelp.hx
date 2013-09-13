@@ -73,11 +73,11 @@ class TemHelp {
 	
 	public static function parseArray(name:String, ele:DOMNode, attr:Bool, types:Array<String>):Array<Dynamic> {
 		var result:Array<Dynamic> = [];
-		types.shift();
+		var type = types.shift();
 		
 		for (child in ele.children()) {
 			
-			result.push( TemHelp.parserMap.get( types[0] )( name, child, attr, types ) );
+			result.push( TemHelp.parserMap.get( type )( name, child, attr, types.copy() ) );
 			
 		}
 		
