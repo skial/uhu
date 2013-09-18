@@ -31,21 +31,24 @@ class Response implements Klas {
 	public var history(get, null):Array<String>;
 	public var headers(default, null):Headers;
 	
-	@:noCompletion public var xhr:XMLHttpRequest;
+	private var xhr:XMLHttpRequest;
 	
 	public function new(r:Request) {
 		request = r;
 		
-		xhr = untyped request.xhr;
-		
+		#if js
+		xhr = request.xhr;
 		headers = xhr;
+		#else
+		
+		#end
 	}
 	
-	private function get_url():Uri {
+	private inline function get_url():Uri {
 		return request.url;
 	}
 	
-	private function get_text():String {
+	private inline function get_text():String {
 		return xhr.responseText;
 	}
 	
@@ -61,7 +64,7 @@ class Response implements Klas {
 		return '';
 	}*/
 	
-	private function get_status_code():Int {
+	private inline function get_status_code():Int {
 		return xhr.status;
 	}
 	
