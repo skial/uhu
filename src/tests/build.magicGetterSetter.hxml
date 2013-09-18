@@ -1,0 +1,12 @@
+-D debug
+#-D dump=pretty
+
+-cp src
+-cp ../
+-cp ../../../thx.core/src
+-cp ../../../thx.react/src
+
+-main example.magicGetterSetter.Main
+-js bin/example.magic.js
+
+#-dce full

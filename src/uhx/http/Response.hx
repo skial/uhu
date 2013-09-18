@@ -4,9 +4,9 @@ package uhx.http;
  * ...
  * @author Skial Bainn
  */
-import uhx.web.URI;
 import haxe.io.Bytes;
 import haxe.rtti.Meta;
+import taurine.io.Uri;
 import uhx.http.Request;
 import haxe.ds.StringMap;
 import uhx.http.impl.Status;
@@ -22,7 +22,7 @@ import uhx.http.impl.a.Headers;
 class Response implements Klas {
 	
 	public var request(default, null):Request;
-	public var url(get, null):URI;
+	public var url(get, null):Uri;
 	public var text(get, null):String;
 	public var status(get, null):EStatus;
 	public var content(get, null):Bytes;
@@ -41,7 +41,7 @@ class Response implements Klas {
 		headers = xhr;
 	}
 	
-	private function get_url():URI {
+	private function get_url():Uri {
 		return request.url;
 	}
 	

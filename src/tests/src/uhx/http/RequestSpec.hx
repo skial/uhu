@@ -5,8 +5,7 @@ import haxe.Timer;
 import utest.Assert;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.e.EMethod;
-
-using uhx.web.URL;
+import taurine.io.Uri;
 
 /**
  * ...
@@ -24,10 +23,8 @@ class RequestSpec implements Klas {
 	 * / / / / / / / / / / / / / / / / / / / / /
 	 */
 	
-	public static inline var DELAY:Int = 1000;
-	
 	public var request:Request;
-	public var response:Response;
+	//public var response:Response;
 	
 	public function new() {
 		
@@ -35,41 +32,38 @@ class RequestSpec implements Klas {
 	
 	public function testGET() {
 		var url = 'http://ip.jsontest.com';
-		request = new Request( url.toURL(), GET );
-		request.send();
+		request = new Request( new Uri( url ), GET );
 		
-		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		@:wait request.send( Assert.createAsync( [], 1000 ) );
 		
-		Assert.equals( 200, request.success.status_code );
-		Assert.isTrue( request.success.headers.exists('Content-Type') );
-		Assert.isTrue( request.success.headers.exists('content-type') );
-		Assert.equals( url, request.success.url.toString() );
-		Assert.equals( EStatus.OK, request.success.status );
+		Assert.equals( 200, request.response.status_code );
+		Assert.isTrue( request.response.headers.exists('Content-Type') );
+		Assert.isTrue( request.response.headers.exists('content-type') );
+		Assert.equals( url, request.response.url.toString() );
+		Assert.equals( EStatus.OK, request.response.status );
 	}
 	
 	public function testPOST_StringMap() {
 		var url = 'https://posttestserver.com/post.php';
-		request = new Request( url.toURL(), POST );
-		request.send( ['Name' => 'Skial'] );
+		request = new Request( new Uri( url ), POST );
 		
-		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		@:wait request.send( Assert.createAsync( [], 1000 ) );
 		
-		Assert.equals( 200, request.success.status_code );
-		Assert.equals( EStatus.OK, request.success.status );
-		Assert.equals( url, request.success.url.toString() );
+		Assert.equals( 200, request.response.status_code );
+		Assert.equals( EStatus.OK, request.response.status );
+		Assert.equals( url, request.response.url.toString() );
 	}
 	
 	public function testHeaders() {
 		var url = 'http://headers.jsontest.com/';
-		request = new Request( url.toURL(), GET );
-		request.send();
+		request = new Request( new Uri( url ), GET );
 		
-		@:wait Timer.delay( Assert.createAsync( [], DELAY ), DELAY );
+		@:wait request.send( Assert.createAsync( [], 1000 ) );
 		
-		var json = Json.parse( request.success.text );
+		var json = Json.parse( request.response.text );
 		
-		Assert.equals( 200, request.success.status_code );
-		Assert.equals( EStatus.OK, request.success.status );
+		Assert.equals( 200, request.response.status_code );
+		Assert.equals( EStatus.OK, request.response.status );
 		Assert.stringContains( 'localhost', json.Origin );
 		Assert.stringContains( 'headers.jsontest.com', json.Host );
 	}

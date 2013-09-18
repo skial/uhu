@@ -2,6 +2,7 @@ package uhu.macro.jumla;
 
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.Context;
 import uhu.macro.jumla.TypeParamTools;
 import uhu.macro.jumla.expr.ConstantTools;
 
@@ -224,6 +225,34 @@ class ExprTools {
 			startIndex++;
 			
 		}
+		
+		return result;
+	}
+	
+	public static function typeof(expr:Expr):Type {
+		var result:Type = null;
+		/*try {
+			
+			result = Context.typeof( expr );
+			
+		} catch (e:Dynamic) {*/
+			
+			switch (expr.expr) {
+				case EBinop(op, e1, e2): result = e2.typeof();
+				case EUnop(op, p, e): result = e.typeof();
+				case EField(e, _): result = e.typeof();
+				case EVars(v): result = v.pop().expr.typeof();
+				case EFunction(_, f): result = f.ret.toType();
+				case EBlock(es): result = es.pop().typeof();
+				case EReturn(e) if (e != null):  result = e.typeof();
+				case ECast(_, t) if (t != null): result = t.toType();
+				case EMeta(_, e): result = e.typeof();
+				case _: 
+					trace( expr );
+					trace( expr.printExpr() );
+			}
+			
+		//}
 		
 		return result;
 	}

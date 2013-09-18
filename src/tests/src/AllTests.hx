@@ -27,11 +27,11 @@ import uhu.mu.PartialSpec;
 import uhu.mu.WalkContextSpec;*/
 //#end
 
-#if js
-/*import uhx.http.Request;
+//#if js
+import uhx.http.Request;
 import uhx.http.Response;
-import uhx.http.RequestSpec;*/
-#end
+import uhx.http.RequestSpec;
+//#end
 
 /*#if sys
 import sys.net.HostSpec;
@@ -100,7 +100,7 @@ class AllTests {
 		runner.addCase( new WaitSpec() );
 		//runner.addCase( new PubSubSpec() );
 		runner.addCase( new TemSpec() );	//	No useful error given if TemSpec and RequestSpec are compiled together...
-		//runner.addCase( new RequestSpec() );
+		runner.addCase( new RequestSpec() );
 		runner.addCase( new NamedArgsSpec() );
 		runner.addCase( new LodSpec() );
 		runner.addCase( new LiySpec() );

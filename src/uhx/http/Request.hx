@@ -1,7 +1,7 @@
 package uhx.http;
 
-import uhx.web.URI;
 import haxe.PosInfos;
+import taurine.io.Uri;
 import haxe.ds.StringMap;
 import uhx.http.Response;
 import uhx.http.impl.t.TData;
@@ -24,19 +24,23 @@ class Request implements Klas {
 	
 	public var headers:Headers;
 	
-	public var error:Response;
-	public var success:Response;
+	/*public var error:Response;
+	public var success:Response;*/
+	public var response:Response;
 	
-	public var url(default, null):URI;
+	public var url(default, null):Uri;
 	public var method(default, null):EMethod;
+	
+	@:noCompletion public var cb:Void->Void;
 
-	public function new(url:URI, method:EMethod) {
+	public function new(url:Uri, method:EMethod) {
 		this.url = url;
 		this.method = method;
 		
 		#if js
 		xhr = new XMLHttpRequest();
 		headers = xhr;
+		cb = function() { };
 		#end
 		
 		init();
@@ -45,22 +49,22 @@ class Request implements Klas {
 	private function init() {
 		#if js
 		xhr.open( method.getName(), url.toString(), true );
-		
-		xhr.addEventListener('load', onSuccess, false);
-		xhr.addEventListener('error', onError, false);
+		xhr.onload = onLoad;
+		/*xhr.addEventListener('load', onSuccess, false);
+		xhr.addEventListener('error', onError, false);*/
 		#end
 	}
 	
 	public function destroy() {
 		#if js
 		xhr.abort();
-		
-		xhr.removeEventListener('load', onSuccess, false);
-		xhr.removeEventListener('error', onError, false);
+		/*xhr.removeEventListener('load', onSuccess, false);
+		xhr.removeEventListener('error', onError, false);*/
 		#end
 	}
 	
-	public function send(?params:StringMap<String>, ?body:String = ''):Void {
+	public function send(cb:Void->Void, ?params:StringMap<String>, ?body:String = ''):Void {
+		this.cb = cb;
 		
 		if (params != null) {
 			
@@ -88,7 +92,12 @@ class Request implements Klas {
 		xhr.send( body );
 	}
 	
-	private function onSuccess(e) {
+	private function onLoad(e) {
+		response = new Response( this );
+		cb();
+	}
+	
+	/*private function onSuccess(e) {
 		var response = new Response( this );
 		success = response;
 	}
@@ -96,6 +105,6 @@ class Request implements Klas {
 	private function onError(e) {
 		var response = new Response( this );
 		error = response;
-	}
+	}*/
 	
 }

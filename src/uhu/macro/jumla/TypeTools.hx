@@ -5,8 +5,8 @@ import haxe.macro.Type;
 import haxe.macro.Context;
 import haxe.macro.ComplexTypeTools;
 
-using uhu.macro.Jumla;
 using haxe.macro.Context;
+using uhu.macro.Jumla;
 
 /**
  * @author Skial Bainn
@@ -226,31 +226,39 @@ class TypeTools {
 		var parts = path.split( '.' );
 		var calls = [];
 		
-		if (parts.length == 1 && fields.exists( parts[0] )) {
+		if (fields.exists( parts[0] )) {
+			result = fields.get( parts.shift() ).typeof().resolve( parts );
 			
-			result = fields.get( parts[0] ).typeof();
+		} else {
 			
-		}
-		
-		while (parts.length != 0) {
+			if (parts.length == 1 && fields.exists( parts[0] )) {
+				
+				result = fields.get( parts[0] ).typeof();
+				
+			}
 			
-			var name = parts.pop();
-			
-			try {
+			while (parts.length != 0) {
 				
-				var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
-				if (calls.length > 1) calls.reverse();
+				var name = parts.pop();
 				
-				//var type:Type = ComplexTypeTools.toType( tpath );
-				var type:Type = Context.follow( tpath.toType() );
-				
-				result = type.resolve( calls );
-				
-				break;
-				
-			} catch (e:Dynamic) {
-				
-				calls.push( name );
+				try {
+					
+					var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
+					
+					if (calls.length > 1) calls.reverse();
+					
+					//var type:Type = ComplexTypeTools.toType( tpath );
+					var type:Type = Context.follow( tpath.toType() );
+					
+					result = type.resolve( calls );
+					
+					break;
+					
+				} catch (e:Dynamic) {
+					
+					calls.push( name );
+					
+				}
 				
 			}
 			

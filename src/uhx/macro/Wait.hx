@@ -5,6 +5,7 @@ import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 
+using StringTools;
 using uhu.macro.Jumla;
 
 typedef TMatches = {
@@ -32,6 +33,7 @@ class Wait {
 					case FFun(method):
 						if (method.expr != null) {
 							
+							original = method.expr.expr.getParameters()[0];
 							method.expr = loop( method.expr );
 							
 						}
@@ -48,6 +50,7 @@ class Wait {
 	public static var STEP:Int = 0;
 	public static var DECLARTION:Array<Expr> = [];
 	public static var STATE:Option<Array<Expr>> = None;
+	public static var original:Array<Expr> = [];
 	
 	public static function loop(e:Expr, ?body:Array<Expr>) {
 		var result = e;
@@ -129,6 +132,13 @@ class Wait {
 				// oparams -> original parameters
 				// mparams -> metadata parameters
 				
+				/*var type;
+				for (expr in original) {
+					if (expr.printExpr().startsWith( e.printExpr().split('.')[0] )) {
+						type = expr.typeof();
+						break;
+					}
+				}*/
 				var type = e.printExpr().find();
 				var arity = type.arity();
 				var args = type.args();
