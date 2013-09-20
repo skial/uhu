@@ -44,7 +44,7 @@ class Handler {
 		//':aop' => AOP.handler,	// doesnt work
 		':tem' => TemMacro.handler,
 		':cmd' => Ede.handler,
-		//':uhx_to' => To.handler,
+		':uhx_to' => To.handler,
 		//':uhx_alias' => Alias.handler,	// causes more trouble than it's worth
 		//':uhx_pub' => Publisher.handler,	// no future
 		//':uhx_sub' => Subscriber.handler,	// no future
@@ -52,7 +52,7 @@ class Handler {
 	
 	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
 		'' => '',
-		//':to' => ':uhx_to',
+		':to' => ':uhx_to',
 		//':pub' => ':uhx_pub',
 		//':sub' => ':uhx_sub',
 		//':alias' => ':uhx_alias',

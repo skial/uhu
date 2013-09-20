@@ -12,14 +12,13 @@ haxe.Http;
  * @author Skial Bainn
  * http://stackoverflow.com/questions/7462968/restrictions-of-xmlhttprequests-getresponseheader
  */
-@:access(haxe.Http)
 abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 
 	public inline function new(v:PlatformHeaders) {
 		this = v;
 	}
 	
-	public inline function get(key:String):String {
+	@:access(haxe.Http) public inline function get(key:String):String {
 		#if js
 		return this.getResponseHeader( key );
 		#else
@@ -27,7 +26,7 @@ abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 		#end
 	}
 	
-	public inline function exists(key:String):Bool {
+	@:access(haxe.Http) public inline function exists(key:String):Bool {
 		#if js
 		return this.getResponseHeader( key ) != null;
 		#else
@@ -35,7 +34,7 @@ abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 		#end
 	}
 	
-	public inline function set(key:String, value:String):Void {
+	@:access(haxe.Http) public inline function set(key:String, value:String):Void {
 		#if js
 		this.setRequestHeader( key, value );
 		#else

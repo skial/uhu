@@ -6,6 +6,7 @@ import utest.Assert;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.e.EMethod;
 import taurine.io.Uri;
+import uhx.http.Message;
 
 /**
  * ...
@@ -44,7 +45,7 @@ class RequestSpec implements Klas {
 	}
 	
 	public function testPOST_StringMap() {
-		var url = 'https://posttestserver.com/post.php';
+		var url = 'http://posttestserver.com/post.php';
 		request = new Request( new Uri( url ), POST );
 		
 		@:wait request.send( Assert.createAsync( [], 1000 ) );
@@ -57,15 +58,17 @@ class RequestSpec implements Klas {
 	public function testHeaders() {
 		var url = 'http://headers.jsontest.com/';
 		request = new Request( new Uri( url ), GET );
+		request.headers.set( 'content-type', 'application/json' );
 		
 		@:wait request.send( Assert.createAsync( [], 1000 ) );
 		
 		var json = Json.parse( request.response.text );
-		
+		trace( json );
 		Assert.equals( 200, request.response.status_code );
 		Assert.equals( EStatus.OK, request.response.status );
 		Assert.stringContains( 'localhost', json.Origin );
 		Assert.stringContains( 'headers.jsontest.com', json.Host );
+		Assert.equals( 'application/json', Reflect.field( json, 'Content-Type' ) );
 	}
 	
 }

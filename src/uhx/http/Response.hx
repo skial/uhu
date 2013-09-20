@@ -10,9 +10,14 @@ import taurine.io.Uri;
 import uhx.http.Request;
 import haxe.ds.StringMap;
 import uhx.http.impl.Status;
-import js.html.XMLHttpRequest;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.a.Headers;
+
+#if js
+import js.html.XMLHttpRequest;
+#else
+import haxe.Http;
+#end
 
 /**
  * ...
@@ -31,7 +36,11 @@ class Response implements Klas {
 	public var history(get, null):Array<String>;
 	public var headers(default, null):Headers;
 	
+	#if js
 	private var xhr:XMLHttpRequest;
+	#else
+	private var http:Http;
+	#end
 	
 	public function new(r:Request) {
 		request = r;
@@ -40,7 +49,8 @@ class Response implements Klas {
 		xhr = request.xhr;
 		headers = xhr;
 		#else
-		
+		http = request.http;
+		headers = http;
 		#end
 	}
 	
@@ -49,11 +59,19 @@ class Response implements Klas {
 	}
 	
 	private inline function get_text():String {
+		#if js
 		return xhr.responseText;
+		#else
+		return http.responseData;
+		#end
 	}
 	
 	private function get_status():EStatus {
+		#if js
 		return Status.fromInt.get( xhr.status );
+		#else
+		return Status.fromInt.get( request.status );
+		#end
 	}
 	
 	private function get_content():Bytes {
@@ -65,7 +83,11 @@ class Response implements Klas {
 	}*/
 	
 	private inline function get_status_code():Int {
+		#if js
 		return xhr.status;
+		#else
+		return request.status;
+		#end
 	}
 	
 	private function get_history():Array<String> {
