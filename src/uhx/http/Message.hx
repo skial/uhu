@@ -1,6 +1,6 @@
 package uhx.http;
 import haxe.ds.StringMap;
-import uhx.fmt.ASCII;
+import de.polygonal.core.fmt.ASCII;
 
 /**
  * ...
@@ -20,10 +20,10 @@ class Message {
 		var result = '';
 		
 		for (key in headers.keys()) {
-			result += '$key:${headers.get(key)}' + ASCII.CR + ASCII.LF;
+			result += '$key:${headers.get(key)}' + ASCII.CARRIAGERETURN + ASCII.NEWLINE;
 		}
 		
-		result += ASCII.NUL;
+		result += '\\0'; // ASCII NUL
 		result += body;
 		
 		return result;

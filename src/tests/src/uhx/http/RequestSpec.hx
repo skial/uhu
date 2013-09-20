@@ -56,6 +56,7 @@ class RequestSpec implements Klas {
 	}
 	
 	public function testHeaders() {
+		trace( uhx.http.impl.Rules.OCTET( 'skial' ) );
 		var url = 'http://headers.jsontest.com/';
 		request = new Request( new Uri( url ), GET );
 		request.headers.set( 'content-type', 'application/json' );
