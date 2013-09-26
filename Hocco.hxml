@@ -1,8 +1,7 @@
 -cp src
--lib mdown
--lib tink_macros
--lib mlib
+-cp ../taurine/src
+-lib hxparse
+-lib markdown
+-lib detox
 -neko bin/hocco/Hocco.n
--main uhu.hocco.HoccoBuild
---macro "Hocco.setDefaults({ lookup_files:true, directory_path:'src/templates/', output_path:'documentation/hocco/', print_metadata:true, show_privates:true })"
---macro Hocco.me()
+-main uhx.hocco.Hocco

@@ -1,4 +1,5 @@
 package uhx.http;
+
 import haxe.ds.StringMap;
 import de.polygonal.core.fmt.ASCII;
 
@@ -28,5 +29,9 @@ class Message {
 		
 		return result;
 	}
+	
+	/*public static function parse(message:String):Message {
+		
+	}*/
 	
 }

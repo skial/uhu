@@ -10,7 +10,7 @@
 -lib selecthxml
 -lib mconsole
 -lib msignal
--js bin/tests.js
+-neko bin/tests.n
 -D disable_macro_tests
 -main AllTests
 --macro uhx.macro.Tem.setIndex('templates/tem/index.html')
