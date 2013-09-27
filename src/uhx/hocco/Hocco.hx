@@ -6,6 +6,7 @@ import hxparse.Parser;
 import sys.io.File;
 import byte.ByteData;
 import uhx.lexer.HaxeLexer;
+import uhx.lexer.HaxeParser;
 
 using sys.FileSystem;
 using taurine.io.Path;
@@ -39,6 +40,8 @@ class Hocco implements Klas {
 		var hx:Array<String> = loopDirectory( dir );
 		trace( hx[0] );
 		var content = File.getContent( hx[0] );
+		trace( content.length );
+		var hp = new HaxeParser( ByteData.ofString( content ), hx[0] );
 	}
 	
 	private function loopDirectory(dir:String):Array<String> {
@@ -57,7 +60,7 @@ class Hocco implements Klas {
 					
 					result = result.concat( loopDirectory( path ) );
 					
-				} else if( path.extname() == '.hx')  {
+				} else if( path.extname() == '.hx') {
 					
 					result.push( path );
 					
