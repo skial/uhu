@@ -77,8 +77,8 @@ class HaxeLexer extends Lexer implements BaseLexer implements RuleBuilder {
 	
 	public static var buf = new StringBuf();
 	public static var idtype:String = '_*[A-Z][_a-zA-Z0-9]*';
-	//public static var ident:String = '_*[a-z][_a-zA-Z0-9]*|_+[0-9][_a-zA-Z0-9]*|' + idtype + '|_+|\\$[_a-zA-Z0-9]+';
-	public static var ident:String = '_*[a-z][a-zA-Z0-9_]*|_+|_+[0-9][_a-zA-Z0-9]*';
+	public static var ident:String = '_*[a-z][_a-zA-Z0-9]*|_+[0-9][_a-zA-Z0-9]*|' + idtype + '|_+|\\$[_a-zA-Z0-9]+';
+	//public static var ident:String = '_*[a-z][a-zA-Z0-9_]*|_+|_+[0-9][_a-zA-Z0-9]*';
 	
 	public static var keywords = @:mapping(3) HaxeKeywords;
 	
@@ -87,7 +87,6 @@ class HaxeLexer extends Lexer implements BaseLexer implements RuleBuilder {
 	}
 	
 	public static var root = @:rule [
-		//'' => mk(lexer, EOF),
 		'\n' => mk(lexer, Newline),
 		'\r' => mk(lexer, Carriage),
 		'\t*' => mk(lexer, Tab(lexer.current.length)),

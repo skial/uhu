@@ -1,7 +1,9 @@
 package uhx.hocco;
 
+import haxe.ds.StringMap.StringMap;
 import haxe.io.Bytes;
 import haxe.io.StringInput;
+import hxparse.Lexer;
 import hxparse.Parser;
 import sys.io.File;
 import byte.ByteData;
@@ -36,14 +38,18 @@ class Hocco implements Klas {
 		dir = dir == null ? Sys.getCwd() : dir.splitPath().resolve();
 	}
 	
+	/**
+	 * something important
+	 */
 	private function start() {
 		var hx:Array<String> = loopDirectory( dir );
-		trace( hx[0] );
 		var content = File.getContent( hx[0] );
-		trace( content.length );
 		var hp = new HaxeParser( ByteData.ofString( content ), hx[0] );
+		trace( hx[0] );
+		trace( content.length );
 	}
 	
+	// something
 	private function loopDirectory(dir:String):Array<String> {
 		var result:Array<String> = [];
 		

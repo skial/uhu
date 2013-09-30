@@ -12,12 +12,11 @@ import hxparse.Position;
 class Token<Kwd> {
 	
 	public var token:TokenDef<Kwd>;
-	public var position:Position;
+	//public var position:Position;
 	
 	public function new(tok:TokenDef<Kwd>, pos:Position) {
 		token = tok;
-		position = pos;
-		isKeyword = kwd;
+		//position = pos;
 	}
 }
 
@@ -42,7 +41,7 @@ enum TokenDef<Kwd> {
 	BracketOpen;	//	[
 	BracketClose;	//	]
 	BraceOpen;		//	{
-	BraceClose;	//	}
+	BraceClose;		//	}
 	ParenthesesOpen;//	(
 	ParenthesesClose;//	)
 	Question;
