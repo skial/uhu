@@ -3,5 +3,6 @@
 -lib hxparse
 -lib markdown
 -lib detox
+-lib polygonal-core
 -neko bin/hocco/Hocco.n
 -main uhx.hocco.Hocco

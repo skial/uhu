@@ -2,10 +2,14 @@ package uhx.lexer;
 
 import byte.ByteData;
 import haxe.io.Eof;
+import haxe.rtti.Meta;
 import hxparse.Parser;
 import hxparse.ParserBuilder;
-import uhx.lexer.Token;
+import sys.io.File;
+import uhx.mo.Token;
+import uhx.mo.TokenDef;
 import uhx.lexer.HaxeLexer.HaxeKeywords;
+import de.polygonal.core.fmt.ASCII;
 
 /**
  * ...
@@ -13,11 +17,11 @@ import uhx.lexer.HaxeLexer.HaxeKeywords;
  */
 class HaxeParser {
 
+	private var result:StringBuf;
 	private var lexer:HaxeLexer;
 	
-	public function new(input:ByteData, name:String) {
-		var tokens = tokenise( input, name );
-		trace( htmlify( tokens ) );
+	public function new() {
+		
 	}
 	
 	public function tokenise(input:ByteData, name:String):Array<Token<HaxeKeywords>> {
@@ -47,70 +51,81 @@ class HaxeParser {
 	}
 	
 	public function htmlify(tokens:Array<Token<HaxeKeywords>>) {
-		var result = new StringBuf();
+		result = new StringBuf();
+		
+		result.add('<pre><code class="language haxe">');
 		
 		for (token in tokens) {
 			
+			var name = Mo.cssify( token.token );
+			
 			switch( token.token ) {
-				case At: result.add( '@' );
-				case Dot: result.add( '.' );
-				case Colon: result.add( ':' );
-				case Arrow: result.add( '->' );
-				case Comma: result.add( ',' );
-				case Question: result.add( '?' );
-				case Semicolon: result.add( ';' );
-				case Newline: result.add( '\n' );
-				case Carriage: result.add( '\r' );
-				case BracketOpen: result.add( '[' );
-				case BracketClose: result.add( ']' );
-				case BraceOpen: result.add( '{' );
-				case BraceClose: result.add( '}' );
-				case ParenthesesOpen: result.add( '(' );
-				case ParenthesesClose: result.add( ')' );
-				case Tab(n): for (i in 0...n) result.add( '\t' );
-				case Space(n): for (i in 0...n) result.add( ' ' );
-				case EConst(CInt(v)): result.add( v );
-				case EConst(CFloat(v)): result.add( v );
-				case EConst(CString(v)): result.add( '"$v"' );
-				case EConst(CIdent(v)): result.add( v );
-				case EUnop(OpIncrement): result.add( '++' );
-				case EUnop(OpDecrement): result.add( '--' );
-				case EUnop(OpNot): result.add( '!' );
-				case EUnop(OpNegBits): result.add( '~' );
-				case EBinop(OpAdd): result.add( '+' );
-				case EBinop(OpMult): result.add( '*' );
-				case EBinop(OpDiv): result.add( '/' );
-				case EBinop(OpSub): result.add( '-' );
-				case EBinop(OpAssign): result.add( '=' );
-				case EBinop(OpEq): result.add( '==' );
-				case EBinop(OpNotEq): result.add( '!=' );
-				case EBinop(OpGt): result.add( '>' );
-				case EBinop(OpGte): result.add( '>=' );
-				case EBinop(OpLt): result.add( '<' );
-				case EBinop(OpLte): result.add( '<=' );
-				case EBinop(OpAnd): result.add( '&' );
-				case EBinop(OpOr): result.add( '|' );
-				case EBinop(OpXor): result.add( '^' );
-				case EBinop(OpBoolAnd): result.add( '&&' );
-				case EBinop(OpBoolOr): result.add( '||' );
-				case EBinop(OpShl): result.add( '<<' );
-				case EBinop(OpShr): result.add( '>>' );
-				case EBinop(OpUShr): result.add( '>>>' );
-				case EBinop(OpMod): result.add( '%' );
-				case EBinop(OpInterval): result.add( '...' );
-				case EBinop(OpArrow): result.add( '=>' );
-				case Keyword(kwd): result.add( Std.string( kwd ).substr(3).toLowerCase() );
-				case Hash(s): result.add( '#' + s );
-				case Dollar(s): result.add( '$' + s );
-				case IntInterval(s): result.add( s );
-				case Comment(c): result.add( '/*$c*/' );
-				case CommentLine(c): result.add( '//$c' );
+				case At: add( '@', name );
+				case Dot: add( '.', name );
+				case Colon: add( ':', name );
+				case Arrow: add( '->', name );
+				case Comma: add( ',', name );
+				case Question: add( '?', name );
+				case Semicolon: add( ';', name );
+				case Newline: add( '\n', name );
+				case Carriage: add( '\r', name );
+				case BracketOpen: add( '[', name );
+				case BracketClose: add( ']', name );
+				case BraceOpen: add( '{', name );
+				case BraceClose: add( '}', name );
+				case ParenthesesOpen: add( '(', name );
+				case ParenthesesClose: add( ')', name );
+				case Tab(n): for (i in 0...n) add( '\t', name );
+				case Space(n): add( [for (i in 0...n) ' '].join(''), name );
+				case EConst(CInt(v)): add( v, name );
+				case EConst(CFloat(v)): add( v, name );
+				case EConst(CString(v)): add( '"$v"', name );
+				case EConst(CIdent(v)): add( v, name );
+				case EUnop(OpIncrement): add( '++', name );
+				case EUnop(OpDecrement): add( '--', name );
+				case EUnop(OpNot): add( '!', name );
+				case EUnop(OpNegBits): add( '~', name );
+				case EBinop(OpAdd): add( '+', name );
+				case EBinop(OpMult): add( '*', name );
+				case EBinop(OpDiv): add( '/', name );
+				case EBinop(OpSub): add( '-', name );
+				case EBinop(OpAssign): add( '=', name );
+				case EBinop(OpEq): add( '==', name );
+				case EBinop(OpNotEq): add( '!=', name );
+				case EBinop(OpGt): add( '>', name );
+				case EBinop(OpGte): add( '>=', name );
+				case EBinop(OpLt): add( '<', name );
+				case EBinop(OpLte): add( '<=', name );
+				case EBinop(OpAnd): add( '&', name );
+				case EBinop(OpOr): add( '|', name );
+				case EBinop(OpXor): add( '^', name );
+				case EBinop(OpBoolAnd): add( '&&', name );
+				case EBinop(OpBoolOr): add( '||', name );
+				case EBinop(OpShl): add( '<<', name );
+				case EBinop(OpShr): add( '>>', name );
+				case EBinop(OpUShr): add( '>>>', name );
+				case EBinop(OpMod): add( '%', name );
+				case EBinop(OpInterval): add( '...', name );
+				case EBinop(OpArrow): add( '=>', name );
+				case Keyword(kwd): add( Std.string( kwd ).substr(3).toLowerCase(), name );
+				case Conditional(s): add( '#' + s, name );
+				case Dollar(s): add( '$' + s, name );
+				case IntInterval(s): add( s, name );
+				case Comment(c): add( '/*$c*/', name );
+				case CommentLine(c): add( '//$c', name );
 				case _: 
 			}
 			
 		}
 		
+		result.add('</code></pre>');
+		
 		return result.toString();
+	}
+	
+	private function add(v:String, ?cls:String = '') {
+		if (cls != '') cls = ' $cls';
+		result.add( '<span class="token$cls">$v</span>' );
 	}
 	
 }

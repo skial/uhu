@@ -26,6 +26,7 @@ class Hocco implements Klas {
 
 	@alias('l') public var lang:String;
 	@alias('d') public var dir:String;
+	@alias('o') public var out:String;
 	
 	public function new(args:Array<String>) {
 		trace( args );
@@ -35,18 +36,8 @@ class Hocco implements Klas {
 	
 	private function check() {
 		lang = lang == null ? 'haxe' : lang;
-		dir = dir == null ? Sys.getCwd() : dir.splitPath().resolve();
-	}
-	
-	/**
-	 * something important
-	 */
-	private function start() {
-		var hx:Array<String> = loopDirectory( dir );
-		var content = File.getContent( hx[0] );
-		var hp = new HaxeParser( ByteData.ofString( content ), hx[0] );
-		trace( hx[0] );
-		trace( content.length );
+		dir = dir == null ? Sys.getCwd().normalize() : dir.splitPath().resolve();
+		out = out == null ? Sys.getCwd().normalize() : out.splitPath().resolve();
 	}
 	
 	// something
@@ -77,6 +68,21 @@ class Hocco implements Klas {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * something important
+	 */
+	private function start() {
+		var paths:Array<String> = loopDirectory( dir );
+		var parser = new HaxeParser();
+		for (path in paths) {
+			var tokens = parser.tokenise( ByteData.ofString( File.getContent( path ) ), path );
+			var html = parser.htmlify( tokens );
+			trace( path );
+			trace( path.split( Path.sep ) );
+			trace( out.split( Path.sep ) );
+		}
 	}
 	
 }

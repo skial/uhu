@@ -4,51 +4,52 @@ import byte.ByteData;
 import haxe.io.Eof;
 import hxparse.Lexer;
 import hxparse.RuleBuilder;
-import uhx.lexer.Token;
+import uhx.mo.Token;
+import uhx.mo.TokenDef;
 
 enum HaxeKeywords {
-	KwdFunction;
-	KwdClass;
-	KwdVar;
-	KwdIf;
-	KwdElse;
-	KwdWhile;
-	KwdDo;
-	KwdFor;
-	KwdBreak;
-	KwdContinue;
-	KwdReturn;
-	KwdExtends;
-	KwdImplements;
-	KwdImport;
-	KwdSwitch;
-	KwdCase;
-	KwdDefault;
-	KwdStatic;
-	KwdPublic;
-	KwdPrivate;
-	KwdTry;
-	KwdCatch;
-	KwdNew;
-	KwdThis;
-	KwdThrow;
-	KwdExtern;
-	KwdEnum;
-	KwdIn;
-	KwdInterface;
-	KwdUntyped;
-	KwdCast;
-	KwdOverride;
-	KwdTypedef;
-	KwdDynamic;
-	KwdPackage;
-	KwdInline;
-	KwdUsing;
-	KwdNull;
-	KwdTrue;
-	KwdFalse;
-	KwdAbstract;
-	KwdMacro;
+	@css(3) KwdFunction;
+	@css(3) KwdClass;
+	@css(3) KwdVar;
+	@css(3) KwdIf;
+	@css(3) KwdElse;
+	@css(3) KwdWhile;
+	@css(3) KwdDo;
+	@css(3) KwdFor;
+	@css(3) KwdBreak;
+	@css(3) KwdContinue;
+	@css(3) KwdReturn;
+	@css(3) KwdExtends;
+	@css(3) KwdImplements;
+	@css(3) KwdImport;
+	@css(3) KwdSwitch;
+	@css(3) KwdCase;
+	@css(3) KwdDefault;
+	@css(3) KwdStatic;
+	@css(3) KwdPublic;
+	@css(3) KwdPrivate;
+	@css(3) KwdTry;
+	@css(3) KwdCatch;
+	@css(3) KwdNew;
+	@css(3) KwdThis;
+	@css(3) KwdThrow;
+	@css(3) KwdExtern;
+	@css(3) KwdEnum;
+	@css(3) KwdIn;
+	@css(3) KwdInterface;
+	@css(3) KwdUntyped;
+	@css(3) KwdCast;
+	@css(3) KwdOverride;
+	@css(3) KwdTypedef;
+	@css(3) KwdDynamic;
+	@css(3) KwdPackage;
+	@css(3) KwdInline;
+	@css(3) KwdUsing;
+	@css(3) KwdNull;
+	@css(3) KwdTrue;
+	@css(3) KwdFalse;
+	@css(3) KwdAbstract;
+	@css(3) KwdMacro;
 }
 
 /**
@@ -143,7 +144,7 @@ class HaxeLexer extends Lexer implements BaseLexer implements RuleBuilder {
 		"\\)" => mk(lexer, ParenthesesClose),
 		"?" => mk(lexer, Question),
 		"@" => mk(lexer, At),
-		"#" + ident => mk(lexer, Hash(lexer.current.substr(1))),
+		"#" + ident => mk(lexer, Conditional(lexer.current.substr(1))),
 		"$" + ident => mk(lexer, Dollar(lexer.current.substr(1))),
 		'"' => {
 			buf = new StringBuf();

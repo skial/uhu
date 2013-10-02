@@ -62,14 +62,18 @@ class Liy {
 				
 			}
 			
-			var f = Reflect.field( obj, field );
-			if (Reflect.isFunction( f )) {
-				
-				Reflect.callMethod( obj, f, values.slice( 0, arity ) );
-				
-			} else if (values.length > 0) {
-				
-				Reflect.setField( obj, field, values[0] );
+			if (values.length != 0) {
+			
+				var f = Reflect.field( obj, field );
+				if (Reflect.isFunction( f )) {
+					
+					Reflect.callMethod( obj, f, values.slice( 0, arity ) );
+					
+				} else if (values.length > 0) {
+					
+					Reflect.setField( obj, field, values[0] );
+					
+				}
 				
 			}
 			
