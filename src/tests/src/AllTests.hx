@@ -13,7 +13,7 @@ import uhx.tem.TemSpec;
 /*import haxe.Utf8Spec;
 import uhx.macro.help.TemArray.TemArray;
 import uhx.web.URISpec;*/
-import uhx.fmt.ASCIISpec;
+//import uhx.fmt.ASCIISpec;
 /*import haxe.io.StringInput;
 import uhx.oauth.GithubSpec;
 import haxe.unit.TestRunner;
@@ -63,7 +63,7 @@ class AllTests {
 		
 		var runner = new Runner();
 		
-		runner.addCase( new ASCIISpec() );
+		//runner.addCase( new ASCIISpec() );
 		
 		/*#if !js
 		runner.addCase( new Utf8Spec() );

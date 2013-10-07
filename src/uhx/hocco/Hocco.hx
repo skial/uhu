@@ -10,6 +10,7 @@ import byte.ByteData;
 import uhx.lexer.HaxeLexer;
 import uhx.lexer.HaxeParser;
 
+using StringTools;
 using sys.FileSystem;
 using taurine.io.Path;
 
@@ -79,8 +80,9 @@ class Hocco implements Klas {
 		for (path in paths) {
 			var tokens = parser.tokenise( ByteData.ofString( File.getContent( path ) ), path );
 			var html = parser.htmlify( tokens );
-			trace( path );
-			trace( path.split( Path.sep ) );
+			
+			trace( path.replace( dir, '' ).split( Path.sep ) );
+			trace( dir.split( Path.sep ) );
 			trace( out.split( Path.sep ) );
 		}
 	}

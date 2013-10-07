@@ -56,7 +56,7 @@ class Wait {
 		var result = e;
 		
 		switch(e.expr) {
-			case EMeta(m, e):
+			case EMeta(m, e) if (m.name.endsWith('wait')):
 				
 				if (m.params.length > 0) {
 					STATE = Some(m.params);

@@ -36,16 +36,7 @@ class HaxeParser {
 				results.push( token );
 			}
 			
-		} catch (e:Eof) {
-			
-			trace(' EOF!!! ');
-			trace( e );
-			
-		} catch (e:Dynamic) {
-			
-			trace( e );
-			
-		}
+		} catch (e:Dynamic) { }
 		
 		return results;
 	}
