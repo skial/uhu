@@ -139,8 +139,13 @@ class Handler {
 		
 		// Really sad that I have to destroy and rebuild a class just to get what I want...
 		// All callbacks handle the rename hack. @:native('orginal.package.and.Name')
+		// All retyped classes should not modify the fields further.
 		for (callback in reTypes) {
 			var td = callback( cls, fields );
+			// Unfortuantly for this to work, all types must
+			// be in referenced by their full path. So Array<MyClass>
+			// must be Array<my.pack.to.MyClass>. This what the code
+			// below does.
 			for (field in td.fields) {
 				switch (field.kind) {
 					case FVar(t, e):
@@ -172,23 +177,10 @@ class Handler {
 						
 				}
 			}
-			/*for (field in td.fields) {
-				switch (field.kind) {
-					case FVar(t, e):
-						trace( t );
-						
-					case FProp(_, _, t, e):
-						trace( t );
-						
-					case FFun(method):
-						
-				}
-			}*/
-			//fields = td.fields;
-			//Compiler.exclude( cls.path() );
+			
+			Compiler.exclude( cls.path() );
 			Context.defineType( td );
-			trace( td.printTypeDefinition() );
-			Context.getType( td.path() );
+			//Context.getType( td.path() );
 		}
 		
 		return fields;
