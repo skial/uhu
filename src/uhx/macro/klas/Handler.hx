@@ -146,9 +146,10 @@ class Handler {
 			// be in referenced by their full path. So Array<MyClass>
 			// must be Array<my.pack.to.MyClass>. This what the code
 			// below does.
-			for (field in td.fields) {
+			/*for (field in td.fields) {
 				switch (field.kind) {
 					case FVar(t, e):
+						trace( t );
 						if (t != null) {
 							t = t.qualify();
 						} else if (e != null) {
@@ -157,7 +158,7 @@ class Handler {
 							trace( field.name );
 						}
 						field.kind = FVar(t, e);
-						
+						trace( t );
 					case FProp(g, s, t, e):
 						if (t != null) {
 							t = t.qualify();
@@ -176,8 +177,8 @@ class Handler {
 						}
 						
 				}
-			}
-			
+			}*/
+			trace( td.printTypeDefinition() );
 			Compiler.exclude( cls.path() );
 			Context.defineType( td );
 			//Context.getType( td.path() );
