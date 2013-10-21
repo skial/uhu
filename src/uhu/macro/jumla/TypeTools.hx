@@ -102,6 +102,21 @@ class TypeTools {
 		return '';
 	}
 	
+	public static function meta(type:Type):MetaAccess {
+		var result = null;
+		
+		switch (type) {
+			case TMono(t) if (t.get() != null): result = meta( t.get() );
+			case TEnum(t, _): result = t.get().meta;
+			case TInst(t, _): result = t.get().meta;
+			case TType(t, _): result = t.get().meta;
+			case TAbstract(t, _): result = t.get().meta;
+			case _:
+		}
+		
+		return result;
+	}
+	
 	public static function params(type:Type):Array<Type> {
 		switch (type) {
 			case TInst(_, p):
