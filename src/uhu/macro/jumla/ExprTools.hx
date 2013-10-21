@@ -247,6 +247,7 @@ class ExprTools {
 				case EReturn(e) if (e != null):  result = e.typeof();
 				case ECast(_, t) if (t != null): result = t.toType();
 				case EMeta(_, e): result = e.typeof();
+				case ENew(t, _): result = Context.getType( t.path() );
 				case _: 
 					trace( expr );
 					trace( expr.printExpr() );
