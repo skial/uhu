@@ -25,7 +25,7 @@ class FunctionTools {
 		
 		var result = {
 			args: nargs,
-			ret: method.ret.qualify(),
+			ret: method.ret == null ? null : method.ret.qualify(),
 			expr: method.expr,
 			params: []
 		}

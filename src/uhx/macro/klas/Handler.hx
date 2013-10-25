@@ -142,6 +142,7 @@ class Handler {
 		// All retyped classes should not modify the fields further.
 		for (callback in reTypes) {
 			var td = callback( cls, fields );
+			if (td == null) continue;
 			// Unfortuantly for this to work, all types must
 			// be in referenced by their full path. So Array<MyClass>
 			// must be Array<my.pack.to.MyClass>. This what the code
@@ -177,6 +178,10 @@ class Handler {
 						}
 						
 				}
+			}*/
+			/*switch (td.kind) {
+				case TDClass(s, i, b): i.remove( { name: 'Klas', pack: [], params: [] } );
+				case _:
 			}*/
 			trace( td.printTypeDefinition() );
 			Compiler.exclude( cls.path() );

@@ -408,9 +408,9 @@ class FieldTools {
 		return Common.remove(fields, key);
 	}
 	
-	public static inline function get(fields:Array<Field>, key:String):Field {
+	/*public static inline function get(fields:Array<Field>, key:String):Field {
 		return Common.get(fields, key);
-	}
+	}*/
 	
 	public static inline function exists(fields:Array<Field>, key:String):Bool {
 		return Common.exists(fields, key);
