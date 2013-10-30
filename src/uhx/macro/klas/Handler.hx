@@ -15,7 +15,7 @@ import uhx.db.macro.DBConfig;
 import uhx.macro.NamedArgs;
 //import uhx.macro.Publisher;
 //import uhx.macro.Subscriber;
-import uhx.macro.Tem.TemMacro;
+//import uhx.macro.Tem.TemMacro;
 //import uhx.macro.To;
 import uhx.macro.Wait;
 import uhx.macro.Bind;
@@ -38,18 +38,19 @@ class Handler {
 		Wait.handler,
 		NamedArgs.handler,
 		EThis.handler,
+		DBConfig.handler,
 	];
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		//':implements' => Implements.handler,	// replaced with uhx.macro.Protocol
 		//':aop' => AOP.handler,	// doesnt work
-		':tem' => TemMacro.handler,
+		//':tem' => TemMacro.handler,
 		':cmd' => Ede.handler,
-		':uhx_to' => To.handler,
+		//':uhx_to' => To.handler,
 		//':uhx_alias' => Alias.handler,	// causes more trouble than it's worth
 		//':uhx_pub' => Publisher.handler,	// no future
 		//':uhx_sub' => Subscriber.handler,	// no future
-		':db' => DBConfig.handler,
+		//':db' => DBConfig.handler,
 	];
 	
 	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
@@ -142,7 +143,22 @@ class Handler {
 		// All retyped classes should not modify the fields further.
 		for (callback in reTypes) {
 			var td = callback( cls, fields );
+			
 			if (td == null) continue;
+			
+			switch( td.kind ) {
+				case TDClass(c, _, _):
+					
+					try {
+						Context.getType( c.path() );
+					} catch (e:Dynamic) {
+						POSTPONED.set( c.path(), td );
+						LINEAGE.set( c.path(), td.path() );
+						continue;
+					}
+					
+				case _:
+			}
 			// Unfortuantly for this to work, all types must
 			// be in referenced by their full path. So Array<MyClass>
 			// must be Array<my.pack.to.MyClass>. This what the code
@@ -179,6 +195,8 @@ class Handler {
 						
 				}
 			}*/
+			buildLineage( td.path() );
+			
 			/*switch (td.kind) {
 				case TDClass(s, i, b): i.remove( { name: 'Klas', pack: [], params: [] } );
 				case _:
@@ -190,6 +208,25 @@ class Handler {
 		}
 		
 		return fields;
+	}
+	
+	private static var POSTPONED:StringMap<TypeDefinition> = new StringMap<TypeDefinition>();
+	private static var LINEAGE:StringMap<String> = new StringMap<String>();
+	
+	private static function buildLineage(path:String) {
+		trace( path );
+		for (k in LINEAGE.keys() ) trace( k, LINEAGE.get( k ) );
+		for (k in POSTPONED.keys() ) trace( k, POSTPONED.get( k ) );
+		if (LINEAGE.exists( path ) && POSTPONED.exists( path )) {
+			
+			var td = POSTPONED.get( path );
+			buildLineage( td.path() );
+			
+			trace( td.printTypeDefinition() );
+			//Compiler.exclude( path );
+			Context.defineType( td );
+			
+		}
 	}
 	
 }
