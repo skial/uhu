@@ -9,7 +9,9 @@
 *.jar
 *.n
 
-bin/
+bin/*
+src/tests/bin/*
+src/tests/dump/
 .temp
 documentation
 hx.html5
