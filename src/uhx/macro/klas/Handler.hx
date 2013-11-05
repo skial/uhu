@@ -20,6 +20,7 @@ import uhx.macro.NamedArgs;
 import uhx.macro.Wait;
 import uhx.macro.Bind;
 import uhx.macro.EThis;
+import uhx.macro.Forward;
 import uhx.sys.Ede;
 
 using Lambda;
@@ -35,9 +36,10 @@ using uhu.macro.Jumla;
 class Handler {
 	
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
+		EThis.handler,
 		Wait.handler,
 		NamedArgs.handler,
-		EThis.handler,
+		Forward.handler,
 		DBConfig.handler,
 	];
 	
