@@ -36,12 +36,8 @@ class ClassTypeTools {
 		return result;
 	}
 	
-	public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
+	/*public static function toTypeDefinition(cls:ClassType, ?prefix:String = '', ?suffix:String = ''):TypeDefinition {
 		var pack = cls.pack;
-		
-		/*if (cls.isPrivate) {
-			pack[0] = pack[0].substr( 1 );
-		}*/
 		
 		var fields = [];
 		
@@ -78,7 +74,7 @@ class ClassTypeTools {
 			kind: cls.toTypeDefKind(),
 			fields: fields.concat( statics ),
 		};
-	}
+	}*/
 	
 	public static function toTypeParams(params:Array<{name:String, t:Type}>):Array<TypeParam> {
 		var result:Array<TypeParam> = [];

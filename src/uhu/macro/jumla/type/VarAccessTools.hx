@@ -10,8 +10,8 @@ using haxe.EnumTools;
  */
 class VarAccessTools {
 
-	public static function toString(access:VarAccess):String {
-		var result = null;
+	/*public static function toString(access:VarAccess):String {
+		var result = 'default';
 		
 		result = switch (access) {
 			case AccNormal:
@@ -27,7 +27,7 @@ class VarAccessTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
 	public static function is(access:VarAccess, what:EnumValue):Bool {
 		return (access != null && access.getName() == what.getName());

@@ -13,7 +13,7 @@ using uhu.macro.Jumla;
  */
 class AnonymousTools {
 
-	public static function toTypeDefinition(anon:AnonType):TypeDefinition {
+	/*public static function toTypeDefinition(anon:AnonType):TypeDefinition {
 		var result:TypeDefinition = null;
 		
 		if (anon != null) {
@@ -45,6 +45,6 @@ class AnonymousTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
 }

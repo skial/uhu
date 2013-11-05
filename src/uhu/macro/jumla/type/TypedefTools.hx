@@ -17,12 +17,8 @@ class TypedefTools {
 		return TDStructure;
 	}
 
-	public static function toTypeDefinition(def:DefType, prefix:String = '', suffix:String = ''):TypeDefinition {
+	/*public static function toTypeDefinition(def:DefType, prefix:String = '', suffix:String = ''):TypeDefinition {
 		var pack = def.pack;
-		
-		/*if (def.isPrivate) {
-			pack[0] = pack[0].substr( 1 );
-		}*/
 		
 		var fields:Array<Field> = [];
 		
@@ -53,6 +49,6 @@ class TypedefTools {
 			kind: def.toTypeDefKind(),
 			fields: fields
 		}
-	}
+	}*/
 	
 }

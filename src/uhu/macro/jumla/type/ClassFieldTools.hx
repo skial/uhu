@@ -23,7 +23,7 @@ class ClassFieldTools {
 	
 	private static var _cache:StringMap<String> = new StringMap<String>();
 	
-	public static function toFieldType(field:ClassField):FieldType {
+	/*public static function toFieldType(field:ClassField):FieldType {
 		var result:FieldType = null;
 		var type = Context.follow( field.type );
 		var ctype = TypeTools.toComplexType( type );
@@ -67,7 +67,6 @@ class ClassFieldTools {
 		
 		switch( field.kind ) {
 			case FVar(read, write):
-				
 				if (read == AccNormal && write == AccNormal) {
 					result = FVar( ctype, expr );
 				} else {
@@ -96,9 +95,9 @@ class ClassFieldTools {
 		}
 		
 		return result;
-	}
+	}*/
 	
-	public static function toField(field:ClassField, ?isStatic:Bool = false):Field {
+	/*public static function toField(field:ClassField, ?isStatic:Bool = false):Field {
 		var access = [field.isPublic ? APublic : APrivate];
 		
 		if (isStatic) access.push( AStatic );
@@ -113,14 +112,14 @@ class ClassFieldTools {
 		}
 		//trace( field.name );
 		return result;
-	}
+	}*/
 	
-	public static function toFields(fields:Array<ClassField>, ?isStatic:Bool = false):Array<Field> {
+	/*public static function toFields(fields:Array<ClassField>, ?isStatic:Bool = false):Array<Field> {
 		var result:Array<Field> = [];
 		for (field in fields) {
 			result.push( field.toField( isStatic ) );
 		}
 		return result;
-	}
+	}*/
 	
 }

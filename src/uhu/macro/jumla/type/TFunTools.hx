@@ -12,7 +12,7 @@ using uhu.macro.Jumla;
  */
 class TFunTools {
 	
-	public static function toFunctionArg(arg: { name:String, opt:Bool, t:Type } ):FunctionArg {
+	/*public static function toFunctionArg(arg: { name:String, opt:Bool, t:Type } ):FunctionArg {
 		return {
 			name: arg.name,
 			opt: arg.opt, 
@@ -27,7 +27,7 @@ class TFunTools {
 		for (arg in args) result.push( arg.toFunctionArg() );
 		
 		return result;
-	}
+	}*/
 
 	public static function toFFun(type:Type):FieldType {
 		var result:FieldType = null;
@@ -35,7 +35,7 @@ class TFunTools {
 		switch ( type ) {
 			case TFun(args, ret):
 				result = FFun( {
-					args: args.toFunctionArgs(),
+					args: args.map(function(a) return { name:a.name, type:Context.toComplexType(a.t), value:null, opt:a.opt } ),
 					ret: Context.toComplexType( ret ),
 					expr: null,
 					params: []
