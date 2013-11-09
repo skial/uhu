@@ -109,4 +109,18 @@ class ClassTypeTools {
 		return TDClass( sup, interfaces, cls.isInterface );
 	}
 	
+	public static function rmeta(cls:ClassType, name:String):MetadataEntry {
+		var _cls = cls;
+		
+		while (!_cls.meta.has( name )) {
+			if (_cls.superClass != null) {
+				_cls = _cls.superClass.t.get();
+			} else {
+				break;
+			}
+		}
+		
+		return _cls.meta.get().get( name );
+	}
+	
 }

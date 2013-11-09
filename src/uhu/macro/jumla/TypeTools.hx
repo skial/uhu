@@ -462,4 +462,8 @@ class TypeTools {
 		return results;
 	}
 	
+	public static function toCType(type:Type):ComplexType {
+		return Context.toComplexType( type );
+	}
+	
 }
