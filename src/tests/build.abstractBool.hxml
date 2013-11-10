@@ -1,0 +1,9 @@
+-D debug
+-D dump=pretty
+
+-cp src
+
+-main example.abstractBool.Main
+-js bin/example.abstractBool.js
+
+#-dce full
