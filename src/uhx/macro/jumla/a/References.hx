@@ -1,29 +1,37 @@
 package uhx.macro.jumla.a;
 
+import haxe.macro.Type;
 import haxe.macro.Expr;
-import uhu.macro.jumla.Common;
 
 /**
  * ...
  * @author Skial Bainn
  */
-abstract References(Array<Field>) from Array<Field> to Array<Field> {
+abstract References<T:{name:String}>(Array<T>) from Array<T> to Array<T> {
 	
-	public function exists(name:String):Bool return Common.exists( this, name );
 	
-	@:arrayAccess @:noCompletion public function getInt(v:Int):Reference<Field> return this[v];
+	public function iterator():Iterator<Reference<T>> return cast this.iterator();
 	
-	/*@:arrayAccess public function get(name:String):Truthy<Reference<Dynamic>> {
-		var result = null;
-		for (field in this) if (field.name == name) {
-			result = field;
+	public function exists(name:String):Bool {
+		var result = false;
+		
+		for (v in this) if (v.name == name) {
+			result = true;
 			break;
 		}
+		
 		return result;
-	}*/
+	}
 	
-	@:arrayAccess public function get(name:String):Truthy<Reference<Field>> {
-		return getInt(Common.indexOf( this, name ));
+	@:arrayAccess public function get(name:String):Truthy<Reference<T>> {
+		var result = null;
+		
+		for (v in this) if (v.name == name) {
+			result = v;
+			break;
+		}
+		
+		return cast result;
 	}
 	
 }

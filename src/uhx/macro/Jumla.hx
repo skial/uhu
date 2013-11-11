@@ -1,12 +1,9 @@
 package uhx.macro;
+
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import uhx.macro.jumla.e.State;
 
-typedef AMetadata = uhx.macro.jumla.a.Meta;
-typedef AMetadataEntry = uhx.macro.jumla.a.MetaEntry;
-typedef AField<T> = uhx.macro.jumla.a.Reference<T>;
-typedef AKlass = uhx.macro.jumla.a.Klass;
 /**
  * ...
  * @author Skial Bainn
