@@ -21,6 +21,7 @@ import uhx.macro.Wait;
 import uhx.macro.Bind;
 import uhx.macro.EThis;
 import uhx.macro.Forward;
+import uhx.macro.Test;
 import uhx.sys.Ede;
 
 using Lambda;
@@ -41,6 +42,7 @@ class Handler {
 		NamedArgs.handler,
 		Forward.handler,
 		DBConfig.handler,
+		Test.handler,
 	];
 	
 	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
@@ -216,7 +218,7 @@ class Handler {
 	private static var LINEAGE:StringMap<String> = new StringMap<String>();
 	
 	private static function buildLineage(path:String) {
-		trace( path );
+		//trace( path );
 		for (k in LINEAGE.keys() ) trace( k, LINEAGE.get( k ) );
 		for (k in POSTPONED.keys() ) trace( k, POSTPONED.get( k ) );
 		if (LINEAGE.exists( path ) && POSTPONED.exists( path )) {
