@@ -31,6 +31,10 @@ abstract ABaseType(BaseType) from BaseType to BaseType {
 		return v;
 	}
 	
+	@:noCompletion public var original(get, never):BaseType;
+	
+	private function get_original():BaseType return this;
+	
 	// -- internal
 	
 }

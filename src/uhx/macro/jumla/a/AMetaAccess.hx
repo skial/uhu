@@ -16,4 +16,12 @@ abstract AMetaAccess(MetaAccess) from MetaAccess to MetaAccess {
 		return this.get().get( key );
 	}
 	
+	// ++ internal
+	
+	@:noCompletion public var original(get, never):MetaAccess;
+	
+	private function get_original():MetaAccess return this;
+	
+	// -- internal
+	
 }

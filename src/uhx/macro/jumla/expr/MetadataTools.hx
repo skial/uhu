@@ -19,4 +19,15 @@ class MetadataTools {
 		return result;
 	}
 	
+	public static function exists(t:Metadata, key:String):Bool {
+		var result:Bool = false;
+		
+		for (m in t) if (m.name == key) {
+			result = true;
+			break;
+		}
+		
+		return result;
+	}
+	
 }

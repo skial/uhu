@@ -36,6 +36,10 @@ abstract AAccess(Array<Access>) from Array<Access> to Array<Access> {
 		return v;
 	}
 	
+	@:noCompletion public var original(get, never):Array<Access>;
+	
+	private function get_original():Array<Access> return this;
+	
 	// -- internal
 	
 }

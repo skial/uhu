@@ -1,6 +1,11 @@
 package uhx.macro.jumla.a;
 
 import haxe.macro.Type;
+import haxe.macro.Expr;
+import uhx.macro.jumla.a.AClassType;
+
+using Lambda;
+using uhx.macro.Jumla;
 
 /**
  * ...
@@ -8,11 +13,11 @@ import haxe.macro.Type;
  */
 abstract AClassType(ClassType) from ClassType to ClassType to BaseType {
 	
-	public var ancestors(get, never):Array<AClassType>;
+	public var ancestors(get, never):ManyClassTypes;
 	
 	// ++ internal
 	
-	private function get_ancestors():Array<AClassType> {
+	private function get_ancestors():ManyClassTypes {
 		var result:Array<AClassType> = [];
 		var cls = this;
 		
@@ -45,6 +50,32 @@ abstract AClassType(ClassType) from ClassType to ClassType to BaseType {
 	
 	// -- from ABaseType
 	
+	@:noCompletion public var original(get, never):ClassType;
+	
+	private function get_original():ClassType return this;
+	
 	// -- internal
+	
+}
+
+abstract ManyClassTypes(Array<AClassType>) from Array<AClassType> to Array<AClassType> {
+	
+	public var filter(get, never):FilterBy<Array<AClassType>>;
+	//public var fmeta(get, never):FilterMeta;
+	public var meta(get, never):Array<Metadata>;
+	
+	// ++ internal
+	
+	private function get_filter():FilterBy<Array<AClassType>> return this;
+	//private function get_fmeta():FilterMeta return this;
+	private function get_meta():Array<Metadata> return [for ( c in this ) c.meta.original.get()];
+	
+	// -- interanl
+	
+}
+
+private abstract FilterMeta(Array<AClassType>) from Array<AClassType> {
+	
+	public function get(key:String):Array<AClassType> return this.filter( function(c) return c.meta.exists( key ) ).array();
 	
 }
