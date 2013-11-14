@@ -13,4 +13,8 @@ class AccessTools {
 
 	public static function sugar(t:Array<Access>):AAccess return t;
 	
+	public static function exists(t:Array<Access>, value:Access):Bool {
+		return t.indexOf( value ) > -1;
+	}
+	
 }
