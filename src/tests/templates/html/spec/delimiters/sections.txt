@@ -1,7 +1,0 @@
-[
-	I got interpolated.
-	|data|
-
-	{{data}}
-	I got interpolated.
-]
