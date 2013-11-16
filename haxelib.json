@@ -1,0 +1,15 @@
+{
+  "name": "uhu",
+  "license": "MIT",
+  "classPath": "src",
+  "tags": ["uhu"],
+  "description": "The Uhu Collection",
+  "contributors": ["skial"],
+  "releasenote": "Initial Release",
+  "version": "0.0.1-alpha",
+  "url": "https://github.com/skial/uhu",
+  "dependencies": {
+    "hxparse": "",
+    "selecthxml": ""
+  }
+}
