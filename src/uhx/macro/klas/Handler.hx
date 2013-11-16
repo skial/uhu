@@ -1,7 +1,5 @@
 package uhx.macro.klas;
 
-import haxe.ds.IntMap;
-import haxe.rtti.Meta;
 import sys.FileSystem;
 import Type in StdType;
 import haxe.macro.Compiler;
@@ -10,19 +8,19 @@ import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhu.macro.Du;
-import uhx.db.macro.DBConfig;
+//import uhx.db.macro.DBConfig;
 //import uhx.macro.Alias;
-import uhx.macro.NamedArgs;
+//import uhx.macro.NamedArgs;
 //import uhx.macro.Publisher;
 //import uhx.macro.Subscriber;
 //import uhx.macro.Tem.TemMacro;
 //import uhx.macro.To;
-import uhx.macro.Wait;
+/*import uhx.macro.Wait;
 import uhx.macro.Bind;
 import uhx.macro.EThis;
 import uhx.macro.Forward;
 import uhx.macro.Test;
-import uhx.sys.Ede;
+import uhx.sys.Ede;*/
 
 using Lambda;
 using StringTools;
@@ -37,29 +35,33 @@ using uhu.macro.Jumla;
 class Handler {
 	
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
-		EThis.handler,
+		/*EThis.handler,
 		Wait.handler,
 		NamedArgs.handler,
 		Forward.handler,
 		DBConfig.handler,
-		Test.handler,
+		Test.handler,*/
 	];
 	
-	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
+	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = new StringMap();
+	
+	private static function addClassMeta(key:String, handler:ClassType->Array<Field>->Array<Field>) Handler.CLASS_META.set(key, handler);
+	
+	//public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		//':implements' => Implements.handler,	// replaced with uhx.macro.Protocol
 		//':aop' => AOP.handler,	// doesnt work
 		//':tem' => TemMacro.handler,
-		':cmd' => Ede.handler,
+		//':cmd' => Ede.handler,
 		//':uhx_to' => To.handler,
 		//':uhx_alias' => Alias.handler,	// causes more trouble than it's worth
 		//':uhx_pub' => Publisher.handler,	// no future
 		//':uhx_sub' => Subscriber.handler,	// no future
 		//':db' => DBConfig.handler,
-	];
+	//];
 	
 	public static var CLASS_HAS_FIELD_META:StringMap<String> = [
 		'' => '',
-		':to' => ':uhx_to',
+		//':to' => ':uhx_to',
 		//':pub' => ':uhx_pub',
 		//':sub' => ':uhx_sub',
 		//':alias' => ':uhx_alias',
