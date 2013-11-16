@@ -1,0 +1,4 @@
+-lib uhu-spec
+-cp src
+-js bin/uhu.js
+-main AllTests
