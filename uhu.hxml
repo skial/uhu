@@ -1,4 +1,7 @@
 -lib uhu-spec
+-lib polygonal-core
 -cp src
+-cp ../taurine/src
 -js bin/uhu.js
 -main AllTests
+--macro uhx.macro.Tem.setIndex('templates/tem/index.html')

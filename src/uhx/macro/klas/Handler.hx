@@ -1,6 +1,9 @@
 package uhx.macro.klas;
 
+import haxe.Json;
 import sys.FileSystem;
+import sys.io.File;
+import sys.io.Process;
 import Type in StdType;
 import haxe.macro.Compiler;
 import haxe.macro.Type;
@@ -34,6 +37,26 @@ using uhu.macro.Jumla;
 
 class Handler {
 	
+	public static function __init__() {
+		if (!setup) initalize();
+	}
+	
+	@:isVar public static var setup(get, null):Bool;
+	
+	private static function get_setup():Bool {
+		if (setup == null) {
+			setup = true;
+			return false;
+			
+		}
+		
+		return true;
+	}
+	
+	public static function initalize() {
+		CLASS_META = new StringMap();
+	}
+	
 	public static var DEFAULTS:Array< ClassType->Array<Field>->Array<Field> > = [
 		/*EThis.handler,
 		Wait.handler,
@@ -43,9 +66,88 @@ class Handler {
 		Test.handler,*/
 	];
 	
-	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = new StringMap();
+	// --macro uhx.macro.klas.Handler.haxelibName('tem')
+	/*public static function haxelibName(name:String) {
+		var p = new Process('haxelib', ['path', name]);
+		//var info = p.stdout.readAll().toString();
+		var info = [];
+		
+		try while (true) info.push( p.stdout.readLine() ) catch (e:Dynamic) { /* No one cares */ //};
+		
+		/*p.close();
+		
+		for (i in info) if (!i.startsWith('-')) {
+			trace( i );
+			Compiler.addClassPath( i );
+			var hxs = dirLoop( i );
+			for (hx in hxs) try Context.getModule(hx) catch (e:Dynamic) { trace(e); };
+		}
+		/*var path = Path.normalize( info.split('[')[1].replace(']', '').replace('dev:', '').trim() );
+		var parts = Path.splitPath( path ).copy();
+		path = parts.concat( ['haxelib.json'] ).join( Path.sep );
+		trace( name, path );
+		var json = Json.parse( File.getContent( path ) );
+		var dep = json.dependencies;
+		var keys = Reflect.fields( dep );
+		for (key in keys) if (Reflect.field(dep, key) != '') {
+			Compiler.addClassPath( path );
+		} else {
+			haxelibName( key );
+		}*/
+	//}
 	
-	private static function addClassMeta(key:String, handler:ClassType->Array<Field>->Array<Field>) Handler.CLASS_META.set(key, handler);
+	private static function dirLoop(dir:String, ?pack:String = ''):Array<String> {
+		var results = [];
+		
+		for (d in FileSystem.readDirectory( dir )) if (FileSystem.isDirectory( dir + '/' + d )) {
+			results = results.concat( dirLoop( dir + '/' + d, pack == '' ? d : pack + '.' + d ) );
+		} else if (d.endsWith('.hx')) {
+			results.push( (pack == '' ? '' : pack + '.') + d.replace('.hx', '') );
+		}
+		
+		return results;
+	}
+	
+	public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = new StringMap();
+	private static var paths:Array<String> = null;
+	public static function addClassMeta(key:String, handler:String) {
+		/*if (paths == null) {
+			
+			paths = [];
+			
+			for (cls in Du.classPaths) {
+				//Compiler.addClassPath( cls );
+				paths = paths.concat( dirLoop( cls ) );
+				
+			}
+			
+		}*/
+		
+		/*var parts = handler.split('.');
+		var method = parts.pop();
+		var cls = parts.join('.');
+		trace( method );
+		trace( cls );
+		trace( StdType.resolveClass( cls ) );
+		Handler.CLASS_META.set(key, thing());*/
+	}
+	
+	public static macro function thing() {
+		/*Context.onTypeNotFound(function(v) {
+			for (path in paths.copy()) if (path.endsWith( v )) {
+				//Compiler.include( path );
+				//Compiler.keep( path );
+				//Context.follow( Context.getType( path ) );
+				trace( v, path, Context.getModule( path ) );
+				paths.remove( path );
+				break;
+			}
+			return null;
+		} );*/
+		//trace( Context.getModule('uhx.macro.TemMacro') );
+		var e = macro $i { 'uhx.macro.TemMacro' };
+		return macro untyped $e.handler;
+	}
 	
 	//public static var CLASS_META:StringMap< ClassType->Array<Field>->Array<Field> > = [
 		//':implements' => Implements.handler,	// replaced with uhx.macro.Protocol
@@ -80,6 +182,8 @@ class Handler {
 		if (cls.meta.has(':KLAS_SKIP')) return fields;
 		
 		reTypes = [];
+		
+		for (key in CLASS_META.keys()) trace( key, CLASS_META.get( key ) );
 		
 		#if debug_macros
 		trace( cls.path() );
