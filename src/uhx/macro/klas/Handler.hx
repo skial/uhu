@@ -51,7 +51,7 @@ class Handler {
 	}
 	
 	public static function initalize() {
-		DEFAULTS = [EThis.handler, NamedArgs.handler, DBConfig.handler];
+		DEFAULTS = [EThis.handler, NamedArgs.handler, /*DBConfig.handler*/];
 		CLASS_META = new StringMap();
 	}
 	
