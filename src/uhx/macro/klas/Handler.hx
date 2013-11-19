@@ -11,6 +11,7 @@ import haxe.macro.Expr;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import uhu.macro.Du;
+import uhx.db.macro.DBConfig;
 //import uhx.db.macro.DBConfig;
 //import uhx.macro.Alias;
 //import uhx.macro.Publisher;
@@ -50,7 +51,7 @@ class Handler {
 	}
 	
 	public static function initalize() {
-		DEFAULTS = [EThis.handler, NamedArgs.handler];
+		DEFAULTS = [EThis.handler, NamedArgs.handler, DBConfig.handler];
 		CLASS_META = new StringMap();
 	}
 	

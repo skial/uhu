@@ -18,6 +18,8 @@ class ACL<TRole, TPrivilege> {
 	public function addRole(role:TRole, ?parent:TRole):ACE<TRole, TPrivilege> {
 		var result:ACE<TRole, TPrivilege>;
 		
+		
+		
 		if (!roles.exists( Some(role) )) {
 			result =  new ACE<TRole, TPrivilege>();
 			result.role = role;
