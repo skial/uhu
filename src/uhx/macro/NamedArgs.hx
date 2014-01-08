@@ -68,7 +68,7 @@ class NamedArgs {
 				var name:String = meta.name.replace(':', '');
 				
 				//result[ args.indexOf( name ) ] = val.expr.getParameters()[1];
-				matches.push( { e: val, n: name , pos: args.indexOf( name ) } );
+				matches.push( { e: val, n: name , pos: args.find( name ) } );
 				
 				//copy = copy.splice(0, i).concat( copy.splice(i + 1, -1) );
 				

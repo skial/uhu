@@ -20,7 +20,7 @@ class TypePathTools {
 		if (ctype != null) {
 			switch ( ctype ) {
 				case TPath( p ): result = p;
-				case TExtend( p, _ ): result = p;
+				case TExtend( p, _ ): result = p[0];
 				case _:
 			}
 		}

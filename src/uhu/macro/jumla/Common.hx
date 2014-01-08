@@ -13,6 +13,10 @@ using uhu.macro.Jumla;
  */
 class Common {
 	
+	public static function find < T: { name:String } > (obj:Array<T>, name:String, startIndex:Int = 0):Int {
+		return Common.indexOf(obj, name, startIndex);
+	}
+	
 	public static function indexOf< T: { name:String } >(obj:Array<T>, name:String, startIndex:Int = 0):Int {
 		var result = -1;
 		

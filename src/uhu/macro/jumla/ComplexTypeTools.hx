@@ -73,7 +73,7 @@ class ComplexTypeTools {
 				result = ComplexTypeTools.asTypePath( t );
 				
 			case TExtend(p, _):
-				result = p;
+				result = p[0];
 				
 			case TOptional(t):
 				result = ComplexTypeTools.asTypePath( t );
