@@ -35,4 +35,6 @@ enum TokenDef<Kwd> {
 	At;
 	Conditional(s:String);	//	#
 	Dollar(s:String);		//	$
+	SingleQuote;			//	'
+	DoubleQuote;			//	"
 }

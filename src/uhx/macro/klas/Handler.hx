@@ -44,7 +44,6 @@ class Handler {
 		if (setup == null) {
 			setup = true;
 			return false;
-			
 		}
 		
 		return true;
