@@ -197,9 +197,6 @@ class TypeTools {
 					var fields = cls.fields.get();
 					var field = null;
 					
-					// need to figure out a way to fake macro fields...
-					trace( cls.name, id, fields.length, statics.length );
-					
 					if (id != 'new') {
 						if (statics.exists( id )) {
 							
@@ -262,10 +259,10 @@ class TypeTools {
 				try {
 					var type:Type = null;
 					
-					try {
+					/*try {
 						type = Context.getType( name );
 						
-					} catch(e:Dynamic) {
+					} catch(e:Dynamic) {*/
 						var tpath = TPath( { pack: parts, name: name, params: [], sub: null } );
 						
 						if (calls.length > 1) calls.reverse();
@@ -273,7 +270,7 @@ class TypeTools {
 						//var type:Type = ComplexTypeTools.toType( tpath );
 						//var type:Type = Context.follow( tpath.toType() );
 						type = Context.follow( tpath.toType() );
-					}
+					//}
 					
 					result = type.resolve( calls );
 					

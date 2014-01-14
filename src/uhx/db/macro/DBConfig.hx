@@ -6,7 +6,7 @@ import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import uhx.macro.klas.Handler;
+import uhx.macro.KlasImpl;
 
 using StringTools;
 using uhu.macro.Jumla;

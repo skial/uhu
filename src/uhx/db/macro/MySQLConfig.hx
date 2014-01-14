@@ -6,7 +6,7 @@ import haxe.macro.Compiler;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
-import uhx.macro.klas.Handler;
+import uhx.macro.KlasImpl;
 import uhx.macro.help.Hijacked;
 
 using Lambda;
@@ -133,7 +133,7 @@ class MySQLConfig {
 		
 		if (BUILT.indexOf( cls.path() ) == -1) {
 			// Unfortuantly I have to recreate the class, and destroy the original, macro trickery!
-			Handler.registerForReType( 
+			KlasImpl.registerForReType( 
 				function(_, _) {
 					var td = handleReType(cls, nfields);
 					if (!hasManager && td != null) {

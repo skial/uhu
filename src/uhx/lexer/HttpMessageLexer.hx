@@ -1,16 +1,11 @@
 package uhx.lexer;
 
-#if macro
-import haxe.macro.Expr.ExprOf;
-#end
-
 import haxe.io.Eof;
-import haxe.ds.Option.Option;
-import haxe.ds.StringMap.StringMap;
 import uhx.mo.Token;
 import byte.ByteData;
 import hxparse.Lexer;
 import uhx.mo.TokenDef;
+import haxe.ds.StringMap;
 import hxparse.RuleBuilder;
 
 using Std;
