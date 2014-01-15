@@ -24,7 +24,7 @@ enum HttpMessageKeywords {
 	KwdSeparator(v:String);
 }
  
-class HttpMessageLexer extends Lexer implements BaseLexer implements RuleBuilder {
+class HttpMessageLexer extends Lexer implements BaseLexer implements Klas {
 	
 	public var lang:String;
 	public var ext:Array<String>;
@@ -63,13 +63,13 @@ class HttpMessageLexer extends Lexer implements BaseLexer implements RuleBuilder
 		return new Token<T>(tok, lex.curPos());
 	}
 	
-	public static var root = @:rule [
-		LF => mk(lexer, Newline),
-		CR => mk(lexer, Carriage),
-		HT => mk(lexer, Tab(lexer.current.length)),
-		SP + '+' => mk(lexer, Space(lexer.current.length)),
-		DQ => mk(lexer, DoubleQuote),
-		SEP => {
+	public static var root = Lexer.buildRuleset( [
+		{rule:LF, func:function(lexer) return mk(lexer, Newline) },
+		{rule:CR, func:function(lexer) return mk(lexer, Carriage) },
+		{rule:HT, func:function(lexer) return mk(lexer, Tab(lexer.current.length)) },
+		{rule:SP + '+', func:function(lexer) return mk(lexer, Space(lexer.current.length)) },
+		{rule:DQ, func:function(lexer) return mk(lexer, DoubleQuote) },
+		{rule:SEP,  func:function(lexer) {
 			var sep = lexer.current;
 			switch (sep) {
 				case _.check() => true: 
@@ -78,9 +78,9 @@ class HttpMessageLexer extends Lexer implements BaseLexer implements RuleBuilder
 				case _:
 					
 			}
-			mk(lexer, Keyword( KwdSeparator( sep ) ));
-		},
-		NAME => {
+			return mk(lexer, Keyword( KwdSeparator( sep ) ));
+		} },
+		{rule:NAME, func:function(lexer) {
 			var result = switch (lexer.current) {
 				case _.toLowerCase() => 'http':
 					buf = new StringBuf();
@@ -103,27 +103,19 @@ class HttpMessageLexer extends Lexer implements BaseLexer implements RuleBuilder
 					lexer.token( root );
 					mk(lexer, Keyword( KwdHeader( name.trim(), buf.toString() ) ) );
 			}
-			result;
-		},
-	];
+			return result;
+		} },
+	] );
 	
-	public static var request = @:rule [
-		
-	];
+	public static var response = Lexer.buildRuleset( [
+		{rule:SEP, func:function(lexer) return lexer.token( response )},
+		{rule:NAME, func:function(lexer) return buf.add( lexer.current )},
+	] );
 	
-	public static var response = @:rule [
-		SEP => lexer.token( response ),
-		NAME => {
-			buf.add( lexer.current );
-		}
-	];
-	
-	public static var value = @:rule [
-		SEP => lexer.token( value ),
-		VALUE => {
-			buf.add( lexer.current );
-		}
-	];
+	public static var value = Lexer.buildRuleset( [
+		{rule:SEP, func:function(lexer) return lexer.token( value )},
+		{rule:VALUE, func:function(lexer) return buf.add( lexer.current )},
+	] );
 	
 	// Internal
 	
