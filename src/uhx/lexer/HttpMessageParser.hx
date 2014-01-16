@@ -50,7 +50,7 @@ class HttpMessageParser {
 					result.set( 'status', status );
 					
 				case Keyword( KwdHeader( name, value ) ):
-					result.set( name.toLowerCase(), value );
+					result.set( name.toLowerCase(), value.trim() );
 					
 				case _:
 					
