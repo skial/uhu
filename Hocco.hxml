@@ -1,8 +1,8 @@
+-lib cmd
+-lib mo
+-lib hocco
 -cp src
 -cp ../taurine/src
--lib hxparse
--lib markdown
--lib detox
--lib polygonal-core
--neko bin/hocco/Hocco.n
--main uhx.hocco.Hocco
+-neko bin/hocco.n
+-main Hocco
+--macro uhx.sys.Ede.initialize()

@@ -9,7 +9,6 @@
   "version": "0.0.1-alpha",
   "url": "https://github.com/skial/uhu",
   "dependencies": {
-    "hxparse": "",
     "selecthxml": ""
   }
 }
