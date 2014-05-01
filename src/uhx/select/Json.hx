@@ -5,8 +5,11 @@ import uhx.lexer.CssLexer;
 import uhx.lexer.SelectorParser;
 
 using Std;
+using Type;
 using Reflect;
 using uhx.select.Json;
+
+private typedef Method = Dynamic->Dynamic->Array<Dynamic>->Void;
 
 /**
  * ...
@@ -18,12 +21,20 @@ class Json {
 		return new SelectorParser().toTokens( ByteData.ofString( selector ), 'json-selector' );
 	}
 	
+	private static function exact(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
+		results.push( child );
+	}
+	
 	private static function matched(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
 		if (results.indexOf( parent ) == -1) results.push( parent );
 	}
 	
 	private static function found(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
 		results.push( child );
+	}
+	
+	private static function filter(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
+		untyped console.log( results );
 	}
 	
 	public static function find(object:Dynamic, selector:String) {
@@ -37,43 +48,72 @@ class Json {
 		return process( [object], selectors, found );
 	}
 	
-	private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Dynamic->Dynamic->Array<Dynamic>->Void, index:Int = 0, level:Int = -1):Array<Dynamic> {
+	//private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Dynamic->Dynamic->Array<Dynamic>->Void, index:Int = 0, level:Int = -1):Array<Dynamic> {
+	private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Method):Array<Dynamic> {
 		var results = [];
 		
-		for(object in objects) {
+		for (object in objects) {
+			var isObject = object.typeof().match(TObject);
+			
 			switch(token) {
 				case Universal:
 					//untyped console.log( 'univeral' );
-					results = results.concat( object );
+					if (object.is(Array)) results = results.concat( 
+						process( object, token, method )
+					);
+					
+					if (object.typeof().match(TObject)) for (name in object.fields()) {
+						results = results.concat( 
+							process( [object.field( name )], token, method )
+						);
+					}
+					
+					method( object, object, results );
 					
 				case CssSelectors.Type(_.toLowerCase() => name):
 					//untyped console.log( 'type $name' );
+					//untyped console.log( object );
 					
-					for (field in object.fields()) {
-						var obj:Dynamic = object.field( field );
-						
-						switch (name) {
-							case 'string' if (obj.is(String)): method(object, obj, results);
-							case 'int' if (obj.is(Int)): method(object, obj, results);
-							case 'float', 'number' if (obj.is(Float)): method(object, obj, results);
-							case 'bool', 'boolean' if (obj.is(Bool)): method(object, obj, results);
-							case 'array' if (obj.is(Array)): method(object, obj, results);
-							case 'dynamic', 'object' if (obj.is(Dynamic)): method(object, obj, results);
-							case 'null' if (obj.is(null)): method(object, obj, results);
-							case _:
-						}
-						
-						if (switch(level - 1) { case 0, -1:false; case _:true; }) {
-							if (obj.is(Array)) {
-								//untyped console.log( 'loop array' );
-								results = results.concat( process( (obj:Array<Dynamic>), token, method, 0, level - 1 ) );
-							} else switch(std.Type.typeof(obj)) {
-								case TObject: 
-									//untyped console.log( 'look in obj' );
-									results = results.concat( process( [obj], token, method, 0, level - 1 ) );
-								case _:
+					switch (name) {
+						case 'string' if (object.is(String)):
+							method( object, object, results );
+							
+						case 'number', 'int' if (object.is(Int)):
+							method( object, object, results );
+							
+						case 'boolean', 'bool' if (object.is(Bool)):
+							method( object, object, results );
+							
+						case 'array' if (object.is(Array)):
+							results = results.concat( 
+								process( object, token, method )
+							);
+							
+							method( object, object, results );
+							
+						case 'object', 'dynamic' if (object.typeof().match(TObject)):
+							for (name in object.fields()) {
+								results = results.concat( 
+									process( [object.field( name )], token, method )
+								);
 							}
-						}
+							
+							method( object, object, results );
+							
+						case 'null' if (object.is(null)):
+							method( object, object, results );
+							
+						case _ if (method != exact):
+							if (object.is(Array)) results = results.concat( 
+								process( object, token, method )
+							);
+							
+							if (object.typeof().match(TObject)) for (name in object.fields()) {
+								//untyped console.log( 'searching object' );
+								results = results.concat( 
+									process( [object.field( name )], token, method )
+								);
+							}
 					}
 					
 				case CssSelectors.Class(names):
@@ -83,17 +123,20 @@ class Json {
 					for (field in object.fields()) {
 						var obj:Dynamic = object.field( field );
 						
-						if (field == names[0]) method(object, obj, results);
-						
-						if (switch(level - 1) { case 0, -1:false; case _:true; }) {
-							if (obj.is(Array)) {
-								results = results.concat( process( (obj:Array<Dynamic>), token, method, 0, level - 1 ) );
-							} else switch(std.Type.typeof(obj)) {
-								case TObject: 
-									results = results.concat( process( [obj], token, method, 0, level - 1 ) );
-								case _:
-							}
+						if (field == names[0]) {
+							method(object, obj, results);
 						}
+						
+						if (obj.is(Array)) {
+							//results = results.concat( process( (obj:Array<Dynamic>), token, method, 0, level - 1 ) );
+							results = results.concat( process( (obj:Array<Dynamic>), token, method ) );
+						} else switch(std.Type.typeof(obj)) {
+							case TObject: 
+								//results = results.concat( process( [obj], token, method, 0, level - 1 ) );
+								results = results.concat( process( [obj], token, method ) );
+							case _:
+						}
+						
 					}
 					
 				case Group(selectors): 
@@ -105,38 +148,193 @@ class Json {
 					
 				case Combinator(current, next, type):
 					//untyped console.log( 'combinator' );
-					var part1 = process( [object], current, matched );
+					// Browser css selectors are read from `right` to `left`
+					//var part1 = process( [object], current, matched );
+					var part1 = process( [object], next, found );
 					
+					if (part1.length == 0) continue;
+					//untyped console.log( part1 );
 					var part2 = switch (type) {
 						case None:
-							process( part1, next, method );
+							//process( part1, next, method );
+							process( part1, current, exact );
 							
 						case Child:
-							process( part1, next, method, 0, 1 );
+							//process( part1, next, method, 0, 1 );
+							//process( part1, current, method, 0, 1 );
+							var parents = process( [object], current, matched );
+							var results = [];
+							
+							for (parent in parents) for (field in parent.fields()) {
+								for (value in part1) {
+									if (parent.field( field ) == value) {
+										results.push( value );
+										part1.remove( value );
+										break;
+									}
+								}
+							}
+							
+							results;
 							
 						case Descendant:
-							process( part1, next, method );
+							//process( part1, next, method );
+							process( part1, current, method );
 							
 						case Adjacent, General:
 							//throw 'The adjacent operator `+` is not supported on dynamic (json) objects. Use the general `~` operator instead.';
 						//case General:
-							//var idx = objects.indexOf(part1[0], index);
-							process( [object], next, method );
+							var objs = process( [object], current, matched );
+							var values = process( [object], current, found );
+							var results = [];
+							
+							for (i in 0...objs.length) {
+								var fields = Reflect.fields( objs[i] );
+								for (j in 0...fields.length) {
+									if (Reflect.field( objs[i], fields[j] ) == values[i] 
+									&&	Reflect.field( objs[i], fields[j + 1] ) == part1[i]) {
+										results.push( part1[i] );
+									}
+								}
+							}
+							
+							results;
 							
 					}
-					
+					untyped console.log( part2 );
 					results = results.concat( part2 );
+					
+				case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
+					//untyped console.log( 'pseudo $name' );
+					switch(name) {
+						case 'root':
+							method( object, object, results );
+							
+						case 'first-child':
+							results = results.concat( nthChild( object, 0, 1 ) );
+							
+						case 'last-child':
+							results = results.concat( nthChild( object, 0, 1, true ) );
+							
+						case 'nth-child':
+							var a = 0;
+							var b = 0;
+							var n = false;
+							
+							switch (expression) {
+								case 'odd':
+									a = 2;
+									b = 1;
+									
+								case 'even':
+									a = 2;
+									
+								case _:
+									var ab = nthValues( expression );
+									a = ab[0];
+									b = ab[1];
+									n = expression.indexOf('-n') > -1;
+									
+							}
+							
+							var values = nthChild( object, a, b, false, n );
+							results = results.concat( values );
+							
+						case _:
+					}
 					
 				case _:
 					
 			}
 			
-			if (level > 0) level--;
+			/*if (level > 0) level--;
 			
 			switch(level) {
 				case 0: break;
 				case _:
+			}*/
+		}
+		
+		return results;
+	}
+	
+	private static function nthChild(object:Dynamic, a:Int, b:Int, reverse:Bool = false, neg:Bool = false):Array<Dynamic> {
+		var results = [];
+		var fields = object.fields();
+		
+		for (i in 0...fields.length) {
+			var obj:Dynamic = object.field( fields[i] );
+			
+			if (obj.typeof().match(TObject)) {
+				var values = nthChild( obj, a, b, reverse, neg );
+				results = results.concat( values );
+				
+			} else if (obj.is(Array)) {
+				var n = 0;
+				var len = (obj:Array<Dynamic>).length;
+				var idx = (a * (neg? -n : n)) + b - 1;
+				var values = [];
+				
+				if (reverse) {
+					obj = (obj:Array<Dynamic>).copy();
+					(obj:Array<Dynamic>).reverse();
+				}
+				
+				while ( n < len && idx < len ) {
+					if (idx > -1) {
+						values.push( obj[idx] );
+					}
+					
+					if (a == 0 && !neg) break;
+					
+					n++;
+					idx = (a == 0 && neg? -n:(a * (neg? -n : n))) + b - 1;
+				}
+				
+				if (values.length > 0) {
+					if (neg) values.reverse();
+					results = results.concat( values );
+				}
+				
 			}
+		}
+		
+		return results;
+	}
+	
+	private static function nthValues(expr:String):Array<Int> {
+		var results:Array<Int> = [];
+		
+		if (expr.indexOf('n') > -1) {
+			for (s in expr.split('n')) {
+				results = results.concat( nthValues( s ) );
+			}
+		}
+		
+		if (results.length < 2) {
+			
+			var code = 0;
+			var index = 0;
+			var value = '0';
+			var isFalse = false;
+			
+			while (index < expr.length) {
+				code = expr.charCodeAt( index );
+				
+				switch (code) {
+					case '-'.code: isFalse = true;
+					case '+'.code: isFalse = false;
+					case x if (x >= '0'.code && x <= '9'.code):
+						value += String.fromCharCode( x );
+						
+					case _:
+				}
+				
+				index++;
+			}
+			//untyped console.log( expr, value );
+			results.push( isFalse ? -Std.parseInt( value ) : Std.parseInt( value ) );
+			
 		}
 		
 		return results;
