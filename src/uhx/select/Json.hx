@@ -26,7 +26,9 @@ class Json {
 	}
 	
 	private static function matched(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
-		if (results.indexOf( parent ) == -1) results.push( parent );
+		if (results.indexOf( parent ) == -1) {
+			results.push( parent );
+		}
 	}
 	
 	private static function found(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
@@ -39,17 +41,23 @@ class Json {
 	
 	public static function find(object:Dynamic, selector:String) {
 		var selectors = selector.parse();
-		var results = [];
+		var results:Array<Dynamic> = [];
 		
 		untyped console.log( object );
 		untyped console.log( selector );
-		untyped console.log( selector.parse() );
+		untyped console.log( selectors );
 		
-		return process( [object], selectors, found );
+		results = process( [object], selectors, found, object );
+		
+		// This doesnt seem right...
+		if (results.length == 1 && Std.is(results[0], Array)) {
+			results = results[0];
+		}
+		
+		return results;
 	}
 	
-	//private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Dynamic->Dynamic->Array<Dynamic>->Void, index:Int = 0, level:Int = -1):Array<Dynamic> {
-	private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Method):Array<Dynamic> {
+	private static function process(objects:Array<Dynamic>, token:CssSelectors, method:Method, ?parent:Dynamic = null):Array<Dynamic> {
 		var results = [];
 		
 		for (object in objects) {
@@ -59,12 +67,16 @@ class Json {
 				case Universal:
 					//untyped console.log( 'univeral' );
 					if (object.is(Array)) results = results.concat( 
-						process( object, token, method )
+						process( object, token, method, parent )
 					);
 					
 					if (object.typeof().match(TObject)) for (name in object.fields()) {
+						var obj:Dynamic = object.field( name );
+						var dyn:Dynamic = { };
+						dyn.setField( name, obj );
+						
 						results = results.concat( 
-							process( [object.field( name )], token, method )
+							process( [obj], token, method, dyn )
 						);
 					}
 					
@@ -76,42 +88,50 @@ class Json {
 					
 					switch (name) {
 						case 'string' if (object.is(String)):
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case 'number', 'int' if (object.is(Int)):
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case 'boolean', 'bool' if (object.is(Bool)):
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case 'array' if (object.is(Array)):
 							results = results.concat( 
 								process( object, token, method )
 							);
 							
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case 'object', 'dynamic' if (object.typeof().match(TObject)):
 							for (name in object.fields()) {
+								var obj:Dynamic = object.field( name );
+								var dyn:Dynamic = { };
+								dyn.setField( name, obj );
+								
 								results = results.concat( 
-									process( [object.field( name )], token, method )
+									process( [obj], token, method, dyn )
 								);
 							}
 							
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case 'null' if (object.is(null)):
-							method( object, object, results );
+							method( parent, object, results );
 							
 						case _ if (method != exact):
 							if (object.is(Array)) results = results.concat( 
-								process( object, token, method )
+								process( object, token, method, parent )
 							);
 							
 							if (object.typeof().match(TObject)) for (name in object.fields()) {
 								//untyped console.log( 'searching object' );
+								var obj:Dynamic = object.field( name );
+								var dyn:Dynamic = { };
+								dyn.setField( name, obj );
+								
 								results = results.concat( 
-									process( [object.field( name )], token, method )
+									process( [obj], token, method, dyn )
 								);
 							}
 					}
@@ -120,21 +140,19 @@ class Json {
 					//untyped console.log( 'class ${names[0]}' );
 					// If more than one class exists, only the first is used.
 					// `.a.b.c` makes no sense on json structures.
-					for (field in object.fields()) {
-						var obj:Dynamic = object.field( field );
+					for (name in object.fields()) {
+						var obj:Dynamic = object.field( name );
 						
-						if (field == names[0]) {
-							method(object, obj, results);
+						if (name == names[0]) {
+							method( parent, obj, results);
 						}
 						
 						if (obj.is(Array)) {
-							//results = results.concat( process( (obj:Array<Dynamic>), token, method, 0, level - 1 ) );
-							results = results.concat( process( (obj:Array<Dynamic>), token, method ) );
-						} else switch(std.Type.typeof(obj)) {
-							case TObject: 
-								//results = results.concat( process( [obj], token, method, 0, level - 1 ) );
-								results = results.concat( process( [obj], token, method ) );
-							case _:
+							results = results.concat( process( (obj:Array<Dynamic>), token, method, parent ) );
+						}
+						
+						if (obj.typeof().match(TObject)) {
+							results = results.concat( process( [obj], token, method, obj ) );
 						}
 						
 					}
@@ -143,56 +161,72 @@ class Json {
 					//untyped console.log( 'group' );
 					var obj = [object];
 					for (selector in selectors) {
-						results = results.concat( process( obj, selector, found ) );
+						results = results.concat( process( obj, selector, found, parent ) );
 					}
 					
 				case Combinator(current, next, type):
 					//untyped console.log( 'combinator' );
 					// Browser css selectors are read from `right` to `left`
 					//var part1 = process( [object], current, matched );
-					var part1 = process( [object], next, found );
+					var part1 = process( [object], next, found, parent );
 					
 					if (part1.length == 0) continue;
-					//untyped console.log( part1 );
+					untyped console.log( next );
+					untyped console.log( part1 );
 					var part2 = switch (type) {
 						case None:
 							//process( part1, next, method );
-							process( part1, current, exact );
+							process( part1, current, exact, parent );
 							
 						case Child:
 							//process( part1, next, method, 0, 1 );
 							//process( part1, current, method, 0, 1 );
-							var parents = process( [object], current, matched );
+							var parents = process( [object], current, matched, parent );
 							var results = [];
 							
-							for (parent in parents) for (field in parent.fields()) {
-								for (value in part1) {
-									if (parent.field( field ) == value) {
-										results.push( value );
-										part1.remove( value );
-										break;
+							for (parent in parents) {
+								results = results.concat( childCombinator( parent, part1 ) );
+								/*for (field in parent.fields()) {
+									for (value in part1) {
+										untyped console.log( field );
+										untyped console.log( parent.field( field ) );
+										untyped console.log( value );
+										untyped console.log( parent.field( field ) == value );
+										if (parent.field( field ) == value) {
+											results.push( value );
+											part1.remove( value );
+											break;
+										}
 									}
-								}
+								}*/
 							}
 							
 							results;
 							
 						case Descendant:
 							//process( part1, next, method );
-							process( part1, current, method );
+							process( part1, current, method, parent );
 							
 						case Adjacent, General:
 							//throw 'The adjacent operator `+` is not supported on dynamic (json) objects. Use the general `~` operator instead.';
 						//case General:
-							var objs = process( [object], current, matched );
-							var values = process( [object], current, found );
+							var objs = [];
+							var values = [];
 							var results = [];
+							
+							process( [object], current, function(p, c, r) {
+								objs.push( p );
+								values.push( c );
+							}, parent );
 							
 							for (i in 0...objs.length) {
 								var fields = Reflect.fields( objs[i] );
+								
 								for (j in 0...fields.length) {
-									if (Reflect.field( objs[i], fields[j] ) == values[i] 
-									&&	Reflect.field( objs[i], fields[j + 1] ) == part1[i]) {
+									var a = Reflect.field( objs[i], fields[j] );
+									var b = Reflect.field( objs[i], fields[j + 1] );
+									
+									if (a == values[i] && b == part1[i]) {
 										results.push( part1[i] );
 									}
 								}
@@ -201,14 +235,23 @@ class Json {
 							results;
 							
 					}
+					untyped console.log( current );
 					untyped console.log( part2 );
 					results = results.concat( part2 );
+					//method( parent, part2, results );
 					
 				case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
 					//untyped console.log( 'pseudo $name' );
 					switch(name) {
 						case 'root':
-							method( object, object, results );
+							untyped console.log( parent );
+							untyped console.log( object );
+							var array = (object.is(Array)?object:[object]);
+							for (a in array) {
+								untyped console.log( a );
+								method( a, a, results );
+							}
+							untyped console.log( results );
 							
 						case 'first-child':
 							results = results.concat( nthChild( object, 0, 1 ) );
@@ -240,6 +283,41 @@ class Json {
 							var values = nthChild( object, a, b, false, n );
 							results = results.concat( values );
 							
+						case 'has':
+							var r = [];
+							var e = expression.parse();
+							var m = function(p, c, r) {
+								r.push(p);
+								
+								untyped console.log(p);
+								untyped console.log(c);
+							};
+							
+							if (object.is(Array)) {
+								r = r.concat( 
+									process( object, e, m, parent )
+								);
+								
+								if (r.length > 0) {
+									results.push( parent );
+								}
+							}
+							
+							if (object.typeof().match(TObject)) for (name in object.fields()) {
+								var d:Dynamic = { };
+								var obj:Dynamic = object.field( name );
+								Reflect.setField( d, name, obj );
+								
+								r = process( [obj], e, m, d );
+								
+								if (r.length > 0) {
+									results.push( obj.typeof().match(TObject)? obj : d );
+								}
+							}
+							
+						case 'val':
+							
+							
 						case _:
 					}
 					
@@ -247,12 +325,6 @@ class Json {
 					
 			}
 			
-			/*if (level > 0) level--;
-			
-			switch(level) {
-				case 0: break;
-				case _:
-			}*/
 		}
 		
 		return results;
@@ -335,6 +407,24 @@ class Json {
 			//untyped console.log( expr, value );
 			results.push( isFalse ? -Std.parseInt( value ) : Std.parseInt( value ) );
 			
+		}
+		
+		return results;
+	}
+	
+	private static function childCombinator(object:Dynamic, values:Array<Dynamic>):Array<Dynamic> {
+		var results = [];
+		
+		if (object.is(Array)) for (o in (object:Array<Dynamic>)) {
+			results = results.concat( childCombinator( o, values ) );
+		}
+		
+		if (object.typeof().match(TObject)) for (name in object.fields()) {
+			for (v in values) if (object.field( name ) == v) {
+				results.push( v );
+				values.remove( v );
+				break;
+			}
 		}
 		
 		return results;
