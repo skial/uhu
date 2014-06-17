@@ -36,16 +36,16 @@ class Json {
 	}
 	
 	private static function filter(parent:Dynamic, child:Dynamic, results:Array<Dynamic>) {
-		untyped console.log( results );
+		//untyped console.log( results );
 	}
 	
 	public static function find(object:Dynamic, selector:String) {
 		var selectors = selector.parse();
 		var results:Array<Dynamic> = [];
 		
-		untyped console.log( object );
+		/*untyped console.log( object );
 		untyped console.log( selector );
-		untyped console.log( selectors );
+		untyped console.log( selectors );*/
 		
 		results = process( [object], selectors, found, object );
 		
@@ -171,8 +171,8 @@ class Json {
 					var part1 = process( [object], next, found, parent );
 					
 					if (part1.length == 0) continue;
-					untyped console.log( next );
-					untyped console.log( part1 );
+					/*untyped console.log( next );
+					untyped console.log( part1 );*/
 					var part2 = switch (type) {
 						case None:
 							//process( part1, next, method );
@@ -235,8 +235,8 @@ class Json {
 							results;
 							
 					}
-					untyped console.log( current );
-					untyped console.log( part2 );
+					/*untyped console.log( current );
+					untyped console.log( part2 );*/
 					results = results.concat( part2 );
 					//method( parent, part2, results );
 					
@@ -244,14 +244,14 @@ class Json {
 					//untyped console.log( 'pseudo $name' );
 					switch(name) {
 						case 'root':
-							untyped console.log( parent );
-							untyped console.log( object );
+							/*untyped console.log( parent );
+							untyped console.log( object );*/
 							var array = (object.is(Array)?object:[object]);
 							for (a in array) {
-								untyped console.log( a );
+								//untyped console.log( a );
 								method( a, a, results );
 							}
-							untyped console.log( results );
+							//untyped console.log( results );
 							
 						case 'first-child':
 							results = results.concat( nthChild( object, 0, 1 ) );
@@ -289,8 +289,8 @@ class Json {
 							var m = function(p, c, r) {
 								r.push(p);
 								
-								untyped console.log(p);
-								untyped console.log(c);
+								/*untyped console.log(p);
+								untyped console.log(c);*/
 							};
 							
 							if (object.is(Array)) {
