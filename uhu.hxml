@@ -47,6 +47,8 @@
 -resource ../uhu-spec/resources/markdown/issue7.md@issue7.md
 -resource ../uhu-spec/resources/markdown/issue8.html@issue8.html
 -resource ../uhu-spec/resources/markdown/issue8.md@issue8.md
+-resource ../uhu-spec/resources/markdown/issue14.html@issue14.html
+-resource ../uhu-spec/resources/markdown/issue14.md@issue14.md
 -resource ../uhu-spec/resources/json/level1/basic.json@l1basic.json
 -resource ../uhu-spec/resources/json/level2/sibling.json@l2sibling.json
 -resource ../uhu-spec/resources/json/level3/basic.json@l3basic.json
