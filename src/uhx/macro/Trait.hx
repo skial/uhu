@@ -13,6 +13,7 @@ using haxe.macro.ExprTools;
 /**
  * ...
  * @author Skial Bainn
+ * @see https://wiki.php.net/rfc/horizontalreuse
  */
 class Trait {
 
