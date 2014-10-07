@@ -31,11 +31,14 @@ class Trait {
 	//public static var log:String;
 	
 	private static var onStatics:Bool = false;
+	private static var previous:Array<Field> = [];
 	
 	public static function build():Array<Field> {
 		var cls = Context.getLocalClass().get();
 		var fields = Context.getBuildFields();
 		//log = '';
+		previous = [];
+		onStatics = false;
 		return handler( cls, fields );
 	}
 	
@@ -65,6 +68,11 @@ class Trait {
 						Context.fatalError('${field.name} cannot be a function or property.', field.pos);
 				}
 				
+				previous = [];
+				onStatics = false;
+				
+			} else {
+				previous.push( field );
 			}
 			
 		}
@@ -103,6 +111,11 @@ class Trait {
 		switch (type) {
 			case TInst(t, _):
 				var fields = onStatics ? t.get().statics.get() : t.get().fields.get();
+				//trace( fields.map( function(s) return s.name ));
+				fields = fields.filter( function(f) {
+					return previous.filter( function(s) return f.name == s.name )[0] == null;
+				} );
+				//trace( fields.map( function(s) return s.name ));
 				results = [for (field in fields) {
 					field => switch (field.expr()) {
 						case null:
