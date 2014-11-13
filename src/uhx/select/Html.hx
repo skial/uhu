@@ -396,10 +396,11 @@ class Html {
 							
 						case 'val':
 							
-						case 'first-of-type':
+						case _.endsWith('of-type') => true:
 							switch (object) {
 								case Keyword(Tag( { name:n, tokens:c } )):
 									var copy = c.filter( function(t:DOMNode) return t.nodeType == NodeType.Element );
+									if (name.substring(0, 4) == 'last') copy.reverse();
 									var index = results.push( copy[0] );
 									while (copy.length != 0) {
 										copy = copy.filter( function(t:DOMNode) return t.nodeName != (results[index - 1]:DOMNode).nodeName );
