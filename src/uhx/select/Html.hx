@@ -18,6 +18,79 @@ private typedef Tokens = Array<Token<HtmlKeywords>>;
 /**
  * ...
  * @author Skial Bainn
+ * ---
+- [x] `*`
+- [x] `#id`
+- [x] `.class`
+- [x] `type`
+- [x] `type, type`
+- [x] `type ~ type`
+- [x] `type + type`
+- [x] `type type`
+- [x] `type > type`
+- [x] `[name]`
+- [x] `[name="value"]`
+- [x] `[name*="value"]`
+- [x] `[name^="value"]`
+- [x] `[name$="value"]`
+- [x] `[name~="value"]`
+- [x] `[name|="value"]`
+- [x] `[attr1=value][attr2|="123"][attr3*="bob"]`
+# Level 2 - http://www.w3.org/TR/CSS21/selector.html
+- [x] `:custom-pseudo`
+- [x] `:first-child`
+- [ ] `:link`
+- [ ] `:visited`
+- [ ] `:hover`
+- [ ] `:active`
+- [ ] `:focus`
+- [ ] `:lang`
+- [ ] `:first-line`
+- [ ] `:first-letter`
+- [ ] `:before`
+- [ ] `:after`
+# Level 3 - http://www.w3.org/TR/css3-selectors/
+- [ ] `:target`
+- [ ] `:enabled`
+- [ ] `:disabled`
+- [ ] `:checked`
+- [ ] `:indeterminate`
+- [ ] `:root`
+- [x] `:nth-child(even)`
+- [x] `:nth-child(odd)`
+- [x] `:nth-child(n)`
+- [ ] `:nth-last-child`
+- [ ] `:nth-of-type`
+- [ ] `:nth-last-of-type`
+- [x] `:last-child`
+- [x] `:first-of-type`
+- [x] `:last-of-type`
+- [ ] `:only-child`
+- [ ] `:only-of-type`
+- [ ] `:empty`
+- [ ] `:not(selector)`
+# Level 4 - http://dev.w3.org/csswg/selectors4/
+- [ ] `:matches`
+- [ ] `:has`
+- [ ] `:any-link`
+- [ ] `:scope`
+- [ ] `:drop`
+- [ ] `:current`
+- [ ] `:past`
+- [ ] `:future`
+- [ ] `:read-only`
+- [ ] `:read-write`
+- [ ] `:placeholder-shown`
+- [ ] `:default`
+- [ ] `:valid`
+- [ ] `:invalid`
+- [ ] `:in-range`
+- [ ] `:out-range`
+- [ ] `:required`
+- [ ] `:optional`
+- [ ] `:user-error`
+- [ ] `:blank`
+ * ---
  */
 class Html {
 
@@ -337,6 +410,15 @@ class Html {
 								method( a, a, results );
 							}*/
 							//untyped console.log( results );
+							
+						case 'link':
+							switch (object) {
+								case Keyword(Tag( { attributes:a } )):
+									if (a.exists( 'href' )) method(parent, object, results);
+									
+								case _:
+									
+							}
 							
 						case 'first-child':
 							results = results.concat( nthChild( object, 0, 1 ) );
