@@ -2,10 +2,10 @@ package uhx.select;
 
 import uhx.mo.Token;
 import byte.ByteData;
+import dtx.mo.DOMNode;
 import uhx.lexer.CssLexer;
 import uhx.lexer.HtmlLexer;
 import uhx.lexer.SelectorParser;
-import dtx.mo.DOMNode;
 
 using Std;
 using Type;
@@ -14,6 +14,7 @@ using StringTools;
 using uhx.select.Html;
 
 private typedef Tokens = Array<Token<HtmlKeywords>>;
+private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 
 /**
  * ...
@@ -39,7 +40,7 @@ private typedef Tokens = Array<Token<HtmlKeywords>>;
 # Level 2 - http://www.w3.org/TR/CSS21/selector.html
 - [x] `:custom-pseudo`
 - [x] `:first-child`
-- [ ] `:link`
+- [x] `:link`
 - [ ] `:visited`
 - [ ] `:hover`
 - [ ] `:active`
@@ -51,15 +52,15 @@ private typedef Tokens = Array<Token<HtmlKeywords>>;
 - [ ] `:after`
 # Level 3 - http://www.w3.org/TR/css3-selectors/
 - [ ] `:target`
-- [ ] `:enabled`
-- [ ] `:disabled`
+- [x] `:enabled`
+- [x] `:disabled`
 - [ ] `:checked`
 - [ ] `:indeterminate`
-- [ ] `:root`
+- [x] `:root`
 - [x] `:nth-child(even)`
 - [x] `:nth-child(odd)`
 - [x] `:nth-child(n)`
-- [ ] `:nth-last-child`
+- [x] `:nth-last-child`
 - [ ] `:nth-of-type`
 - [ ] `:nth-last-of-type`
 - [x] `:last-child`
@@ -92,542 +93,290 @@ private typedef Tokens = Array<Token<HtmlKeywords>>;
 - [ ] `:blank`
  * ---
  */
+ 
 class Html {
 
 	private static function parse(selector:String):CssSelectors {
 		return new SelectorParser().toTokens( ByteData.ofString( selector ), 'html-selector' );
 	}
 	
-	private static function exact(parent:Token<HtmlKeywords>, child:Token<HtmlKeywords>, results:Tokens) {
-		results.push( child );
-	}
-	
-	private static function matched(parent:Token<HtmlKeywords>, child:Token<HtmlKeywords>, results:Tokens) {
-		if (results.indexOf( parent ) == -1) {
-			results.push( parent );
-		}
-	}
-	
-	private static function found(parent:Token<HtmlKeywords>, child:Token<HtmlKeywords>, results:Tokens) {
-		results.push( child );
-	}
-	
-	private static function filter(parent:Token<HtmlKeywords>, child:Token<HtmlKeywords>, results:Tokens) {
-		//untyped console.log( results );
-	}
-	
-	public static function find(object:Tokens, selector:String) {
-		var selectors = selector.parse();
-		var results:Tokens = [];
-		
-		/*trace( object );
-		trace( selector );
-		trace( selectors );*/
-		
-		results = process( object, selectors, found );
-		
-		// This doesnt seem right...
-		/*if (results.length == 1 && Std.is(results[0], Array)) {
-			results = results[0];
-		}*/
-		
-		return results;
-	}
-	
-	private static function process(objects:Tokens, token:CssSelectors, method:Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void, ?parent:Token<HtmlKeywords> = null):Tokens {
+	public static function find(objects:Tokens, selector:String) {
+		var css = selector.parse();
 		var results = [];
 		
-		//untyped console.log( objects );
-		//untyped console.log( token );
+		dummyRef.tokens = objects;
+		
 		for (object in objects) {
-			
-			switch(token) {
-				case Universal:
-					//untyped console.log( 'univeral' );
-					//results.push( object );
-					
-					var children = null;
-					
-					switch (object) {
-						/*case Keyword(Tag(_, _, _, c, p)):
-							children = c;
-							parent = p();*/
-							
-						case Keyword(Tag(ref)):
-							children = ref.tokens;
-							parent = ref.parent();
-							
-						case _:
-							
-					}
-					
-					method(parent, object, results);
-					
-					if (children != null) {
-						results = results.concat( process( children, token, method, parent ) );
-					}
-					
-				case CssSelectors.Type(name):
-					var children = null;
-					
-					switch (object) {
-						/*case Keyword(Tag(n, _, _, c, p)):
-							children = c;
-							parent = p();
-							
-							//if (n == name) results.push( object );
-							if (n == name) method(parent, object, results);*/
-							
-						case Keyword(Tag(ref)):
-							children = ref.tokens;
-							parent = ref.parent();
-							
-							//if (ref.name == name) results.push( object );
-							if (ref.name == name) method(parent, object, results);
-							
-						case _:
-							
-					}
-					
-					if (children != null) {
-						results = results.concat( process( children, token, method, parent ) );
-					}
-					
-				case CssSelectors.ID(name):
-					/*untyped console.log( 'id $name' );
-					untyped console.log( object );*/
-					var children = null;
-					
-					switch (object) {
-						/*case Keyword(Tag(_, attr, _, c, p)):
-							children = c;
-							parent = p();
-							
-							if (attr.exists('id') && attr.get('id') == name) {
-								//results.push( object );
-								method(parent, object, results);
-							}*/
-							
-						case Keyword(Tag(ref)):
-							children = ref.tokens;
-							parent = ref.parent();
-							
-							if (ref.attributes.exists('id') && ref.attributes.get('id') == name) {
-								//results.push( object );
-								method(parent, object, results);
-							}
-							
-						case _:
-							
-					}
-					
-					if (children != null) {
-						results = results.concat( process( children, token, method, parent ) );
-					}
-					
-				case CssSelectors.Class(names):
-					//untyped console.log( 'class ${names}' );
-					
-					var children = null;
-					
-					switch (object) {
-						/*case Keyword(Tag(_, attr, _, c, p)):
-							children = c;
-							parent = p();
-							
-							if (attr.exists('class')) {
-								var parts = attr.get('class').split(' ');
-								
-								for (name in names) if (parts.indexOf(name) > -1) {
-									//results.push( object );
-									method(parent, object, results);
-									break;
-								}
-							}*/
-							
-						case Keyword(Tag(ref)):
-							children = ref.tokens;
-							parent = ref.parent();
-							
-							if (ref.attributes.exists('class')) {
-								var parts = ref.attributes.get('class').split(' ');
-								
-								for (name in names) if (parts.indexOf(name) > -1) {
-									//results.push( object );
-									method(parent, object, results);
-									break;
-								}
-							}
-							
-						case _:
-							
-					}
-					
-					if (children != null) {
-						results = results.concat( process( children, token, method, parent ) );
-					}
-					
-					
-				case Group(selectors): 
-					//untyped console.log( 'group' );
-					var obj = [object];
-					for (selector in selectors) {
-						results = results.concat( process( obj, selector, found, parent ) );
-					}
-					
-				case Combinator(current, next, type):
-					//trace( 'combinator' );
-					//trace( current, next, type );
-					// Browser css selectors are read from `right` to `left`
-					//var part1 = process( [object], current, matched );
-					switch (object) {
-						//case Keyword(Tag(_, _, _, _, p)): parent = p();
-						case Keyword(Tag(ref)): parent = ref.parent();
-						case _:
-					}
-					var part1 = process( [object], next, found, parent );
-					
-					if (part1.length == 0) continue;
-					//untyped console.log( next );
-					//untyped console.log( current );
-					//untyped console.log( part1 );
-					var part2 = switch (type) {
-						case None:
-							//process( part1, next, method );
-							process( part1, current, exact, parent );
-							
-						case Child:
-							var results = [];
-							
-							for (part in part1) {
-								var lineage = buildLineage( part ).filter( filterToken.bind(_, current) );
-								
-								// TODO check performance as `==` is `enum.equals(enum)` which is a deep
-								// comparision test.
-								for (ancestor in lineage) if ((part:DOMNode).parentNode == (ancestor:DOMNode)) {
-									results.push( part );
-								}
-							}
-							
-							results;
-							
-						case Descendant:
-							var results = [];
-							
-							for (part in part1) {
-								/*var ancestor = null;
-								
-								switch (part) {
-									case Keyword(Tag(_, _, _, _, p)): ancestor = p();
-									case Keyword(Ref(r)): ancestor = r.parent();
-									case _:
-								}*/
-								
-								//var ancestors = [ancestor];
-								var lineage = buildLineage( part );
-								
-								/*while (!(ancestor:DOMNode).parentNode.equals( ancestor )) {
-									ancestor = (ancestor:DOMNode).parentNode;
-									ancestors.push( ancestor );
-								}*/
-								
-								//ancestors = ancestors.filter( filterToken.bind(_, current) );
-								lineage = lineage.filter( filterToken.bind(_, current) );
-								//untyped console.log( ancestors );
-								//untyped console.log( lineage );
-								
-								if (lineage.length > 0) results.push( part );
-							}
-							
-							results;
-							
-						case Adjacent:
-							// It will select the `target` element that 
-							// immediately follows the `former` element.
-							var results = [];
-							var former:Array<DOMNode> = process( [object], current, method, parent );
-							var target:Array<DOMNode> = part1;
-							
-							for (f in former) {
-								for (t in target) {
-									var fp = f.parentNode;
-									if (fp.equals(t.parentNode)) {
-										var fpc = fp.childNodes;
-										var index1 = fpc.indexOf( f );
-										var index2 = fpc.indexOf( t );
-										
-										if (index1 > -1 && index2 > -1 && index2 - 1 == index1) {
-											results.push( t );
-										}
-									}
-								}
-								
-							}
-							
-							results;
-							
-						case General:
-							// Match the second element only if it
-							// is preceded by the first element.
-							var results = [];
-							var first:Array<DOMNode> = process( [object], current, method, parent );
-							var second:Array<DOMNode> = part1;
-							
-							// This should probably be hand written as abstracts get inlined.
-							for (f in first) {
-								for (s in second) {
-									var fp = f.parentNode;
-									if (fp.equals(s.parentNode)) {
-										var fpc = fp.childNodes;
-										var index1 = fpc.indexOf( f );
-										var index2 = fpc.indexOf( s );
-										
-										if (index1 > -1 && index2 > -1 && index2 > index1) {
-											results.push( s );
-										}
-									}
-								}
-								
-							}
-							
-							results;
-							
-					}
-					//untyped console.log( current );
-					//untyped console.log( part2 );
-					results = results.concat( part2 );
-					//method( parent, part2, results );
-					
-				case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
-					//untyped console.log( 'pseudo $name' );
-					switch(name) {
-						case 'root':
-							/*untyped console.log( parent );
-							untyped console.log( object );*/
-							/*var array = (object.is(Array)?object:[object]);
-							for (a in array) {
-								//untyped console.log( a );
-								method( a, a, results );
-							}*/
-							//untyped console.log( results );
-							
-						case 'link':
-							switch (object) {
-								case Keyword(Tag( { attributes:a } )):
-									if (a.exists( 'href' )) method(parent, object, results);
-									
-								case _:
-									
-							}
-							
-						case 'first-child':
-							results = results.concat( nthChild( object, 0, 1 ) );
-							
-						case 'last-child':
-							results = results.concat( nthChild( object, 0, 1, true ) );
-							
-						case 'nth-child':
-							var a = 0;
-							var b = 0;
-							var n = false;
-							
-							switch (expression) {
-								case 'odd':
-									a = 2;
-									b = 1;
-									
-								case 'even':
-									a = 2;
-									
-								case _:
-									var ab = nthValues( expression );
-									a = ab[0];
-									b = ab[1];
-									n = expression.indexOf('-n') > -1;
-									
-							}
-							
-							var values = nthChild( object, a, b, false, n );
-							results = results.concat( values );
-							
-						case 'has':
-							/*var r = [];
-							var e = expression.parse();
-							var m = function(p, c, r) {
-								r.push(p);
-							};
-							
-							if (object.is(Array)) {
-								
-								if (r.length > 0) {
-									results.push( parent );
-								}
-							}
-							
-							if (object.typeof().match(TObject)) for (name in object.fields()) {
-								var d:Dynamic = { };
-								var obj:Dynamic = object.field( name );
-								Reflect.setField( d, name, obj );
-								
-								r = process( [obj], e, m, d );
-								
-								if (r.length > 0) {
-									results.push( obj.typeof().match(TObject)? obj : d );
-								}
-							}*/
-							
-						case 'val':
-							
-						case _.endsWith('of-type') => true:
-							switch (object) {
-								case Keyword(Tag( { name:n, tokens:c } )):
-									var copy = c.filter( function(t:DOMNode) return t.nodeType == NodeType.Element );
-									if (name.substring(0, 4) == 'last') copy.reverse();
-									var index = results.push( copy[0] );
-									while (copy.length != 0) {
-										copy = copy.filter( function(t:DOMNode) return t.nodeName != (results[index - 1]:DOMNode).nodeName );
-										if (copy.length > 0) {
-											index = results.push( copy[0] );
-											
-											switch (copy[0]) {
-												case Keyword(Tag( { tokens:c } )):
-													if (c.length > 0) results = results.concat( process( c, token, method, copy[0] ) );
-													
-												case _:
-													
-											}
-										}
-									}
-									
-								case _:
-									
-							}
-							
-						case _:
-					}
-					
-				case Attribute(name, type, value):
-					var attributes = null;
-					var children = null;
-					
-					switch (object) {
-						/*case Keyword(Tag(_, attr, _, c, _)):
-							attributes = attr;
-							children = c;*/
-							
-						case Keyword(Tag(r)):
-							attributes = r.attributes;
-							children = r.tokens;
-							
-						case _:
-							
-					}
-					
-					if (attributes != null && attributes.exists( name )) {
-						switch (type) {
-							// Assume its just matching against an attribute name, not the value.
-							case Unknown:
-								method(parent, object, results);
-								
-							//case Value(v):
-								
-								
-							case Exact:
-								if (attributes.get(name) == value) {
-									method(parent, object, results);
-								}
-								
-							case List:
-								for (v in attributes.get(name).split(' ')) {
-									if (v == value) {
-										method(parent, object, results);
-										break;
-									}
-								}
-								
-							case DashList:
-								for (v in attributes.get(name).split('-')) {
-									if (v == value) {
-										method(parent, object, results);
-										break;
-									}
-								}
-								
-							case Prefix:
-								if (attributes.get(name).startsWith( value )) {
-									method(parent, object, results);
-								}
-								
-							case Suffix:
-								if (attributes.get(name).endsWith( value )) {
-									method(parent, object, results);
-								}
-								
-							case Contains:
-								if (attributes.get(name).indexOf( value ) > -1) {
-									method(parent, object, results);
-								}
-								
-							case _:
-						}
-						
-					}
-					
-					if (children != null) {
-						results = results.concat( process( children, token, method, parent ) );
-					}
-					
-				case _:
-					
-			}
-			
+			results = results.concat( process( object, css ) );
 		}
 		
 		return results;
 	}
 	
-	private static function nthChild(object:Token<HtmlKeywords>, a:Int, b:Int, reverse:Bool = false, neg:Bool = false):Tokens {
+	private static var previous:CssSelectors = null;
+	private static var dummyRef:HtmlR = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
+	
+	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?parent:Token<HtmlKeywords> = null):Tokens {
+		var ref = dummyRef;
 		var results = [];
 		var children = [];
 		
 		switch (object) {
-			/*case Keyword(Tag(_, _, _, c, _)):
-				children = c;*/
+			case Keyword(Tag(r)):
+				ref = r;
+				parent = r.parent() != null ? r.parent() : Keyword(Tag(dummyRef));
+				if (!ignore) children = r.tokens.filter( 
+					function(t:DOMNode) {
+						return t.nodeType == NodeType.Element || t.nodeType == NodeType.Document;
+					}
+				);
 				
-			case Keyword(Tag(ref)):
-				children = ref.tokens;
+			case _:
+				parent = Keyword(Tag(dummyRef));
+		}
+		
+		switch(token) {
+			case Universal:
+				results.push( object );
+				
+			case CssSelectors.Type(name):
+				if (ref.name == name) results.push( object );
+				
+			case CssSelectors.ID(name):
+				if (ref.attributes.exists('id') && ref.attributes.get('id') == name) {
+					results.push( object );
+				}
+				
+			case CssSelectors.Class(names):
+				if (ref.attributes.exists('class')) {
+					var parts = ref.attributes.get('class').split(' ');
+					
+					for (name in names) if (parts.indexOf(name) > -1) {
+						results.push( object );
+						break;
+					}
+				}
+				
+			case Group(selectors): 
+				// We don't want to check children on a group of selectors.
+				children = [];
+				
+				for (selector in selectors) {
+					results = results.concat( process( object, selector, parent ) );
+				}
+				
+			case Combinator(current, next, type):
+				children = [];
+				
+				// CSS selectors are read from `right` to `left`
+				previous = current;
+				var part1 = process( object, next, parent );
+				var part2 = [];
+				
+				if (part1.length > 0) {
+					part2 = processCombinator(object, part1, current, type);
+				}
+				
+				results = results.concat( part2 );
+				
+			case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
+				switch(name) {
+					case 'root':
+						if (ref.parent() == null) {
+							results.push( object );
+							children = [];
+						}
+						
+					case 'link':
+						/*switch (object) {
+							case Keyword(Tag( { attributes:a, tokens:c } )):
+								children = c;
+								if (a.exists( 'href' )) method(action, parent, object, results);
+								
+							case _:
+								
+						}*/
+						if (ref.attributes.exists( 'href' )) results.push( object );
+						
+					case 'enabled':
+						if (ref.attributes.exists( 'enabled' )) {
+							results.push( object );
+						}
+						
+					case 'disabled':
+						if (ref.attributes.exists( 'disabled' )) {
+							results.push( object );
+						}
+						
+					case 'first-child':
+						children = [];
+						results = results.concat( nthChild( (object:DOMNode).childNodes, 0, 1 ) );
+						
+					case 'last-child':
+						children = [];
+						results = results.concat( nthChild( (object:DOMNode).childNodes, 0, 1, true ) );
+						
+					case 'nth-last-child':
+						children = [];
+						var values = nthExpression( expression );
+						var a = values[0];
+						var b = values[1];
+						var n = expression.indexOf('-n') > -1;
+						
+						var values = nthChild( (object:DOMNode).childNodes, a, b, true, n );
+						results = results.concat( values );
+						
+					case 'nth-child':
+						children = [];
+						var values = nthExpression( expression );
+						var a = values[0];
+						var b = values[1];
+						var n = expression.indexOf('-n') > -1;
+						
+						var values = nthChild( (object:DOMNode).childNodes, a, b, false, n );
+						results = results.concat( values );
+						
+					case 'has':
+						
+					case 'val':
+						
+					case _.endsWith('of-type') => true:
+						// This section feels completely wrong,
+						// going up a level, then the `nth` stuff...
+						
+						var _filter = filterToken.bind(_, previous);
+						var copy = (parent:DOMNode).childNodes;
+						var values = [];
+						var a = 0;
+						var b = 1;
+						var n = false;
+						
+						if (name.indexOf('nth') > -1) {
+							values = nthExpression( expression );
+							a = values[0];
+							b = values[1];
+							n = expression.indexOf('-n') > -1;
+						}
+						
+						// Filter array of elements by `previous` css token. So
+						// in effect reading the css rule from left to right,
+						// the wrong way in css.
+						copy = nthChild( copy.filter( _filter ), a, b, name.indexOf('last') > -1 ? true : false, n );
+						if (copy[0] == (object:DOMNode)) results.push( object );
+						
+					case _:
+				}
+				
+			case Attribute(name, type, value):
+				if (ref.attributes.exists( name )) {
+					switch (type) {
+						// Assume its just matching against an attribute name, not the value.
+						case Unknown:
+							results.push( object );
+							
+						case Exact:
+							if (ref.attributes.get(name) == value) {
+								results.push( object );
+							}
+							
+						case List:
+							for (v in ref.attributes.get(name).split(' ')) {
+								if (v == value) {
+									results.push( object );
+									break;
+								}
+							}
+							
+						case DashList:
+							for (v in ref.attributes.get(name).split('-')) {
+								if (v == value) {
+									results.push( object );
+									break;
+								}
+							}
+							
+						case Prefix:
+							if (ref.attributes.get(name).startsWith( value )) {
+								results.push( object );
+							}
+							
+						case Suffix:
+							if (ref.attributes.get(name).endsWith( value )) {
+								results.push( object );
+							}
+							
+						case Contains:
+							if (ref.attributes.get(name).indexOf( value ) > -1) {
+								results.push( object );
+							}
+							
+						case _:
+					}
+					
+				}
 				
 			case _:
 				
 		}
 		
+		if (children.length > 0) {
+			for(child in children) results = results.concat( process( child, token, parent ) );
+		}
+		
+		return results;
+	}
+	
+	private static function nthChild(children:Tokens, a:Int, b:Null<Int>, reverse:Bool = false, neg:Bool = false):Tokens {
 		var n = 0;
-		var len = children.length;
-		var idx = (a * (neg? -n : n)) + b - 1;
-		var values = [];
+		var results = [];
 		
 		if (reverse) {
 			children = children.copy();
 			children.reverse();
 		}
 		
-		while ( n < len && idx < len ) {
-			if (idx > -1) {
-				values.push( children[idx] );
+		if (b != null) {
+			var len = children.length;
+			var idx = (a * (neg? -n : n)) + b - 1;
+			var values = [];
+			
+			while ( n < len && idx < len ) {
+				if (idx > -1) {
+					values.push( children[idx] );
+				}
+				
+				if (a == 0 && !neg) break;
+				
+				n++;
+				idx = (a == 0 && neg? -n:(a * (neg? -n : n))) + b - 1;
 			}
 			
-			if (a == 0 && !neg) break;
+			if (values.length > 0) {
+				if (neg) values.reverse();
+				results = results.concat( values );
+			}
 			
-			n++;
-			idx = (a == 0 && neg? -n:(a * (neg? -n : n))) + b - 1;
-		}
-		
-		if (values.length > 0) {
-			if (neg) values.reverse();
-			results = results.concat( values );
+		} else {
+			// If argument `b` is null, `a` is the position of a single
+			// element.
+			results.push( children[a - 1] );
 		}
 		
 		return results;
+	}
+	
+	private static function nthExpression(expr:String):Array<Int> {
+		return switch (expr) {
+			case 'odd':
+				[2, 1];
+				
+			case 'even':
+				[2, 0];
+				
+			case _:
+				nthValues( expr );
+				
+		}
 	}
 	
 	private static function nthValues(expr:String):Array<Int> {
@@ -660,7 +409,7 @@ class Html {
 				
 				index++;
 			}
-			//untyped console.log( expr, value );
+			
 			results.push( isFalse ? -Std.parseInt( value ) : Std.parseInt( value ) );
 			
 		}
@@ -668,19 +417,81 @@ class Html {
 		return results;
 	}
 	
-	private static function childCombinator(object:Dynamic, values:Array<Dynamic>):Array<Dynamic> {
+	private static function processCombinator(original:Token<HtmlKeywords>, objects:Tokens, current:CssSelectors, type:CombinatorType, ?parent:Token<HtmlKeywords> = null):Tokens {
 		var results = [];
 		
-		if (object.is(Array)) for (o in (object:Array<Dynamic>)) {
-			results = results.concat( childCombinator( o, values ) );
-		}
-		
-		if (object.typeof().match(TObject)) for (name in object.fields()) {
-			for (v in values) if (object.field( name ) == v) {
-				results.push( v );
-				values.remove( v );
-				break;
-			}
+		switch (type) {
+			case None:
+				for (object in objects) {
+					results = results.concat( process( object, current, true, parent ) );
+				}
+				
+			case Child:
+				var _filter = filterToken.bind(_, current);
+				
+				for (object in objects) {
+					var lineage = buildLineage( object ).filter( _filter );
+					
+					// TODO check performance as `==` is `enum.equals(enum)` which is a deep
+					// comparision test.
+					for (ancestor in lineage) if ((object:DOMNode).parentNode == (ancestor:DOMNode)) {
+						results.push( object );
+					}
+				}
+				
+			case Descendant:
+				var _filter = filterToken.bind(_, current);
+				
+				for (object in objects) {
+					var lineage = buildLineage( object );
+					lineage = lineage.filter( _filter );
+					if (lineage.length > 0) results.push( object );
+				}
+				
+			case Adjacent:
+				// It will select the `target` element that 
+				// immediately follows the `former` element.
+				var former:Array<DOMNode> = process( original, current, parent );
+				var target:Array<DOMNode> = objects;
+				
+				for (f in former) {
+					for (t in target) {
+						var fp = f.parentNode;
+						if (fp.equals(t.parentNode)) {
+							var fpc = fp.childNodes;
+							var index1 = fpc.indexOf( f );
+							var index2 = fpc.indexOf( t );
+							
+							if (index1 > -1 && index2 > -1 && index2 - 1 == index1) {
+								results.push( t );
+							}
+						}
+					}
+					
+				}
+				
+			case General:
+				// Match the `second` element only if it
+				// is preceded by the `first` element.
+				var first:Array<DOMNode> = process( original, current, parent );
+				var second:Array<DOMNode> = objects;
+				
+				// This should probably be hand written as abstracts get inlined.
+				for (f in first) {
+					for (s in second) {
+						var fp = f.parentNode;
+						if (fp.equals(s.parentNode)) {
+							var fpc = fp.childNodes;
+							var index1 = fpc.indexOf( f );
+							var index2 = fpc.indexOf( s );
+							
+							if (index1 > -1 && index2 > -1 && index2 > index1) {
+								results.push( s );
+							}
+						}
+					}
+					
+				}
 		}
 		
 		return results;
