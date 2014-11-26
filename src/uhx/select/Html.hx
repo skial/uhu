@@ -66,7 +66,7 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [x] `:last-child`
 - [x] `:first-of-type`
 - [x] `:last-of-type`
-- [ ] `:only-child`
+- [x] `:only-child`
 - [ ] `:only-of-type`
 - [ ] `:empty`
 - [ ] `:not(selector)`
@@ -261,6 +261,11 @@ class Html {
 						var values = nthChild( children, a, b, false, n );
 						results = results.concat( values );
 						children = null;
+						
+					case 'only-child':
+						if ((parent:DOMNode).childNodes.length == 1) {
+							results.push( object );
+						}
 						
 					case 'has':
 						
