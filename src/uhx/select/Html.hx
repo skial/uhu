@@ -1,11 +1,11 @@
 package uhx.select;
 
+import haxe.io.Eof;
 import uhx.mo.Token;
 import byte.ByteData;
 import dtx.mo.DOMNode;
 import uhx.lexer.CssLexer;
 import uhx.lexer.HtmlLexer;
-import uhx.lexer.SelectorParser;
 
 using Std;
 using Type;
@@ -61,8 +61,8 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [x] `:nth-child(odd)`
 - [x] `:nth-child(n)`
 - [x] `:nth-last-child`
-- [ ] `:nth-of-type`
-- [ ] `:nth-last-of-type`
+- [x] `:nth-of-type`
+- [x] `:nth-last-of-type`
 - [x] `:last-child`
 - [x] `:first-of-type`
 - [x] `:last-of-type`
@@ -95,9 +95,39 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
  */
  
 class Html {
+	
+	private static var selectorLexer:CssLexer = null;
 
 	private static function parse(selector:String):CssSelectors {
-		return new SelectorParser().toTokens( ByteData.ofString( selector ), 'html-selector' );
+		var tokens = [];
+		
+		if (selectorLexer == null) {
+			selectorLexer = new CssLexer( ByteData.ofString( selector ), 'html-selector' );
+		} else untyped {
+			// Reset the lexer instead of recreating it.
+			selectorLexer.current = '';
+			selectorLexer.input = ByteData.ofString( selector );
+			selectorLexer.pos = 0;
+		}
+		
+		try while ( true ) {
+			tokens.push( selectorLexer.token( CssLexer.selectors ) );
+		} catch (e:Eof) {
+			
+		} catch (e:Dynamic) {
+			trace( e );
+		}
+		
+		for (i in 0...tokens.length) switch(tokens[i]) {
+			case Attribute(_, _, _) | Pseudo(_, _) | 
+			Combinator(Attribute(_, _, _), _, _) | Combinator(Pseudo(_, _), _, _):
+				tokens[i] = Combinator(Universal, tokens[i], None);
+				
+			case _:
+				
+		}
+		
+		return tokens.length > 1?Group(tokens):tokens[0];
 	}
 	
 	public static function find(objects:Tokens, selector:String) {
@@ -117,9 +147,9 @@ class Html {
 	private static var dummyRef:HtmlR = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
 	
 	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?parent:Token<HtmlKeywords> = null):Tokens {
-		var ref = dummyRef;
-		var results = [];
-		var children = [];
+		var ref:HtmlR = dummyRef;
+		var results:Tokens = [];
+		var children:Null<Tokens> = [];
 		
 		switch (object) {
 			case Keyword(Tag(r)):
@@ -159,14 +189,16 @@ class Html {
 				
 			case Group(selectors): 
 				// We don't want to check children on a group of selectors.
-				children = [];
+				children = null;
 				
 				for (selector in selectors) {
 					results = results.concat( process( object, selector, parent ) );
 				}
 				
 			case Combinator(current, next, type):
-				children = [];
+				// We will process the current `object` based on `next`,
+				// the `children` will be handled inside the next `process`.
+				children = null;
 				
 				// CSS selectors are read from `right` to `left`
 				previous = current;
@@ -184,18 +216,11 @@ class Html {
 					case 'root':
 						if (ref.parent() == null) {
 							results.push( object );
-							children = [];
+							// We have found the `root`, so ignore `children`.
+							children = null;
 						}
 						
 					case 'link':
-						/*switch (object) {
-							case Keyword(Tag( { attributes:a, tokens:c } )):
-								children = c;
-								if (a.exists( 'href' )) method(action, parent, object, results);
-								
-							case _:
-								
-						}*/
 						if (ref.attributes.exists( 'href' )) results.push( object );
 						
 					case 'enabled':
@@ -209,32 +234,33 @@ class Html {
 						}
 						
 					case 'first-child':
-						children = [];
-						results = results.concat( nthChild( (object:DOMNode).childNodes, 0, 1 ) );
+						results = results.concat( nthChild( children, 0, 1 ) );
+						// `children` are handled by `nthChild`.
+						children = null;
 						
 					case 'last-child':
-						children = [];
-						results = results.concat( nthChild( (object:DOMNode).childNodes, 0, 1, true ) );
+						results = results.concat( nthChild( children, 0, 1, true ) );
+						children = null;
 						
 					case 'nth-last-child':
-						children = [];
 						var values = nthExpression( expression );
 						var a = values[0];
 						var b = values[1];
 						var n = expression.indexOf('-n') > -1;
 						
-						var values = nthChild( (object:DOMNode).childNodes, a, b, true, n );
+						var values = nthChild( children, a, b, true, n );
 						results = results.concat( values );
+						children = null;
 						
 					case 'nth-child':
-						children = [];
 						var values = nthExpression( expression );
 						var a = values[0];
 						var b = values[1];
 						var n = expression.indexOf('-n') > -1;
 						
-						var values = nthChild( (object:DOMNode).childNodes, a, b, false, n );
+						var values = nthChild( children, a, b, false, n );
 						results = results.concat( values );
+						children = null;
 						
 					case 'has':
 						
@@ -242,9 +268,8 @@ class Html {
 						
 					case _.endsWith('of-type') => true:
 						// This section feels completely wrong,
-						// going up a level, then the `nth` stuff...
+						// going up a level, then the `nth`ing method.
 						
-						var _filter = filterToken.bind(_, previous);
 						var copy = (parent:DOMNode).childNodes;
 						var values = [];
 						var a = 0;
@@ -261,7 +286,7 @@ class Html {
 						// Filter array of elements by `previous` css token. So
 						// in effect reading the css rule from left to right,
 						// the wrong way in css.
-						copy = nthChild( copy.filter( _filter ), a, b, name.indexOf('last') > -1 ? true : false, n );
+						copy = nthChild( copy.filter( filterToken.bind(_, previous) ), a, b, name.indexOf('last') > -1 ? true : false, n );
 						if (copy[0] == (object:DOMNode)) results.push( object );
 						
 					case _:
@@ -319,13 +344,25 @@ class Html {
 				
 		}
 		
-		if (children.length > 0) {
+		if (children != null) {
 			for(child in children) results = results.concat( process( child, token, parent ) );
 		}
+		
+		ref = null;
+		children = null;
 		
 		return results;
 	}
 	
+	/**
+	 * 
+	 * @param	children	An array containing objects typed `Keyword<HtmlKeywords>`.
+	 * @param	a			An `Int`.
+	 * @param	b			An `Null<Int>`.
+	 * @param	reverse		If `a` and/or `b` operate on a reverse array.
+	 * @param	neg			If the expression was negative.
+	 * @return
+	 */
 	private static function nthChild(children:Tokens, a:Int, b:Null<Int>, reverse:Bool = false, neg:Bool = false):Tokens {
 		var n = 0;
 		var results = [];
@@ -365,6 +402,11 @@ class Html {
 		return results;
 	}
 	
+	/**
+	 * 
+	 * @param	expr		An nth expression of `odd`, `even` or `-n+2`.
+	 * @return	Array<Int>	If `length == 1` its an absolute position. If `length == 2` then pass values to `nthChild` as arguments `a` and `b`.
+	 */
 	private static function nthExpression(expr:String):Array<Int> {
 		return switch (expr) {
 			case 'odd':
@@ -379,6 +421,11 @@ class Html {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param	expr		An nth expression of `3`, `-n+2` or `2n4`.
+	 * @return	Array<Int>	If `length == 1` its an absolute position. If `length == 2` then pass values to `nthChild` as arguments `a` and `b`.
+	 */
 	private static function nthValues(expr:String):Array<Int> {
 		var results:Array<Int> = [];
 		
@@ -416,6 +463,7 @@ class Html {
 		
 		return results;
 	}
+	
 	
 	private static function processCombinator(original:Token<HtmlKeywords>, objects:Tokens, current:CssSelectors, type:CombinatorType, ?parent:Token<HtmlKeywords> = null):Tokens {
 		var results = [];
@@ -498,35 +546,26 @@ class Html {
 	}
 	
 	private static function filterToken(token:Token<HtmlKeywords>, selector:CssSelectors):Bool {
-		var name = null;
-		var attr = null;
+		var ref = null;
 		var result = false;
 		
 		switch (token) {
-			/*case Keyword(Tag(n, a, _, _, _)):
-				name = n;
-				attr = a;*/
-				
-			case Keyword(Tag(r)):
-				name = r.name;
-				attr = r.attributes;
-				
+			case Keyword(Tag(r)): ref = r;
 			case _:
-				
 		}
 		
-		if (name != null && attr != null) switch(selector) {
+		if (ref != null) switch(selector) {
 			case Universal: 
 				result = true;
 				
 			case CssSelectors.Type(n): 
-				result = name == n;
+				result = ref.name == n;
 				
 			case CssSelectors.Class(ns): 
 				var r = false;
 				
-				if (attr.exists('class')) {
-					for (c in attr.get('class').split(' ')) {
+				if (ref.attributes.exists('class')) {
+					for (c in ref.attributes.get('class').split(' ')) {
 						if (ns.indexOf(c) > -1) {
 							r = true;
 							break;
@@ -537,10 +576,13 @@ class Html {
 				result = r;
 				
 			case CssSelectors.ID(n):
-				result = attr.exists('id') && attr.get('id') == n;
+				result = ref.attributes.exists('id') && ref.attributes.get('id') == n;
 				
 			case Group(selectors):
-				for (s in selectors) result = filterToken(token, s);
+				for (s in selectors) {
+					result = filterToken(token, s);
+					if (result) break;
+				}
 				
 			case _:
 				
@@ -549,6 +591,11 @@ class Html {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param	token	A single Keyword<HtmlKeywords>.
+	 * @return	Array<Keyword<HtmlKeywords>>	An array of parent tokens.
+	 */
 	private static function buildLineage(token:DOMNode):Tokens {
 		var results = [];
 		
