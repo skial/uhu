@@ -68,7 +68,7 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [x] `:last-of-type`
 - [x] `:only-child`
 - [x] `:only-of-type`
-- [ ] `:empty`
+- [x] `:empty`
 - [ ] `:not(selector)`
 # Level 4 - http://dev.w3.org/csswg/selectors4/
 - [ ] `:matches`
@@ -271,6 +271,21 @@ class Html {
 					case 'has':
 						
 					case 'val':
+						
+					case 'empty':
+						// We need the original unfiltered children.
+						var _children = switch (object) {
+							case Keyword(Tag( { tokens:t } )): t;
+							case _: [];
+						}
+						
+						// Only allow `length == 0` or children which are `Instructions`
+						if (
+							_children.length == 0 || 
+							_children.length == _children.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length
+						) {
+							results.push( object );
+						}
 						
 					case _.endsWith('of-type') => true:
 						// This section feels completely wrong,
