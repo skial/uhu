@@ -67,7 +67,7 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [x] `:first-of-type`
 - [x] `:last-of-type`
 - [x] `:only-child`
-- [ ] `:only-of-type`
+- [x] `:only-of-type`
 - [ ] `:empty`
 - [ ] `:not(selector)`
 # Level 4 - http://dev.w3.org/csswg/selectors4/
@@ -265,6 +265,7 @@ class Html {
 					case 'only-child':
 						if ((parent:DOMNode).childNodes.length == 1) {
 							results.push( object );
+							
 						}
 						
 					case 'has':
@@ -286,13 +287,24 @@ class Html {
 							a = values[0];
 							b = values[1];
 							n = expression.indexOf('-n') > -1;
+							
 						}
 						
 						// Filter array of elements by `previous` css token. So
 						// in effect reading the css rule from left to right,
 						// the wrong way in css.
 						copy = nthChild( copy.filter( filterToken.bind(_, previous) ), a, b, name.indexOf('last') > -1 ? true : false, n );
-						if (copy[0] == (object:DOMNode)) results.push( object );
+						
+						if (copy[0] == (object:DOMNode)) {
+							if (name.indexOf('only') > -1) {
+								if ((object:DOMNode).parentNode.childNodes.length == 1) results.push( object );
+								
+							} else {
+								results.push( object );
+								
+							}
+							
+						}
 						
 					case _:
 				}
