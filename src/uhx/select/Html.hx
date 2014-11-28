@@ -146,10 +146,12 @@ class Html {
 	private static var previous:CssSelectors = null;
 	private static var dummyRef:HtmlR = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
 	
-	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?parent:Token<HtmlKeywords> = null):Tokens {
+	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?negative:Bool = false, ?parent:Token<HtmlKeywords> = null):Tokens {
 		var ref:HtmlR = dummyRef;
 		var results:Tokens = [];
 		var children:Null<Tokens> = [];
+		var condition:Bool = false;
+		var action:Void->Void = function() results.push( object );
 		
 		switch (object) {
 			case Keyword(Tag(r)):
@@ -167,18 +169,22 @@ class Html {
 		
 		switch(token) {
 			case Universal:
-				results.push( object );
+				condition = true;
+				//results.push( object );
 				
 			case CssSelectors.Type(name):
-				if (ref.name == name) results.push( object );
+				condition = ref.name == name;
+				//if (ref.name == name) results.push( object );
 				
 			case CssSelectors.ID(name):
-				if (ref.attributes.exists('id') && ref.attributes.get('id') == name) {
+				condition = ref.attributes.exists('id') && ref.attributes.get('id') == name;
+				/*if (ref.attributes.exists('id') && ref.attributes.get('id') == name) {
 					results.push( object );
-				}
+				}*/
 				
 			case CssSelectors.Class(names):
-				if (ref.attributes.exists('class')) {
+				condition = ref.attributes.exists('class');
+				action = function() {
 					var parts = ref.attributes.get('class').split(' ');
 					
 					for (name in names) if (parts.indexOf(name) > -1) {
@@ -186,13 +192,21 @@ class Html {
 						break;
 					}
 				}
+				/*if (ref.attributes.exists('class')) {
+					var parts = ref.attributes.get('class').split(' ');
+					
+					for (name in names) if (parts.indexOf(name) > -1) {
+						results.push( object );
+						break;
+					}
+				}*/
 				
 			case Group(selectors): 
 				// We don't want to check children on a group of selectors.
 				children = null;
 				
 				for (selector in selectors) {
-					results = results.concat( process( object, selector, parent ) );
+					results = results.concat( process( object, selector, ignore, negative, parent ) );
 				}
 				
 			case Combinator(current, next, type):
@@ -202,45 +216,56 @@ class Html {
 				
 				// CSS selectors are read from `right` to `left`
 				previous = current;
-				var part1 = process( object, next, parent );
+				var part1 = process( object, next, ignore, negative, parent );
 				var part2 = [];
 				
 				if (part1.length > 0) {
 					part2 = processCombinator(object, part1, current, type);
 				}
 				
-				results = results.concat( part2 );
+				condition = true;
+				action = function() results = results.concat( part2 );
 				
 			case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
 				switch(name) {
 					case 'root':
-						if (ref.parent() == null) {
-							results.push( object );
+						if (condition = ref.parent() == null) {
+							//results.push( object );
 							// We have found the `root`, so ignore `children`.
 							children = null;
 						}
 						
 					case 'link':
-						if (ref.attributes.exists( 'href' )) results.push( object );
+						condition = ref.attributes.exists( 'href' );
+						//if (ref.attributes.exists( 'href' )) results.push( object );
 						
 					case 'enabled':
-						if (ref.attributes.exists( 'enabled' )) {
+						condition = ref.attributes.exists( 'enabled' );
+						/*if (ref.attributes.exists( 'enabled' )) {
 							results.push( object );
-						}
+						}*/
 						
 					case 'disabled':
-						if (ref.attributes.exists( 'disabled' )) {
+						condition = ref.attributes.exists( 'disabled' );
+						/*if (ref.attributes.exists( 'disabled' )) {
 							results.push( object );
-						}
+						}*/
 						
 					case 'first-child':
-						results = results.concat( nthChild( children, 0, 1 ) );
-						// `children` are handled by `nthChild`.
-						children = null;
+						condition = true;
+						action = function() {
+							results = results.concat( nthChild( children, 0, 1 ) );
+							// `children` are handled by `nthChild`.
+							children = null;
+						}
 						
 					case 'last-child':
-						results = results.concat( nthChild( children, 0, 1, true ) );
-						children = null;
+						condition = true;
+						action = function() {
+							results = results.concat( nthChild( children, 0, 1, true ) );
+							// `children` are handled by `nthChild`.
+							children = null;
+						}
 						
 					case 'nth-last-child':
 						var values = nthExpression( expression );
@@ -249,7 +274,8 @@ class Html {
 						var n = expression.indexOf('-n') > -1;
 						
 						var values = nthChild( children, a, b, true, n );
-						results = results.concat( values );
+						condition = true;
+						action = function() results = results.concat( values );
 						children = null;
 						
 					case 'nth-child':
@@ -259,14 +285,16 @@ class Html {
 						var n = expression.indexOf('-n') > -1;
 						
 						var values = nthChild( children, a, b, false, n );
-						results = results.concat( values );
+						condition = true;
+						action = function() results = results.concat( values );
 						children = null;
 						
 					case 'only-child':
-						if ((parent:DOMNode).childNodes.length == 1) {
+						condition = (parent:DOMNode).childNodes.length == 1;
+						/*if ((parent:DOMNode).childNodes.length == 1) {
 							results.push( object );
 							
-						}
+						}*/
 						
 					case 'has':
 						
@@ -274,18 +302,28 @@ class Html {
 						
 					case 'empty':
 						// We need the original unfiltered children.
-						var _children = switch (object) {
-							case Keyword(Tag( { tokens:t } )): t;
-							case _: [];
+						/*var _children = */switch (object) {
+							case Keyword(Tag( { tokens:t } )): 
+								//t;
+								condition = t.length == 0 || t.length == t.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length;
+							case _: /*[];*/
 						}
 						
 						// Only allow `length == 0` or children which are `Instructions`
-						if (
+						/*if (
 							_children.length == 0 || 
 							_children.length == _children.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length
 						) {
 							results.push( object );
-						}
+						}*/
+						//condition = _children.length == 0 || _children.length == _children.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length;
+						
+					case 'not' if (expression.trim() != ''):
+						var _selector = expression.parse();
+						var _results = process(object, _selector, ignore, true, parent);
+						var _pass = false;
+						for (result in _results) _pass = result.equals( object );
+						if (_pass) results.push( object );
 						
 					case _.endsWith('of-type') => true:
 						// This section feels completely wrong,
@@ -312,11 +350,15 @@ class Html {
 						
 						if (copy[0] == (object:DOMNode)) {
 							if (name.indexOf('only') > -1) {
-								if ((object:DOMNode).parentNode.childNodes.length == 1) results.push( object );
+								condition = (object:DOMNode).parentNode.childNodes.length == 1;
+								/*if ((object:DOMNode).parentNode.childNodes.length == 1) {
+									// results.push( object );
+									//condition = true;
+								}*/
 								
 							} else {
-								results.push( object );
-								
+								//results.push( object );
+								condition = true;
 							}
 							
 						}
@@ -329,43 +371,48 @@ class Html {
 					switch (type) {
 						// Assume its just matching against an attribute name, not the value.
 						case Unknown:
-							results.push( object );
+							condition = true;
+							//results.push( object );
 							
 						case Exact:
-							if (ref.attributes.get(name) == value) {
+							condition = ref.attributes.get(name) == value;
+							/*if (ref.attributes.get(name) == value) {
 								results.push( object );
-							}
+							}*/
 							
 						case List:
 							for (v in ref.attributes.get(name).split(' ')) {
-								if (v == value) {
-									results.push( object );
+								if (condition = v == value) {
+									//results.push( object );
 									break;
 								}
 							}
 							
 						case DashList:
 							for (v in ref.attributes.get(name).split('-')) {
-								if (v == value) {
-									results.push( object );
+								if (condition = v == value) {
+									//results.push( object );
 									break;
 								}
 							}
 							
 						case Prefix:
-							if (ref.attributes.get(name).startsWith( value )) {
+							condition = ref.attributes.get(name).startsWith( value );
+							/*if (ref.attributes.get(name).startsWith( value )) {
 								results.push( object );
-							}
+							}*/
 							
 						case Suffix:
-							if (ref.attributes.get(name).endsWith( value )) {
+							condition = ref.attributes.get(name).endsWith( value );
+							/*if (ref.attributes.get(name).endsWith( value )) {
 								results.push( object );
-							}
+							}*/
 							
 						case Contains:
-							if (ref.attributes.get(name).indexOf( value ) > -1) {
+							condition = ref.attributes.get(name).indexOf( value ) > -1;
+							/*if (ref.attributes.get(name).indexOf( value ) > -1) {
 								results.push( object );
-							}
+							}*/
 							
 						case _:
 					}
@@ -376,8 +423,11 @@ class Html {
 				
 		}
 		
+		if (!negative && condition) action();
+		else if (negative && !condition) results.push( object );
+		
 		if (children != null) {
-			for(child in children) results = results.concat( process( child, token, parent ) );
+			for(child in children) results = results.concat( process( child, token, ignore, negative, parent ) );
 		}
 		
 		ref = null;
