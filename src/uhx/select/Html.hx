@@ -69,12 +69,12 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [x] `:only-child`
 - [x] `:only-of-type`
 - [x] `:empty`
-- [ ] `:not(selector)`
+- [x] `:not(selector)`
 # Level 4 - http://dev.w3.org/csswg/selectors4/
 - [ ] `:matches`
 - [ ] `:has`
 - [ ] `:any-link`
-- [ ] `:scope`
+- [?] `:scope`
 - [ ] `:drop`
 - [ ] `:current`
 - [ ] `:past`
@@ -93,17 +93,18 @@ private typedef Method = Token<HtmlKeywords>->Token<HtmlKeywords>->Tokens->Void;
 - [ ] `:blank`
  * ---
  */
- 
+
 class Html {
 	
 	private static var selectorLexer:CssLexer = null;
-
+	
+	@:access(hxparse.Lexer)
 	private static function parse(selector:String):CssSelectors {
 		var tokens = [];
 		
 		if (selectorLexer == null) {
 			selectorLexer = new CssLexer( ByteData.ofString( selector ), 'html-selector' );
-		} else untyped {
+		} else {
 			// Reset the lexer instead of recreating it.
 			selectorLexer.current = '';
 			selectorLexer.input = ByteData.ofString( selector );
@@ -137,7 +138,7 @@ class Html {
 		dummyRef.tokens = objects;
 		
 		for (object in objects) {
-			results = results.concat( process( object, css ) );
+			results = results.concat( process( object, css, object ) );
 		}
 		
 		return results;
@@ -146,12 +147,13 @@ class Html {
 	private static var previous:CssSelectors = null;
 	private static var dummyRef:HtmlR = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
 	
-	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?negative:Bool = false, ?parent:Token<HtmlKeywords> = null):Tokens {
+	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?negative:Bool = false, ?scope:Token<HtmlKeywords> = null):Tokens {
 		var ref:HtmlR = dummyRef;
 		var results:Tokens = [];
 		var children:Null<Tokens> = [];
 		var condition:Bool = false;
 		var action:Void->Void = function() results.push( object );
+		var parent:Token<HtmlKeywords> = Keyword(Tag(dummyRef));
 		
 		switch (object) {
 			case Keyword(Tag(r)):
@@ -164,23 +166,18 @@ class Html {
 				);
 				
 			case _:
-				parent = Keyword(Tag(dummyRef));
+				
 		}
 		
 		switch(token) {
 			case Universal:
 				condition = true;
-				//results.push( object );
 				
 			case CssSelectors.Type(name):
 				condition = ref.name == name;
-				//if (ref.name == name) results.push( object );
 				
 			case CssSelectors.ID(name):
 				condition = ref.attributes.exists('id') && ref.attributes.get('id') == name;
-				/*if (ref.attributes.exists('id') && ref.attributes.get('id') == name) {
-					results.push( object );
-				}*/
 				
 			case CssSelectors.Class(names):
 				condition = ref.attributes.exists('class');
@@ -192,21 +189,13 @@ class Html {
 						break;
 					}
 				}
-				/*if (ref.attributes.exists('class')) {
-					var parts = ref.attributes.get('class').split(' ');
-					
-					for (name in names) if (parts.indexOf(name) > -1) {
-						results.push( object );
-						break;
-					}
-				}*/
 				
 			case Group(selectors): 
 				// We don't want to check children on a group of selectors.
 				children = null;
 				
 				for (selector in selectors) {
-					results = results.concat( process( object, selector, ignore, negative, parent ) );
+					results = results.concat( process( object, selector, ignore, negative, scope ) );
 				}
 				
 			case Combinator(current, next, type):
@@ -216,11 +205,11 @@ class Html {
 				
 				// CSS selectors are read from `right` to `left`
 				previous = current;
-				var part1 = process( object, next, ignore, negative, parent );
+				var part1 = process( object, next, ignore, negative, scope );
 				var part2 = [];
 				
 				if (part1.length > 0) {
-					part2 = processCombinator(object, part1, current, type);
+					part2 = processCombinator(object, part1, current, type, scope);
 				}
 				
 				condition = true;
@@ -230,26 +219,21 @@ class Html {
 				switch(name) {
 					case 'root':
 						if (condition = ref.parent() == null) {
-							//results.push( object );
 							// We have found the `root`, so ignore `children`.
 							children = null;
 						}
 						
+					case 'scope':
+						
+						
 					case 'link':
 						condition = ref.attributes.exists( 'href' );
-						//if (ref.attributes.exists( 'href' )) results.push( object );
 						
 					case 'enabled':
 						condition = ref.attributes.exists( 'enabled' );
-						/*if (ref.attributes.exists( 'enabled' )) {
-							results.push( object );
-						}*/
 						
 					case 'disabled':
 						condition = ref.attributes.exists( 'disabled' );
-						/*if (ref.attributes.exists( 'disabled' )) {
-							results.push( object );
-						}*/
 						
 					case 'first-child':
 						condition = true;
@@ -291,10 +275,6 @@ class Html {
 						
 					case 'only-child':
 						condition = (parent:DOMNode).childNodes.length == 1;
-						/*if ((parent:DOMNode).childNodes.length == 1) {
-							results.push( object );
-							
-						}*/
 						
 					case 'has':
 						
@@ -302,25 +282,15 @@ class Html {
 						
 					case 'empty':
 						// We need the original unfiltered children.
-						/*var _children = */switch (object) {
+						switch (object) {
 							case Keyword(Tag( { tokens:t } )): 
-								//t;
 								condition = t.length == 0 || t.length == t.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length;
-							case _: /*[];*/
+							case _:
 						}
-						
-						// Only allow `length == 0` or children which are `Instructions`
-						/*if (
-							_children.length == 0 || 
-							_children.length == _children.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length
-						) {
-							results.push( object );
-						}*/
-						//condition = _children.length == 0 || _children.length == _children.filter( function(c) return c.match( Keyword(Instruction(_)) ) ).length;
 						
 					case 'not' if (expression.trim() != ''):
 						var _selector = expression.parse();
-						var _results = process(object, _selector, ignore, true, parent);
+						var _results = process(object, _selector, ignore, true, scope);
 						var _pass = false;
 						for (result in _results) _pass = result.equals( object );
 						if (_pass) results.push( object );
@@ -349,18 +319,7 @@ class Html {
 						copy = nthChild( copy.filter( filterToken.bind(_, previous) ), a, b, name.indexOf('last') > -1 ? true : false, n );
 						
 						if (copy[0] == (object:DOMNode)) {
-							if (name.indexOf('only') > -1) {
-								condition = (object:DOMNode).parentNode.childNodes.length == 1;
-								/*if ((object:DOMNode).parentNode.childNodes.length == 1) {
-									// results.push( object );
-									//condition = true;
-								}*/
-								
-							} else {
-								//results.push( object );
-								condition = true;
-							}
-							
+							condition = (name.indexOf('only') > -1) ? (object:DOMNode).parentNode.childNodes.length == 1 : true;
 						}
 						
 					case _:
@@ -372,18 +331,13 @@ class Html {
 						// Assume its just matching against an attribute name, not the value.
 						case Unknown:
 							condition = true;
-							//results.push( object );
 							
 						case Exact:
 							condition = ref.attributes.get(name) == value;
-							/*if (ref.attributes.get(name) == value) {
-								results.push( object );
-							}*/
 							
 						case List:
 							for (v in ref.attributes.get(name).split(' ')) {
 								if (condition = v == value) {
-									//results.push( object );
 									break;
 								}
 							}
@@ -391,28 +345,18 @@ class Html {
 						case DashList:
 							for (v in ref.attributes.get(name).split('-')) {
 								if (condition = v == value) {
-									//results.push( object );
 									break;
 								}
 							}
 							
 						case Prefix:
 							condition = ref.attributes.get(name).startsWith( value );
-							/*if (ref.attributes.get(name).startsWith( value )) {
-								results.push( object );
-							}*/
 							
 						case Suffix:
 							condition = ref.attributes.get(name).endsWith( value );
-							/*if (ref.attributes.get(name).endsWith( value )) {
-								results.push( object );
-							}*/
 							
 						case Contains:
 							condition = ref.attributes.get(name).indexOf( value ) > -1;
-							/*if (ref.attributes.get(name).indexOf( value ) > -1) {
-								results.push( object );
-							}*/
 							
 						case _:
 					}
@@ -427,7 +371,7 @@ class Html {
 		else if (negative && !condition) results.push( object );
 		
 		if (children != null) {
-			for(child in children) results = results.concat( process( child, token, ignore, negative, parent ) );
+			for(child in children) results = results.concat( process( child, token, ignore, negative, scope ) );
 		}
 		
 		ref = null;
@@ -546,14 +490,13 @@ class Html {
 		return results;
 	}
 	
-	
-	private static function processCombinator(original:Token<HtmlKeywords>, objects:Tokens, current:CssSelectors, type:CombinatorType, ?parent:Token<HtmlKeywords> = null):Tokens {
+	private static function processCombinator(original:Token<HtmlKeywords>, objects:Tokens, current:CssSelectors, type:CombinatorType, scope:Token<HtmlKeywords>):Tokens {
 		var results = [];
 		
 		switch (type) {
 			case None:
 				for (object in objects) {
-					results = results.concat( process( object, current, true, parent ) );
+					results = results.concat( process( object, current, true, false, scope ) );
 				}
 				
 			case Child:
@@ -581,7 +524,7 @@ class Html {
 			case Adjacent:
 				// It will select the `target` element that 
 				// immediately follows the `former` element.
-				var former:Array<DOMNode> = process( original, current, parent );
+				var former:Array<DOMNode> = process( original, current, false, false, scope );
 				var target:Array<DOMNode> = objects;
 				
 				for (f in former) {
@@ -603,7 +546,7 @@ class Html {
 			case General:
 				// Match the `second` element only if it
 				// is preceded by the `first` element.
-				var first:Array<DOMNode> = process( original, current, parent );
+				var first:Array<DOMNode> = process( original, current, false, false, scope );
 				var second:Array<DOMNode> = objects;
 				
 				// This should probably be hand written as abstracts get inlined.
@@ -664,6 +607,15 @@ class Html {
 				for (s in selectors) {
 					result = filterToken(token, s);
 					if (result) break;
+				}
+				
+			case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
+				switch (name) {
+					case 'scope':
+						result = true;
+						
+					case _
+						
 				}
 				
 			case _:
