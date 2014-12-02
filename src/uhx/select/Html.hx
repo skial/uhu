@@ -99,7 +99,7 @@ class Html {
 	private static var selectorLexer:CssLexer = null;
 	
 	@:access(hxparse.Lexer)
-	private static function parse(selector:String):CssSelectors {
+	private static function parse(selector:String, skip:Bool = false):CssSelectors {
 		var tokens = [];
 		
 		if (selectorLexer == null) {
@@ -119,7 +119,7 @@ class Html {
 			trace( e );
 		}
 		
-		for (i in 0...tokens.length) switch(tokens[i]) {
+		if (!skip) for (i in 0...tokens.length) switch(tokens[i]) {
 			case Attribute(_, _, _) | Pseudo(_, _) | 
 			Combinator(Attribute(_, _, _), _, _) | Combinator(Pseudo(_, _), _, _):
 				tokens[i] = Combinator(Universal, tokens[i], None);
@@ -129,6 +129,33 @@ class Html {
 		}
 		
 		return tokens.length > 1?Group(tokens):tokens[0];
+	}
+	
+	private static function relative(selector:String, scoped:Bool = false):CssSelectors {
+		var selectors = selector.indexOf(',') > -1 ? selector.split(',') : [selector];
+		var results:Array<CssSelectors> = [];
+		
+		for (i in 0...selectors.length) switch (selectors[i].charCodeAt(0)) {
+			case ' '.code if (!scoped):	// Descendant Combinator
+				selectors[i] = ':scope ${selectors[i]}';
+				
+			case '>'.code if (!scoped):	// Child Combinator
+				selectors[i] = selectors[i].substring(1);
+				
+			case '+'.code | '~'.code | ' '.code if (scoped):
+				selectors[i] = ':scope ${selectors[i]}';
+				
+			case '+'.code | '~'.code if(!scoped):
+				selectors[i] = ':not(*)';
+				
+			case _ if (scoped && selectors[i].indexOf(':scope') == -1):
+				selectors[i] = ':scope ${selectors[i]}';
+				
+		}
+		
+		for (s in selectors) results.push( parse( s ) );
+		
+		return results.length == 1 ? results[0] : Group(results);
 	}
 	
 	public static function find(objects:Tokens, selector:String) {
@@ -199,12 +226,13 @@ class Html {
 				}
 				
 			case Combinator(current, next, type):
+				// CSS selectors are read from `right` to `left`
+				
 				// We will process the current `object` based on `next`,
 				// the `children` will be handled inside the next `process`.
 				children = null;
-				
-				// CSS selectors are read from `right` to `left`
 				previous = current;
+				
 				var part1 = process( object, next, ignore, negative, scope );
 				var part2 = [];
 				
@@ -224,7 +252,7 @@ class Html {
 						}
 						
 					case 'scope':
-						
+						condition = object.equals( scope );
 						
 					case 'link':
 						condition = ref.attributes.exists( 'href' );
@@ -276,7 +304,35 @@ class Html {
 					case 'only-child':
 						condition = (parent:DOMNode).childNodes.length == 1;
 						
-					case 'has':
+					case 'has' if (expression.trim() != ''):
+						var _selector = relative( expression, true );
+						trace( _selector );
+						//var _results = process( object, _selector, false, false, object );
+						var _results = [];
+						switch (_selector) {
+							case Combinator(Universal, Combinator(Pseudo('scope', ''), next, type), _):
+								switch (type) {
+									case None:
+										
+									case Child:
+										_results = process( object, _selector, false, false, object );
+										
+									case General:
+										
+									case Adjacent:
+										var p1 = process( parent, next, false, false, object );
+										_results = processCombinator( object, p1, Pseudo('scope', ''), Adjacent, object );
+										
+									case Descendant:
+										
+								}
+								
+							case _:
+								trace( _selector );
+								
+						}
+						
+						condition = _results.length > 0;
 						
 					case 'val':
 						
@@ -316,7 +372,7 @@ class Html {
 						// Filter array of elements by `previous` css token. So
 						// in effect reading the css rule from left to right,
 						// the wrong way in css.
-						copy = nthChild( copy.filter( filterToken.bind(_, previous) ), a, b, name.indexOf('last') > -1 ? true : false, n );
+						copy = nthChild( copy.filter( filterToken.bind(_, previous, scope) ), a, b, name.indexOf('last') > -1 ? true : false, n );
 						
 						if (copy[0] == (object:DOMNode)) {
 							condition = (name.indexOf('only') > -1) ? (object:DOMNode).parentNode.childNodes.length == 1 : true;
@@ -500,7 +556,7 @@ class Html {
 				}
 				
 			case Child:
-				var _filter = filterToken.bind(_, current);
+				var _filter = filterToken.bind(_, current, scope);
 				
 				for (object in objects) {
 					var lineage = buildLineage( object ).filter( _filter );
@@ -513,7 +569,7 @@ class Html {
 				}
 				
 			case Descendant:
-				var _filter = filterToken.bind(_, current);
+				var _filter = filterToken.bind(_, current, scope);
 				
 				for (object in objects) {
 					var lineage = buildLineage( object );
@@ -524,6 +580,7 @@ class Html {
 			case Adjacent:
 				// It will select the `target` element that 
 				// immediately follows the `former` element.
+				
 				var former:Array<DOMNode> = process( original, current, false, false, scope );
 				var target:Array<DOMNode> = objects;
 				
@@ -570,7 +627,7 @@ class Html {
 		return results;
 	}
 	
-	private static function filterToken(token:Token<HtmlKeywords>, selector:CssSelectors):Bool {
+	private static function filterToken(token:Token<HtmlKeywords>, selector:CssSelectors, scope:Token<HtmlKeywords>):Bool {
 		var ref = null;
 		var result = false;
 		
@@ -605,16 +662,16 @@ class Html {
 				
 			case Group(selectors):
 				for (s in selectors) {
-					result = filterToken(token, s);
+					result = filterToken(token, s, scope);
 					if (result) break;
 				}
 				
 			case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
 				switch (name) {
 					case 'scope':
-						result = true;
+						result = token.equals( scope );
 						
-					case _
+					case _:
 						
 				}
 				
