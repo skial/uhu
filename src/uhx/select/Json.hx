@@ -75,6 +75,7 @@ class Json {
 						var dyn:Dynamic = { };
 						dyn.setField( name, obj );
 						
+						//method( 
 						results = results.concat( 
 							process( [obj], token, method, dyn )
 						);
@@ -222,7 +223,7 @@ class Json {
 							for (i in 0...objs.length) {
 								var fields = Reflect.fields( objs[i] );
 								
-								for (j in 0...fields.length) {
+								for (j in 0...fields.length-1) {
 									var a = Reflect.field( objs[i], fields[j] );
 									var b = Reflect.field( objs[i], fields[j + 1] );
 									
