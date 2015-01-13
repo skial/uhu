@@ -172,10 +172,10 @@ class Html {
 	}
 	
 	private static var previous:CssSelectors = null;
-	private static var dummyRef:HtmlR = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
+	private static var dummyRef:HtmlRef = new HtmlRef('!!IGNORE!!', new Map(), [ -1], [], null, true);
 	
 	private static function process(object:Token<HtmlKeywords>, token:CssSelectors, ?ignore:Bool = false, ?negative:Bool = false, ?scope:Token<HtmlKeywords> = null):Tokens {
-		var ref:HtmlR = dummyRef;
+		var ref:HtmlRef = dummyRef;
 		var results:Tokens = [];
 		var children:Null<Tokens> = [];
 		var condition:Bool = false;
@@ -346,6 +346,7 @@ class Html {
 						
 					case 'not' if (expression.trim() != ''):
 						var _selector = expression.parse();
+						//trace( _selector );
 						var _results = process(object, _selector, ignore, true, scope);
 						var _pass = false;
 						for (result in _results) _pass = result.equals( object );
