@@ -186,11 +186,14 @@ class Html {
 			case Keyword(Tag(r)):
 				ref = r;
 				parent = r.parent() != null ? r.parent() : Keyword(Tag(dummyRef));
-				if (!ignore) children = r.tokens.filter( 
+				if (!ignore) children = r.tokens
+				#if MO_HTML_ELEMENT 
+				.filter( 
 					function(t:DOMNode) {
 						return t.nodeType == NodeType.Element || t.nodeType == NodeType.Document;
 					}
-				);
+				)
+				#end;
 				
 			case _:
 				
@@ -306,7 +309,7 @@ class Html {
 						
 					case 'has' if (expression.trim() != ''):
 						var _selector = relative( expression, true );
-						trace( _selector );
+						//trace( _selector );
 						//var _results = process( object, _selector, false, false, object );
 						var _results = [];
 						switch (_selector) {
@@ -328,7 +331,7 @@ class Html {
 								}
 								
 							case _:
-								trace( _selector );
+								//trace( _selector );
 								
 						}
 						
