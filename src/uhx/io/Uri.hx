@@ -4,7 +4,7 @@ import haxe.ds.StringMap;
 
 using Lambda;
 using StringTools;
-using taurine.io.QueryString;
+using uhx.io.QueryString;
 
 /**
  * ...
