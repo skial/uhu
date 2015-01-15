@@ -187,7 +187,7 @@ class Html {
 				ref = r;
 				parent = r.parent() != null ? r.parent() : Keyword(Tag(dummyRef));
 				if (!ignore) children = r.tokens
-				#if MO_HTML_ELEMENT 
+				#if !DISABLE_HTML_SELECT_FILTER
 				.filter( 
 					function(t:DOMNode) {
 						return t.nodeType == NodeType.Element || t.nodeType == NodeType.Document;
@@ -244,7 +244,14 @@ class Html {
 				}
 				
 				condition = true;
-				action = function() results = results.concat( part2 );
+				action = function() switch (token) {
+					case Combinator(_, Pseudo('first-child', _), _):
+						if (part2.length > 0) results.push( part2[0] );
+						
+					case _:
+						results = results.concat( part2 );
+						
+				}
 				
 			case Pseudo(_.toLowerCase() => name, _.toLowerCase() => expression):
 				switch(name) {
@@ -271,7 +278,7 @@ class Html {
 						action = function() {
 							results = results.concat( nthChild( children, 0, 1 ) );
 							// `children` are handled by `nthChild`.
-							children = null;
+							//children = null;
 						}
 						
 					case 'last-child':
