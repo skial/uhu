@@ -131,33 +131,6 @@ class Impl {
 		return tokens.length > 1?Group(tokens):tokens[0];
 	}
 	
-	private static function relative(selector:String, scoped:Bool = false):CssSelectors {
-		var selectors = selector.indexOf(',') > -1 ? selector.split(',') : [selector];
-		var results:Array<CssSelectors> = [];
-		
-		for (i in 0...selectors.length) switch (selectors[i].charCodeAt(0)) {
-			case ' '.code if (!scoped):	// Descendant Combinator
-				selectors[i] = ':scope ${selectors[i]}';
-				
-			case '>'.code if (!scoped):	// Child Combinator
-				selectors[i] = selectors[i].substring(1);
-				
-			case '+'.code | '~'.code | ' '.code if (scoped):
-				selectors[i] = ':scope ${selectors[i]}';
-				
-			case '+'.code | '~'.code if(!scoped):
-				selectors[i] = ':not(*)';
-				
-			case _ if (scoped && selectors[i].indexOf(':scope') == -1):
-				selectors[i] = ':scope ${selectors[i]}';
-				
-		}
-		
-		for (s in selectors) results.push( parse( s ) );
-		
-		return results.length == 1 ? results[0] : Group(results);
-	}
-	
 	public static function find(objects:Tokens, selector:String):Array<Token<HtmlKeywords>> {
 		var css = selector.parse();
 		var results = [];
@@ -244,6 +217,7 @@ class Impl {
 				
 				if (part1.length > 0) {
 					part2 = processCombinator(object, part1, current, type, scope);
+					
 				}
 				
 				condition = true;
@@ -265,7 +239,14 @@ class Impl {
 						}
 						
 					case 'scope':
-						condition = object.equals( scope );
+						if (ref.name == 'style' && ref.attributes.exists( 'scoped' )) {
+							condition = true;
+							action = function() scope = ref.parent();
+							
+						} else if (object.equals( scope )) {
+							condition = true;
+							
+						}
 						
 					case 'link':
 						condition = ref.attributes.exists( 'href' );
@@ -318,32 +299,11 @@ class Impl {
 						condition = (parent:DOMNode).childNodes.length == 1;
 						
 					case 'has' if (expression.trim() != ''):
-						var _selector = relative( expression, true );
-						//trace( _selector );
-						//var _results = process( object, _selector, false, false, object );
-						var _results = [];
-						switch (_selector) {
-							case Combinator(Universal, Combinator(Pseudo('scope', ''), next, type), _):
-								switch (type) {
-									case None:
-										
-									case Child:
-										_results = process( object, _selector, false, false, object );
-										
-									case General:
-										
-									case Adjacent:
-										var p1 = process( parent, next, false, false, object );
-										_results = processCombinator( object, p1, Pseudo('scope', ''), Adjacent, object );
-										
-									case Descendant:
-										
-								}
-								
-							case _:
-								//trace( _selector );
-								
-						}
+						CssLexer.scoped = true;
+						var _selector = parse( expression );
+						CssLexer.scoped = false;
+						
+						var _results = process( object, _selector, object );
 						
 						condition = _results.length > 0;
 						
@@ -359,7 +319,6 @@ class Impl {
 						
 					case 'not' if (expression.trim() != ''):
 						var _selector = expression.parse();
-						//trace( _selector );
 						var _results = process(object, _selector, ignore, true, scope);
 						var _pass = false;
 						for (result in _results) _pass = result.equals( object );
@@ -594,8 +553,7 @@ class Impl {
 			case Adjacent:
 				// It will select the `target` element that 
 				// immediately follows the `former` element.
-				
-				var former:Array<DOMNode> = process( original, current, false, false, scope );
+				var former:Array<DOMNode> = process( original, current, scope );
 				var target:Array<DOMNode> = objects;
 				
 				for (f in former) {
@@ -617,7 +575,7 @@ class Impl {
 			case General:
 				// Match the `second` element only if it
 				// is preceded by the `first` element.
-				var first:Array<DOMNode> = process( original, current, false, false, scope );
+				var first:Array<DOMNode> = process( original, current, scope );
 				var second:Array<DOMNode> = objects;
 				
 				// This should probably be hand written as abstracts get inlined.
@@ -636,6 +594,10 @@ class Impl {
 					}
 					
 				}
+				
+			case _:
+				
+				
 		}
 		
 		return results;
