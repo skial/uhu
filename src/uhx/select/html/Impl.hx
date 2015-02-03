@@ -1,5 +1,6 @@
 package uhx.select.html;
 
+import dtx.mo.NodeList;
 import haxe.io.Eof;
 import uhx.mo.Token;
 import byte.ByteData;
@@ -117,6 +118,7 @@ class Impl {
 			
 		} catch (e:Dynamic) {
 			trace( e );
+			trace( selectorLexer.input.readString(0, selectorLexer.pos) );
 		}
 		
 		if (!skip) for (i in 0...tokens.length) switch(tokens[i]) {
@@ -200,8 +202,29 @@ class Impl {
 				// We don't want to check children on a group of selectors.
 				children = null;
 				
+				var _results = [];
+				var positives = [];
+				var negatives = [];
+				
 				for (selector in selectors) {
-					results = results.concat( process( object, selector, ignore, negative, scope ) );
+					positives = positives.concat( process( object, selector, ignore, false, scope ) );
+					if (negative) negatives = negatives.concat( process( object, selector, ignore, true, scope ) );
+				}
+				
+				if (negative) {
+					// Cast `positives` and `_results` to `NodeList` to use custom `indexOf` methods.
+					for (n in negatives) if ((positives:NodeList).indexOf( n ) == -1 && (_results:NodeList).indexOf( n ) == -1) {
+						_results.push( n );
+					}
+					
+					results = results.concat( _results );
+					
+					// Prevents the current `object` from being added to the `results`.
+					negative = false;
+					
+				} else {
+					results = results.concat( positives );
+					
 				}
 				
 			case Combinator(current, next, type):
@@ -318,11 +341,7 @@ class Impl {
 						}
 						
 					case 'not' if (expression.trim() != ''):
-						var _selector = expression.parse();
-						var _results = process(object, _selector, ignore, true, scope);
-						var _pass = false;
-						for (result in _results) _pass = result.equals( object );
-						if (_pass) results.push( object );
+						results = process(object, expression.parse(), ignore, true, scope);
 						
 					case _.endsWith('of-type') => true:
 						// This section feels completely wrong,
@@ -406,7 +425,11 @@ class Impl {
 		ref = null;
 		children = null;
 		
-		return results;
+		var filtered = [];
+		// There should only ever be one copy of the `object` in the `results`, filter to make sure.
+		for (result in results) if ((filtered:NodeList).indexOf( result ) == -1) filtered.push( result );
+		
+		return filtered;
 	}
 	
 	/**
