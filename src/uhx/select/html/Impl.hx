@@ -573,11 +573,12 @@ class Impl {
 				}
 				
 			case Adjacent:
-				// It will select the `target` element that 
-				// immediately follows the `former` element.
+				var previous = null;
 				
 				for (target in (objects:Array<DOMNode>)) {
-					if ([target.previousSibling].filter( function(f) return f != null ).filter( filterToken.bind(_, current, scope) ).length > 0) {
+					previous = target.previousSibling;
+					
+					if (previous != null && filterToken(previous, current, scope)) {
 						results.push( target );
 						
 					}
