@@ -326,8 +326,7 @@ class Impl {
 						var _selector = parse( expression );
 						CssLexer.scoped = false;
 						
-						var _results = process( object, _selector, object );
-						
+						var _results = process( object, _selector, false, false, object );
 						condition = _results.length > 0;
 						
 					case 'val':
@@ -576,21 +575,11 @@ class Impl {
 			case Adjacent:
 				// It will select the `target` element that 
 				// immediately follows the `former` element.
-				var former:Array<DOMNode> = process( original, current, scope );
-				var target:Array<DOMNode> = objects;
 				
-				for (f in former) {
-					for (t in target) {
-						var fp = f.parentNode;
-						if (fp.equals(t.parentNode)) {
-							var fpc = fp.childNodes;
-							var index1 = fpc.indexOf( f );
-							var index2 = fpc.indexOf( t );
-							
-							if (index1 > -1 && index2 > -1 && index2 - 1 == index1) {
-								results.push( t );
-							}
-						}
+				for (target in (objects:Array<DOMNode>)) {
+					if ([target.previousSibling].filter( function(f) return f != null ).filter( filterToken.bind(_, current, scope) ).length > 0) {
+						results.push( target );
+						
 					}
 					
 				}
