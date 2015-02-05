@@ -326,7 +326,9 @@ class Impl {
 						var _selector = parse( expression );
 						CssLexer.scoped = false;
 						
-						var _results = process( object, _selector, false, false, object );
+						// I couldnt figure out a way NOT check the selector.
+						var _results = process( expression.fastCodeAt(0) == '+'.code ? parent : object, _selector, false, false, object );
+						
 						condition = _results.length > 0;
 						
 					case 'val':
