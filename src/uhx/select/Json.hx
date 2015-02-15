@@ -235,6 +235,9 @@ class Json {
 							
 							results;
 							
+						case _:
+							results;
+							
 					}
 					/*untyped console.log( current );
 					untyped console.log( part2 );*/
